@@ -1,0 +1,32 @@
+beanDefinition保存着要创建的对象基本信息，其Class和一个Instance
+PropertyValue用来来保存需注入到Bean中的Property的名字和值
+PropertyValues其实就是一个对PropertyValue非常简单的封装，这里不祥说。不懂可以去看看
+
+bean的Property是另一个对象怎么办，Spring使用BeanReference来解决，其保存了所需要的对象的ID
+**********************************************************************************
+但是怎么读取BeanDefinition呢？
+具体负责读取BeanDefinition都放在IO里面
+这里作者使用了Xml来定义BeanDefinition
+
+具体分层为Resource, ResourceLoader, ResourceReader
+怎样的ResourceLoader就会载入其相对类型的Resource,
+使用ResourceLoader载入了Resource, 资源是有了。
+但要怎么用呢，这时候就要用到对应的ResourceReader,它会负责解析已经载入的Resource.
+然后来生成BeanDefinition
+
+********************************************************************************
+
+好了，现在BeanDefinition有了，怎么载入和解析BeanDefinition也有了............
+
+beanDefinition的基本作用就是保存bean的基本信息，然后用这些来创建。
+至于怎么创建，总不可能直接new吧，不然写如此多代码有什么用呢......
+所以作者把Bean的创建工作都交给了Factory
+
+BeanFactory（接口）
+AbstractBeanFactory（抽象类，使用了模板模式来规定创建一个的流程）
+........ （子类，实现了bean具体创建过程可能还包含了属性的注入）
+
+*****************************************************************************
+这里还有一个BeanPostProcessor，它的目的就是在bean创建结束之后，进行一些额外的加工
+
+这里作者用来把BeanFactory和Aop结合在一起
