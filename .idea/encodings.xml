@@ -3,6 +3,8 @@
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/jp-ioc" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jp-spring-webmvc" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/jp-spring-webmvcTest" charset="UTF-8" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

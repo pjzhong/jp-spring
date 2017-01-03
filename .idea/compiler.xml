@@ -24,10 +24,26 @@
         <processorPath useClasspath="true" />
         <module name="jp-ioc" />
       </profile>
+      <profile default="false" name="Annotation profile for jp-spring-webmvc" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="jp-spring-webmvc" />
+      </profile>
+      <profile default="false" name="Annotation profile for jp-spring-webmvcTest" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="jp-spring-webmvcTest" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
       <module name="jp-ioc" target="1.8" />
       <module name="jp-spring" target="1.8" />
+      <module name="jp-spring-webmvc" target="1.8" />
+      <module name="jp-spring-webmvcTest" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

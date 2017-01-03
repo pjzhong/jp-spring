@@ -7,6 +7,8 @@
   <version>1.0-SNAPSHOT</version>
     <modules>
         <module>jp-ioc</module>
+      <module>jp-spring-webmvc</module>
+      <module>jp-spring-webmvcTest</module>
     </modules>
     <packaging>pom</packaging>
 
