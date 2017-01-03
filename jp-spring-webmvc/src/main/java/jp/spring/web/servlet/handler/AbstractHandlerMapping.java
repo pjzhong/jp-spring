@@ -31,10 +31,18 @@ public abstract class AbstractHandlerMapping  implements HandlerMapping, Applica
             handler = getApplicationContext().getBean(handlerName);
         }
 
-        return new  HandlerExecutionChain();
+        return getHandlerExecutionChain(handler, request);
     }
 
     protected abstract Object getHandlerInternal(HttpServletRequest request) throws Exception;
+
+    protected HandlerExecutionChain getHandlerExecutionChain(Object handler, HttpServletRequest request) {
+        HandlerExecutionChain chain =
+                (handler instanceof HandlerExecutionChain) ?
+                        (HandlerExecutionChain) handler : new HandlerExecutionChain(handler);
+
+        return chain;
+    }
 
 
     public Object getDefaultHandler() {

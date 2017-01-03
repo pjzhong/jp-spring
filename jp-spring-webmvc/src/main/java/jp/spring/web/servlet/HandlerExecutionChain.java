@@ -7,6 +7,13 @@ public class HandlerExecutionChain {
 
     private Object handler;
 
+    public HandlerExecutionChain() {}
+
+
+    public HandlerExecutionChain(Object handler) {
+        this.handler = handler;
+    }
+
     public Object getHandler() {
         return handler;
     }
