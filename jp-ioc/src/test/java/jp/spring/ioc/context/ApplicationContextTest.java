@@ -1,7 +1,7 @@
 package jp.spring.ioc.context;
 
 import jp.spring.ioc.HelloService;
-import jp.spring.ioc.aop.AspectJExpressionPointcutAdvisor;
+import jp.spring.ioc.context.impl.ClassPathXmlApplicationContext;
 import org.junit.Test;
 
 /**

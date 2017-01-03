@@ -4,7 +4,7 @@ import jp.spring.ioc.HelloService;
 import jp.spring.ioc.aop.pointcut.AspectJExpressionPointcut;
 import jp.spring.ioc.aop.proxy.CglibAopProxy;
 import jp.spring.ioc.context.ApplicationContext;
-import jp.spring.ioc.context.ClassPathXmlApplicationContext;
+import jp.spring.ioc.context.impl.ClassPathXmlApplicationContext;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.junit.Test;
 
