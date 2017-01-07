@@ -1,11 +1,14 @@
 package jp.spring.ioc;
 
+import jp.spring.ioc.context.ApplicationContext;
+import jp.spring.ioc.context.ApplicationContextAware;
+
 import java.util.List;
 
 /**
  * Created by Administrator on 12/24/2016.
  */
-public class HelloService {
+public class HelloService implements ApplicationContextAware{
 
     private String text;
 
@@ -25,5 +28,10 @@ public class HelloService {
 
     public void setOutputService(OutputService outputService) {
         this.outputService = outputService;
+    }
+
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        System.out.println("ApplicationContextAware");
     }
 }

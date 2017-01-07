@@ -29,7 +29,7 @@
 
     <bean id="aspectJAspect" class="jp.spring.ioc.aop.AspectJExpressionPointcutAdvisor">
         <property name="advice" ref="timeInterceptor"/>
-        <property name="expression" value="execution(* jp.spring.ioc.*Service.*(..))"></property>
+        <property name="expression" value="execution(* jp.spring.ioc.HelloService.*(..))"></property>
     </bean>
 
 </beans>

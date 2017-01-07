@@ -18,6 +18,11 @@ public class ApplicationContextTest {
         System.out.println();
         helloService.helloWorld();
 
+
+        System.out.println();
+        helloService.setApplicationContext(null);
+        helloService.helloWorld();
+
   /*      AspectJExpressionPointcutAdvisor test = new AspectJExpressionPointcutAdvisor();
         System.out.println(test.getClass().getDeclaredMethod("setExpression", "".getClass()));*/
     }

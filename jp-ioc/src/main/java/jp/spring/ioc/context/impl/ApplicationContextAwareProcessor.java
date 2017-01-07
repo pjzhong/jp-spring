@@ -17,14 +17,14 @@ public class ApplicationContextAwareProcessor implements BeanPostProcessor {
 
     @Override
     public Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception {
-        if(bean instanceof ApplicationContextAware) {
-            ((ApplicationContextAware) bean).setApplicationContext(this.applicationContext);
-        }
-       return bean;
+        return bean;
     }
 
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
-        return null;
+        if(bean instanceof ApplicationContextAware) {
+            ((ApplicationContextAware) bean).setApplicationContext(this.applicationContext);
+        }
+        return bean;
     }
 }

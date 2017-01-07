@@ -3,6 +3,7 @@ package jp.spring.ioc.context;
 import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.BeanPostProcessor;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
+import jp.spring.ioc.context.impl.ApplicationContextAwareProcessor;
 
 import java.util.List;
 
@@ -20,7 +21,6 @@ public abstract  class AbstractApplicationContext  implements ApplicationContext
     public void refresh() throws Exception {
         loadBeanDefinitions(beanFactory);
         registerBeanPostProcessors(beanFactory);
-/*        onRefresh();*/
     }
 
     protected abstract void loadBeanDefinitions(AbstractBeanFactory beanFactory) throws Exception;
@@ -30,6 +30,7 @@ public abstract  class AbstractApplicationContext  implements ApplicationContext
         for(Object beanPostProcessor : beanPostProcessors) {
             beanFactory.addBeanPostProcessor((BeanPostProcessor) beanPostProcessor);
         }
+        beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
     }
 
     protected void onRefresh() throws Exception {
