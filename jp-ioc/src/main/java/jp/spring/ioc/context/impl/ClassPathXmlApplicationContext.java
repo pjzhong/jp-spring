@@ -2,7 +2,7 @@ package jp.spring.ioc.context.impl;
 
 import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
-import jp.spring.ioc.beans.factory.AutowireCapableBeanFactory;
+import jp.spring.ioc.beans.factory.impl.AutowireCapableBeanFactory;
 import jp.spring.ioc.beans.io.loader.URLResourceLoader;
 import jp.spring.ioc.beans.io.reader.XmlBeanDefinitionReader;
 import jp.spring.ioc.context.AbstractApplicationContext;
@@ -33,5 +33,10 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
         for(Map.Entry<String, BeanDefinition> beanDefinitionEntry : xmlBeanDefinitionReader.getRegistry().entrySet()) {
             beanFactory.registerBeanDefinition(beanDefinitionEntry.getKey(), beanDefinitionEntry.getValue());
         }
+    }
+
+    @Override
+    public Object getBean(Class<?> beanClass) throws Exception {
+        return null;
     }
 }

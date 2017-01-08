@@ -2,11 +2,9 @@ package jp.spring.ioc.beans.factory;
 
 import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.BeanPostProcessor;
+import jp.spring.ioc.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -16,7 +14,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
-    private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
+    private Map<String, BeanDefinition> beanNameDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
+
+    private Map<Class<?>, BeanDefinition> beanClassDefinitionMap = new ConcurrentHashMap<Class<?>, BeanDefinition>();
 
     private final List<String> beanDefinitionIds = new ArrayList<String>();
 
@@ -24,9 +24,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     @Override
     public Object getBean(String name) throws Exception {
-        BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+        BeanDefinition beanDefinition = beanNameDefinitionMap.get(name);
         if(beanDefinition == null) {
-            throw new IllegalArgumentException("No bean named " + name + "is defined");
+            throw new IllegalArgumentException("No bean named " + name + " is defined");
         }
         Object bean = beanDefinition.getBean();
         if(bean == null) {
@@ -38,34 +38,20 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
 
     @Override
-    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception{
-        if(beanDefinitionMap.containsKey(name)) {
-            throw new IllegalArgumentException("Bean " + name + "must be unique");
-        }
-        beanDefinitionMap.put(name, beanDefinition);
-        beanDefinitionIds.add(name);
-    }
-
-    public void preInstantiateSingletons() throws Exception {
-        for(Iterator<String> it = this.beanDefinitionIds.iterator(); it.hasNext();) {
-            String beanName  = it.next();
-            getBean(beanName);
-        }
-    }
-
-    public <A> List<A> getBeansForType(Class<A> type) throws Exception {
-        List<A> beans = new ArrayList<A>();
-        for(String beanDefinitionName : beanDefinitionIds) {
-            if(type.isAssignableFrom(beanDefinitionMap.get(beanDefinitionName).getBeanClass())) {
-                beans.add((A)getBean(beanDefinitionName));
-            }
+    public Object getBean(Class<?> beanClass) throws Exception {
+        BeanDefinition beanDefinition = beanClassDefinitionMap.get(beanClass);
+        if(beanDefinition == null) {
+            throw new IllegalArgumentException("No bean class " + beanClass + "is defined");
         }
 
-        return beans;
-    }
+        Object bean = beanDefinition.getBean();
+        if(bean == null) {
+            bean = doCreateBean(beanDefinition);
+            bean = initializeBean(bean, null);
+            beanDefinition.setBean(bean);
+        }
 
-    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {
-        this.beanPostProcessors.add(beanPostProcessor);
+        return bean;
     }
 
     protected Object initializeBean(Object bean, String name) throws Exception {
@@ -80,6 +66,56 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
 
         return bean;
+    }
+
+    @Override
+    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception{
+        if(beanNameDefinitionMap.containsKey(name)) {
+            throw new IllegalArgumentException("Bean " + name + "must be unique");
+        }
+        beanNameDefinitionMap.put(name, beanDefinition);
+        beanClassDefinitionMap.put(beanDefinition.getBeanClass(), beanDefinition);
+        beanDefinitionIds.add(name);
+    }
+
+    public void preInstantiateSingletons() throws Exception {
+        for(Iterator<String> it = this.beanDefinitionIds.iterator(); it.hasNext();) {
+            String beanName  = it.next();
+            getBean(beanName);
+        }
+    }
+
+    public <A> List<A> getBeansForType(Class<A> type) throws Exception {
+        List<A> beans = new ArrayList<A>();
+        for(String beanDefinitionName : beanDefinitionIds) {
+            if(type.isAssignableFrom(beanNameDefinitionMap.get(beanDefinitionName).getBeanClass())) {
+                beans.add((A)getBean(beanDefinitionName));
+            }
+        }
+
+        return beans;
+    }
+
+    public List<String> getBeanNamesForType(Class targetType) {
+        List<String> result = new ArrayList<String>();
+
+        boolean matchFound;
+        for(String beanName : beanDefinitionIds) {
+            BeanDefinition beanDefinition = beanNameDefinitionMap.get(beanName);
+            matchFound = targetType.isAssignableFrom( beanDefinition.getBeanClass());
+            if(matchFound) {
+                result.add(beanName);
+            }
+        }
+
+        return result;
+    }
+
+
+
+
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {
+        this.beanPostProcessors.add(beanPostProcessor);
     }
 
     /**

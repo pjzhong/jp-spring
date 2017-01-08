@@ -15,5 +15,7 @@ public class referTest {
         value = "asdkjf;lasjdf";
 
         System.out.println(bean);
+
+        System.out.println(referTest.class);
     }
 }

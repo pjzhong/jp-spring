@@ -30,6 +30,7 @@ public abstract  class AbstractApplicationContext  implements ApplicationContext
         for(Object beanPostProcessor : beanPostProcessors) {
             beanFactory.addBeanPostProcessor((BeanPostProcessor) beanPostProcessor);
         }
+
         beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
     }
 
@@ -40,6 +41,11 @@ public abstract  class AbstractApplicationContext  implements ApplicationContext
     @Override
     public Object getBean(String name) throws Exception {
         return beanFactory.getBean(name);
+    }
+
+    @Override
+    public Object getBean(Class<?> beanClass) throws Exception {
+        return beanFactory.getBean(beanClass);
     }
 
     @Override

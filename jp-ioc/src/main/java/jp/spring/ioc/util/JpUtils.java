@@ -112,4 +112,21 @@ public class JpUtils {
         }
         return list;
     }
+
+
+    public static Method findMethod(Class<?> clazz, String name) {
+        if(clazz != null && name != null) {
+            Class<?> searchType = clazz;
+            while(searchType != null) {
+                Method[] methods = (searchType.isInterface() ? searchType.getMethods() : searchType.getDeclaredMethods());
+                for(Method method : methods) {
+                    if(name.equals(method.getName())) {
+                        return method;
+                    }
+                }
+            }
+        }
+
+        return  null;
+    }
 }

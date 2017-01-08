@@ -14,6 +14,8 @@
        http://www.springframework.org/schema/context
        http://www.springframework.org/schema/context/spring-context-4.0.xsd">
 
+    <context:component-scan base-package="jp.spring"/>
+
     <bean id="outputService" class="jp.spring.ioc.OutputService">
         <property name="helloService" ref="helloWorldService"/>
     </bean>

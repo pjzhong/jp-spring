@@ -2,6 +2,7 @@ package jp.spring.ioc;
 
 import jp.spring.ioc.context.ApplicationContext;
 import jp.spring.ioc.context.ApplicationContextAware;
+import jp.spring.ioc.stereotype.Component;
 
 import java.util.List;
 
