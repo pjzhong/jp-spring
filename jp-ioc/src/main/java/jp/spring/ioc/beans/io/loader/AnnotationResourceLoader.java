@@ -8,10 +8,14 @@ import jp.spring.ioc.util.StringUtils;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * Created by Administrator on 1/8/2017.
@@ -63,6 +67,9 @@ public class AnnotationResourceLoader implements ResourceLoader {
             if("file".equals(protocol)) { // 如果是以文件的形式保存在服务器上
                 String filePath = URLDecoder.decode(url.getFile(), "UTF-8"); // 获取包的物理路径
                 findClazzsByFile(pkg, filePath, recursive, classes);
+            } else if ("jar".equals(protocol)) {
+                JarFile jar = ((JarURLConnection)url.openConnection()).getJarFile();
+                findClassByJar(pkg, jar, recursive, classes);
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -98,6 +105,36 @@ public class AnnotationResourceLoader implements ResourceLoader {
                  className = className.substring(0, className.length() - 6); // ".class".length = 6
                  className = pkgName + "." + className;
                 classFiles.add(new FileResource(file, className));
+            }
+        }
+    }
+
+    public static void findClassByJar(String pkgName, JarFile jar, final boolean recursive, Set<FileResource> classResource) {
+        String packageDirName = pkgName.replace(".", "/");
+
+        Enumeration<JarEntry> jarEntries = jar.entries();
+        JarEntry jarEntry;
+        String name, className;
+        while(jarEntries.hasMoreElements()) {
+            jarEntry = jarEntries.nextElement();
+            name = jarEntry.getName();
+            if(name.charAt(0) == '/') {
+                name = name.substring(1);
+            }
+
+            if(name.startsWith(packageDirName)) {
+                int index = name.lastIndexOf('/');
+                if(index > -1) {
+                    pkgName = name.substring(0, index).replace('/', '.');
+                }
+
+                if((index > -1) || recursive) {
+                    if(name.endsWith(".class") && !jarEntry.isDirectory()) {
+                        className = name.substring(pkgName.length() + 1, name.length() - 6); // ".class".length = 6
+                        className = pkgName + "." + className;
+                        classResource.add(new FileResource(null, className));
+                    }
+                }
             }
         }
     }

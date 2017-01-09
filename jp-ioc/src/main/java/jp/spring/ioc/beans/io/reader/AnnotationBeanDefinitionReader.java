@@ -12,7 +12,6 @@ import jp.spring.ioc.stereotype.Service;
 import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
 
-import java.io.File;
 import java.lang.annotation.Annotation;
 
 /**
@@ -44,6 +43,9 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
                 beanDefinition.setBeanClass(beanClass);
 
                 String name = determinedName(beanClass);
+                if(StringUtils.isEmpty(name)) {
+                    name = StringUtils.lowerFirst(beanClass.getSimpleName());
+                }
                 getRegistry().put(name, beanDefinition);
             }
         } catch (ClassNotFoundException e) {
@@ -60,15 +62,13 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
                     || type == Service.class
                     || type == Repository.class) {
                 try {
-                    return  (String) JpUtils.findMethod(type, "value").invoke(annotation, null);
+                    return  (String)JpUtils.findMethod(type, "value").invoke(annotation, null);
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;
                 }
-
             }
         }
-
         return null;
     }
 }
