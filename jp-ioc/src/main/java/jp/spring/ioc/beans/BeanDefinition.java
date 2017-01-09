@@ -13,6 +13,8 @@ public class BeanDefinition {
 
     private PropertyValues propertyValues = new PropertyValues();
 
+    private Autowireds autowireds = new Autowireds();
+
     public BeanDefinition() {
     }
 
@@ -53,11 +55,20 @@ public class BeanDefinition {
         this.propertyValues = propertyValues;
     }
 
+    public void setAutowireds(Autowireds autowireds) {
+        this.autowireds = autowireds;
+    }
+
+    public Autowireds getAutowireds() {
+        return autowireds;
+    }
+
     @Override
     public String toString() {
         return "BeanDefinition{" +
                 "beanClassName='" + beanClassName + '\'' +
                 ", propertyValues=" + propertyValues +
+                ", autowireds=" + autowireds +
                 '}';
     }
 }

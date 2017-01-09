@@ -1,4 +1,4 @@
-package jp.spring.ioc.aop;
+package jp.spring.ioc.beans.aware;
 
 import jp.spring.ioc.beans.factory.BeanFactory;
 

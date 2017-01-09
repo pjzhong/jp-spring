@@ -7,27 +7,39 @@ import java.lang.reflect.Field;
  */
 public class Autowired {
 
-    private boolean isReuqired = false;
+    private boolean isRequired = true;
 
     private final Field field;
 
-    public Autowired(Field field) {
+    private final String id;
+
+    public Autowired(String id, Field field) {
+        this.id = id;
         this.field = field;
     }
 
-    public boolean isReuqired() {
-        return isReuqired;
+    public boolean isRequired() {
+        return isRequired;
     }
 
-    public void setReuqired(boolean reuqired) {
-        isReuqired = reuqired;
+    public void setRequired(boolean required) {
+        isRequired = required;
     }
 
-    public String getName() {
+    public String getFieldName() {
         return this.field.getName();
     }
 
-    public Class<?> getType() {
-        return this.field.getType();
+    public String getId() {
+        return id;
+    }
+
+    public void inject(Object target, Object value) throws Exception {
+        field.setAccessible(true);
+        field.set(target, value);
+    }
+
+    public Class<?> getAutowiredType() {
+        return field.getType();
     }
 }

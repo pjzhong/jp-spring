@@ -15,6 +15,7 @@ public class FileResource implements Resource {
 
     public final File file;
 
+    //完成的类名
     public final String className;
 
     public FileResource(File file, String className) {

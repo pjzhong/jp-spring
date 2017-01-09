@@ -1,7 +1,9 @@
 package jp.spring.ioc.beans.io.reader;
 
 
+import jp.spring.ioc.beans.Autowireds;
 import jp.spring.ioc.beans.BeanDefinition;
+import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.loader.AnnotationResourceLoader;
 import jp.spring.ioc.beans.io.resources.FileResource;
@@ -13,6 +15,7 @@ import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 
 /**
  * Created by Administrator on 1/8/2017.
@@ -39,18 +42,40 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
             Class<?> beanClass = AnnotationBeanDefinitionReader.class.getClassLoader().loadClass(className);
 
             if(JpUtils.isAnnotated(beanClass, Component.class)) {
-                BeanDefinition beanDefinition = new BeanDefinition();
-                beanDefinition.setBeanClass(beanClass);
-
                 String name = determinedName(beanClass);
                 if(StringUtils.isEmpty(name)) {
                     name = StringUtils.lowerFirst(beanClass.getSimpleName());
                 }
+
+                Autowireds autowireds = parseAutowired(beanClass);
+
+                BeanDefinition beanDefinition = new BeanDefinition();
+                beanDefinition.setBeanClass(beanClass);
+                beanDefinition.setAutowireds(autowireds);
                 getRegistry().put(name, beanDefinition);
             }
         } catch (ClassNotFoundException e) {
             //Nothing should do now - 2017-1-8
         }
+    }
+
+    protected Autowireds parseAutowired(Class<?> beanClass) {
+        Field[] fields = beanClass.getDeclaredFields();
+        Autowireds autowireds = new Autowireds();
+        jp.spring.ioc.beans.Autowired autowired;
+        for(Field field : fields) {
+            if(JpUtils.isAnnotated(field, Autowired.class)) {
+                String id = StringUtils.lowerFirst( field.getType().getSimpleName());
+                boolean isRequired = field.getAnnotation(Autowired.class).required();
+
+                autowired = new jp.spring.ioc.beans.Autowired(id, field);
+                autowired.setRequired(isRequired);
+
+                autowireds.addAutowired(autowired);
+            }
+        }
+
+        return autowireds;
     }
 
     private String determinedName(Class<?> beanClass) {

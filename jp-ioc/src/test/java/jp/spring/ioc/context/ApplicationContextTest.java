@@ -14,22 +14,22 @@ public class ApplicationContextTest {
     @Test
     public void test() throws Exception {
         ApplicationContext applicationContext = new ClassPathXmlApplicationContext("tinyioc.xml");
-        TestController testController = (TestController) applicationContext.getBean("testController");
-        System.out.println(testController.out());
-  /*      HelloService helloService = (HelloService) applicationContext.getBean("helloWorldService");
-        helloService.helloWorld();*/
-
-   /*     System.out.println();
+/*        TestController testController = (TestController) applicationContext.getBean("testController");
+        System.out.println(testController.out());*/
+        HelloService helloService = (HelloService) applicationContext.getBean("helloService");
         helloService.helloWorld();
 
+System.out.println();
+
+        HelloService helloWorldServiceService = (HelloService) applicationContext.getBean("helloWorldService");
+        helloWorldServiceService.helloWorld();
 
         System.out.println();
-        helloService.setApplicationContext(null);
+
+        helloService.helloWorld();
+/*
+        System.out.println();
         helloService.helloWorld();*/
 
-      /*  zjp myzjp = (zjp) applicationContext.getBean("123456");
-        myzjp.TheSimplestScan();*/
-  /*      AspectJExpressionPointcutAdvisor test = new AspectJExpressionPointcutAdvisor();
-        System.out.println(test.getClass().getDeclaredMethod("setExpression", "".getClass()));*/
     }
 }

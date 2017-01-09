@@ -1,8 +1,5 @@
 package jp.spring.ioc.aop.pointcut;
 
-import jp.spring.ioc.aop.pointcut.ClassFilter;
-import jp.spring.ioc.aop.pointcut.MethodMatcher;
-import jp.spring.ioc.aop.pointcut.Pointcut;
 import org.aspectj.weaver.tools.PointcutExpression;
 import org.aspectj.weaver.tools.PointcutParser;
 import org.aspectj.weaver.tools.PointcutPrimitive;

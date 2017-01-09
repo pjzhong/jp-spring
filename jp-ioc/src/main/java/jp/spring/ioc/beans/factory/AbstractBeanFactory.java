@@ -1,8 +1,8 @@
 package jp.spring.ioc.beans.factory;
 
+import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.BeanPostProcessor;
-import jp.spring.ioc.util.StringUtils;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -65,7 +65,14 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             }
         }
 
+        invokeAware(bean);
         return bean;
+    }
+
+    private void invokeAware(Object bean) throws Exception{
+        if(bean instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) bean).setBeanFactory(this);
+        }
     }
 
     @Override
@@ -110,8 +117,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
         return result;
     }
-
-
 
 
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {

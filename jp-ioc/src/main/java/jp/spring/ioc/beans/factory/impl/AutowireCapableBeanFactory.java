@@ -1,9 +1,8 @@
 package jp.spring.ioc.beans.factory.impl;
 
-import jp.spring.ioc.aop.BeanFactoryAware;
-import jp.spring.ioc.beans.BeanDefinition;
-import jp.spring.ioc.beans.BeanReference;
-import jp.spring.ioc.beans.PropertyValue;
+import jp.spring.ioc.BeansException;
+import jp.spring.ioc.beans.*;
+import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.util.StringUtils;
 
@@ -19,24 +18,11 @@ import java.util.Set;
  */
 public class AutowireCapableBeanFactory extends AbstractBeanFactory {
 
-    protected void resolveDependency(Object bean) throws Exception {
-        Field[] fields = bean.getClass().getFields();
-
-    }
-
-    protected Object resolveDependency(Class<?> dependencyType, String beanName, Set<String> autowiredBeanNames) throws Exception {
-        Map<String, Object> matchingBeans = findAutowireCandidates(beanName, dependencyType);
-        Map.Entry<String, Object> entry = matchingBeans.entrySet().iterator().next();
-
-        return entry.getValue();
-    }
-
-
     @Override
     protected Object doCreateBean(BeanDefinition beanDefinition) throws Exception {
         Object bean = createBeanInstance(beanDefinition);
         beanDefinition.setBean(bean);
-        resolveDependency(bean);
+        resolveDependency(bean, beanDefinition);
         injectPropertyValue(bean, beanDefinition);
         return bean;
     }
@@ -45,12 +31,36 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         return beanDefinition.getBeanClass().newInstance();
     }
 
-    protected void injectPropertyValue(Object bean, BeanDefinition beanDefinition) throws Exception {
-        //只是为了方便易懂
-        if(bean instanceof BeanFactoryAware) {
-            ((BeanFactoryAware) bean).setBeanFactory(this);
-        }
+    protected void resolveDependency(Object bean, BeanDefinition beanDefinition)  throws Exception{
+        Autowireds autowireds = beanDefinition.getAutowireds();
 
+        Object value;
+        for(Autowired autowired : autowireds.getAutowiredList()) {
+            try {
+                value = resolveDependency(autowired.getAutowiredType(), autowired.getId());
+                autowired.inject(bean, value);
+            } catch (Exception e) {
+               if(autowired.isRequired()) {
+                   StringBuilder stringBuilder = new StringBuilder();
+                   stringBuilder.append("Inject ")
+                           .append(autowired.getAutowiredType())
+                           .append(" to ")
+                           .append(beanDefinition.getBeanClass())
+                           .append(" failed");
+                   throw new BeansException(stringBuilder.toString());
+               }
+            }
+        }
+    }
+
+    protected Object resolveDependency(Class<?> dependencyType, String beanName) throws Exception {
+        Map<String, Object> matchingBeans = findAutowireCandidates(beanName, dependencyType);
+        Map.Entry<String, Object> entry = matchingBeans.entrySet().iterator().next();
+
+        return entry.getValue();
+    }
+
+    protected void injectPropertyValue(Object bean, BeanDefinition beanDefinition) throws Exception {
         for(PropertyValue propertyValue : beanDefinition.getPropertyValues().getPropertyValues()) {
             Object value = propertyValue.getValue();
             if(value instanceof BeanReference) {
@@ -77,11 +87,12 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
 
         try {
             List<String> candidateNames = getBeanNamesForType(requiredType);
-            result = new LinkedHashMap<>(candidateNames.size());
+            result = new LinkedHashMap<String, Object>(candidateNames.size());
             for (String candidateName : candidateNames) {
-                if(!candidateName.equals(beanName)) {
+            /*    if(!candidateName.equals(beanName)) {//这个有什么用意吗？
                     result.put(candidateName, getBean(candidateName));
-                }
+                }*/
+                result.put(candidateName, getBean(candidateName));
             }
         } catch (Exception e) {
             result = null;

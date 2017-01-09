@@ -2,11 +2,13 @@ package jp.spring.ioc;
 
 import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
+import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.beans.factory.impl.AutowireCapableBeanFactory;
 import jp.spring.ioc.beans.io.loader.URLResourceLoader;
 import jp.spring.ioc.beans.io.reader.XmlBeanDefinitionReader;
 import org.junit.Test;
 
+import java.lang.reflect.Field;
 import java.util.Map;
 
 /**
@@ -60,5 +62,9 @@ public class BeanFactoryTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void main(String[] args) {
+        Field field = null;
     }
 }

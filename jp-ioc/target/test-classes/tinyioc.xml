@@ -16,13 +16,13 @@
 
     <context:component-scan base-package="jp.spring"/>
 
-    <bean id="outputService" class="jp.spring.ioc.OutputService">
+    <bean id="outputServiceImpl" class="jp.spring.ioc.OutputServiceImpl">
         <property name="helloService" ref="helloWorldService"/>
     </bean>
 
     <bean id="helloWorldService" class="jp.spring.ioc.HelloService">
         <property name="text" value="Hello World and pj_zhong!"/>
-        <property name="outputService" ref="outputService"/>
+        <property name="outputService" ref="outputServiceImpl"/>
     </bean>
 
     <bean id="autoProxyCreate" class="jp.spring.ioc.aop.AspectJAwareAdvisorAutoProxyCreator"></bean>
