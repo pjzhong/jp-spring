@@ -8,10 +8,7 @@ import jp.spring.ioc.util.StringUtils;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Created by Administrator on 12/25/2016.
@@ -36,28 +33,23 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
 
         Object value;
         for(Autowired autowired : autowireds.getAutowiredList()) {
-            try {
-                value = resolveDependency(autowired.getAutowiredType(), autowired.getId());
+                Map<String, Object> matchingBeans = findAutowireCandidates(autowired.getId(), autowired.getAutowiredType());
+                if(matchingBeans.isEmpty() && autowired.isRequired()) {
+                    if(autowired.isRequired()) {
+                        StringBuilder stringBuilder = new StringBuilder();
+                        stringBuilder.append("Inject ")
+                                .append(autowired.getAutowiredType())
+                                .append(" to ")
+                                .append(beanDefinition.getBeanClass())
+                                .append(" failed");
+                        throw new BeansException(stringBuilder.toString());
+                    }
+                }
+
+               //现在还没有写如何处理个多个符合类型的情况，所以只是简单的选择第一个
+                value = matchingBeans.entrySet().iterator().next().getValue();
                 autowired.inject(bean, value);
-            } catch (Exception e) {
-               if(autowired.isRequired()) {
-                   StringBuilder stringBuilder = new StringBuilder();
-                   stringBuilder.append("Inject ")
-                           .append(autowired.getAutowiredType())
-                           .append(" to ")
-                           .append(beanDefinition.getBeanClass())
-                           .append(" failed");
-                   throw new BeansException(stringBuilder.toString());
-               }
-            }
         }
-    }
-
-    protected Object resolveDependency(Class<?> dependencyType, String beanName) throws Exception {
-        Map<String, Object> matchingBeans = findAutowireCandidates(beanName, dependencyType);
-        Map.Entry<String, Object> entry = matchingBeans.entrySet().iterator().next();
-
-        return entry.getValue();
     }
 
     protected void injectPropertyValue(Object bean, BeanDefinition beanDefinition) throws Exception {
@@ -89,9 +81,6 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
             List<String> candidateNames = getBeanNamesForType(requiredType);
             result = new LinkedHashMap<String, Object>(candidateNames.size());
             for (String candidateName : candidateNames) {
-            /*    if(!candidateName.equals(beanName)) {//这个有什么用意吗？
-                    result.put(candidateName, getBean(candidateName));
-                }*/
                 result.put(candidateName, getBean(candidateName));
             }
         } catch (Exception e) {
@@ -99,5 +88,11 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         }
 
         return result;
+    }
+
+    public static void main(String[] args) {
+        Map<String, String> stringStringMap = new HashMap<>();
+
+        System.out.println(stringStringMap.entrySet().iterator().next());
     }
 }

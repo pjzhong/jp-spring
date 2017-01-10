@@ -19,7 +19,7 @@ public class ApplicationContextTest {
         HelloService helloService = (HelloService) applicationContext.getBean("helloService");
         helloService.helloWorld();
 
-System.out.println();
+        System.out.println();
 
         HelloService helloWorldServiceService = (HelloService) applicationContext.getBean("helloWorldService");
         helloWorldServiceService.helloWorld();

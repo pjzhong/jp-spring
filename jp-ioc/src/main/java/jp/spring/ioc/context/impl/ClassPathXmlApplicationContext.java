@@ -35,8 +35,4 @@ public class ClassPathXmlApplicationContext extends AbstractApplicationContext {
         }
     }
 
-    @Override
-    public Object getBean(Class<?> beanClass) throws Exception {
-        return null;
-    }
 }

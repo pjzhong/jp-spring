@@ -3,11 +3,14 @@ package jp.spring.web.util;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.regex.Pattern;
 
 /**
  * Created by Administrator on 1/3/2017.
  */
 public class UrlPathHelper {
+
+    public final static Pattern PATTERN_PATH_VARIABLE = Pattern.compile("(\\{([^}]+)\\})");
 
     public String getLookupPathForRequest(HttpServletRequest request) {
         String rest = getPathWithinServletMapping(request);

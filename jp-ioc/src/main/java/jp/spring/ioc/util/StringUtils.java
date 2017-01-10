@@ -21,6 +21,10 @@ public class StringUtils {
         return str == null || str.isEmpty();
     }
 
+    public static boolean isEmpty(String[] strs) {
+        return strs == null || strs.length == 0;
+    }
+
     public static String decode(String s) {
         try {
             return URLDecoder.decode(s, "utf-8");

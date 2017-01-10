@@ -3,7 +3,9 @@ package jp.spring.ioc.beans.factory;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.BeanPostProcessor;
+import jp.spring.ioc.util.JpUtils;
 
+import java.lang.annotation.Annotation;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -14,13 +16,23 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
-    private Map<String, BeanDefinition> beanNameDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
+    private final Map<String, BeanDefinition> beanNameDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
 
-    private Map<Class<?>, BeanDefinition> beanClassDefinitionMap = new ConcurrentHashMap<Class<?>, BeanDefinition>();
+    private final Map<Class<?>, String[]> beanNamesByType = new ConcurrentHashMap<Class<?>, String[]>();
 
     private final List<String> beanDefinitionIds = new ArrayList<String>();
 
-    private List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
+
+    /**
+     * For cache
+     * */
+    private final Map<Class<? extends Annotation>,String[]> beanNamesByAnnotation = new HashMap<>();
+
+    /**
+     * initializing bean
+     * */
+    protected abstract Object doCreateBean(BeanDefinition beanDefinition) throws Exception;
 
     @Override
     public Object getBean(String name) throws Exception {
@@ -34,23 +46,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             bean = initializeBean(bean, name);
             beanDefinition.setBean(bean);
         }
-        return bean;
-    }
-
-    @Override
-    public Object getBean(Class<?> beanClass) throws Exception {
-        BeanDefinition beanDefinition = beanClassDefinitionMap.get(beanClass);
-        if(beanDefinition == null) {
-            throw new IllegalArgumentException("No bean class " + beanClass + "is defined");
-        }
-
-        Object bean = beanDefinition.getBean();
-        if(bean == null) {
-            bean = doCreateBean(beanDefinition);
-            bean = initializeBean(bean, null);
-            beanDefinition.setBean(bean);
-        }
-
         return bean;
     }
 
@@ -81,19 +76,19 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             throw new IllegalArgumentException("Bean " + name + "must be unique");
         }
         beanNameDefinitionMap.put(name, beanDefinition);
-        beanClassDefinitionMap.put(beanDefinition.getBeanClass(), beanDefinition);
         beanDefinitionIds.add(name);
     }
 
-    public void preInstantiateSingletons() throws Exception {
-        for(Iterator<String> it = this.beanDefinitionIds.iterator(); it.hasNext();) {
-            String beanName  = it.next();
-            getBean(beanName);
+    public Class<?> getType (String name) {
+        if(beanNameDefinitionMap.get(name) != null) {
+            return beanNameDefinitionMap.get(name).getBeanClass();
         }
+        return  null;
     }
 
     public <A> List<A> getBeansForType(Class<A> type) throws Exception {
         List<A> beans = new ArrayList<A>();
+
         for(String beanDefinitionName : beanDefinitionIds) {
             if(type.isAssignableFrom(beanNameDefinitionMap.get(beanDefinitionName).getBeanClass())) {
                 beans.add((A)getBean(beanDefinitionName));
@@ -103,8 +98,14 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         return beans;
     }
 
-    public List<String> getBeanNamesForType(Class targetType) {
+    public List<String> getBeanNamesForType(Class<?> targetType) {
         List<String> result = new ArrayList<String>();
+
+        String[] temp = beanNamesByType.get(targetType);
+        if(temp != null) {
+            result = Arrays.asList(temp);
+            return result;
+        }
 
         boolean matchFound;
         for(String beanName : beanDefinitionIds) {
@@ -114,17 +115,30 @@ public abstract class AbstractBeanFactory implements BeanFactory {
                 result.add(beanName);
             }
         }
+        beanNamesByType.put(targetType, result.toArray(new String[result.size()]));
+        return result;
+    }
 
+    public List<String> getBeanNamByAnnotation(Class<? extends Annotation> annotation) {
+        if(beanNamesByAnnotation.get(annotation) != null) {
+            String[] names = beanNamesByAnnotation.get(annotation);
+            return Arrays.asList(names);
+        }
+
+        List<String> result = new ArrayList<String>();
+        BeanDefinition beanDefinition;
+        for(String beanName : beanDefinitionIds) {
+            beanDefinition = beanNameDefinitionMap.get(beanName);
+            if(JpUtils.isAnnotated(beanDefinition.getBeanClass(), annotation)) {
+               result.add(beanName);
+            }
+        }
+        beanNamesByAnnotation.put(annotation, result.toArray(new String[result.size()]));
         return result;
     }
 
 
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {
         this.beanPostProcessors.add(beanPostProcessor);
-    }
-
-    /**
-     * initializing bean
-     * */
-    protected abstract Object doCreateBean(BeanDefinition beanDefinition) throws Exception;
+    };
 }

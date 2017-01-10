@@ -35,17 +35,11 @@ public abstract  class AbstractApplicationContext  implements ApplicationContext
     }
 
     protected void onRefresh() throws Exception {
-        beanFactory.preInstantiateSingletons();
     }
 
     @Override
     public Object getBean(String name) throws Exception {
         return beanFactory.getBean(name);
-    }
-
-    @Override
-    public Object getBean(Class<?> beanClass) throws Exception {
-        return beanFactory.getBean(beanClass);
     }
 
     @Override

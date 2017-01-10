@@ -1,8 +1,9 @@
-package jp.spring.ioc.beans.factory;
+package jp.spring.ioc.beans.factory.impl;
 
 import jp.spring.ioc.beans.Autowireds;
 import jp.spring.ioc.beans.BeanPostProcessor;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
+import jp.spring.ioc.beans.factory.BeanFactory;
 import jp.spring.ioc.beans.factory.impl.AutowireCapableBeanFactory;
 
 /**

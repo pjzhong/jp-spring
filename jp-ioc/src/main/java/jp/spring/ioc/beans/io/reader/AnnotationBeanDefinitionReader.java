@@ -16,6 +16,7 @@ import jp.spring.ioc.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * Created by Administrator on 1/8/2017.
@@ -87,7 +88,10 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
                     || type == Service.class
                     || type == Repository.class) {
                 try {
-                    return  (String)JpUtils.findMethod(type, "value").invoke(annotation, null);
+                    Method  method = JpUtils.findMethod(type, "value");
+                    if(method != null) {
+                        return (String) method.invoke(annotation, null);
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                     break;

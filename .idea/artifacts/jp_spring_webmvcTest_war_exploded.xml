@@ -16,13 +16,12 @@
           <element id="library" level="project" name="Maven: aopalliance:aopalliance:1.0" />
           <element id="library" level="project" name="Maven: org.aspectj:aspectjweaver:1.8.10" />
           <element id="library" level="project" name="Maven: org.springframework:spring-beans:4.0.0.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-jdbc:4.0.0.RELEASE" />
-          <element id="library" level="project" name="Maven: org.springframework:spring-tx:4.0.0.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-context-support:4.0.0.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-context:4.0.0.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-webmvc:4.0.0.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-expression:4.0.0.RELEASE" />
           <element id="library" level="project" name="Maven: org.springframework:spring-web:4.0.0.RELEASE" />
+          <element id="library" level="project" name="Maven: com.google.guava:guava:19.0" />
           <element id="library" level="project" name="Maven: javax.servlet:javax.servlet-api:3.1.0" />
           <element id="archive" name="jp.spring.ioc-1.0-SNAPSHOT.jar">
             <element id="module-output" name="jp-ioc" />
