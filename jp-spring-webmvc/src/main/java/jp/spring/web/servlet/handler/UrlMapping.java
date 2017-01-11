@@ -49,6 +49,10 @@ public class UrlMapping {
         this.url = url;
     }
 
+    public String getBeanName() {
+        return beanName;
+    }
+
     public Map<String, Integer> getPathVariableMap() {
         return pathVariableMap;
     }

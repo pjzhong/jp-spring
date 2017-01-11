@@ -1,7 +1,5 @@
 package jp.spring.web.util;
 
-import jp.spring.ioc.context.WebApplicationContext;
-
 import javax.activation.MimetypesFileTypeMap;
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,6 +62,7 @@ public class FileUtils {
                 out.write(buffer.array(), 0, read);
                 buffer.clear();
             }
+            out.flush();
         } finally {
             try {
                 in.close();

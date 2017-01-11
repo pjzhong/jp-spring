@@ -1,9 +1,9 @@
 package jp.spring.web.servlet;
 
 import jp.spring.ioc.context.WebApplicationContext;
+import jp.spring.web.context.ProcessContext;
 import jp.spring.web.servlet.handler.UrlHandlerMapping;
 import jp.spring.web.servlet.handler.UrlMapping;
-import jp.spring.web.servlet.handler.impl.DefaultUrlMappingBuilder;
 import jp.spring.web.util.FileUtils;
 import jp.spring.web.util.UrlPathHelper;
 
@@ -36,7 +36,7 @@ public class DispatcherServlet extends FrameworkServlet {
     }
 
     @Override
-    protected void doService(HttpServletRequest request, HttpServletResponse response) {
+    protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
         String path = urlPathHelper.getLookupPathForRequest(request);
 
         if(isStaticResource(response, path)) {
@@ -44,7 +44,15 @@ public class DispatcherServlet extends FrameworkServlet {
         }
 
         UrlMapping urlMapping = urlHandlerMapping.getUrlMapping(request);
-        System.out.println(urlMapping);
+
+        //Build context
+        ProcessContext
+                .buildContext()
+                .set(ProcessContext.REQUEST, request)
+                .set(ProcessContext.RESPONSE, response)
+                .set(ProcessContext.REQUEST_URL, path);
+
+        Object controller = webApplicationContext.getBean(urlMapping.getBeanName());
     }
 
     protected boolean isStaticResource(HttpServletResponse response, String path) {
