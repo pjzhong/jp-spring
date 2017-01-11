@@ -7,5 +7,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 public interface UrlHandlerMapping {
 
+    final String URL_HANDLER_MAPPING = UrlHandlerMapping.class + ".root";
+
     UrlMapping getUrlMapping(HttpServletRequest request);
 }

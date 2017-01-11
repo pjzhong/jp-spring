@@ -36,7 +36,13 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="jp-spring-webmvcTest" />
+      </profile>
+      <profile default="false" name="Annotation profile for jp-spring-webtest" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="jp-spring-webtest" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
@@ -44,6 +50,7 @@
       <module name="jp-spring" target="1.8" />
       <module name="jp-spring-webmvc" target="1.8" />
       <module name="jp-spring-webmvcTest" target="1.8" />
+      <module name="jp-spring-webtest" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>

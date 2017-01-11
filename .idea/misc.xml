@@ -5,12 +5,18 @@
   </component>
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$PROJECT_DIR$/jp-spring-webmvcTest" />
+    <file type="web" url="file://$PROJECT_DIR$/jp-spring-webtest" />
   </component>
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
       </list>
+    </option>
+    <option name="ignoredFiles">
+      <set>
+        <option value="$PROJECT_DIR$/jp-spring-webmvcTest/pom.xml" />
+      </set>
     </option>
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="false">

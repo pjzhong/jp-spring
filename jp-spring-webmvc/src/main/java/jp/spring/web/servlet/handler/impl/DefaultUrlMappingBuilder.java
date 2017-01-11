@@ -10,7 +10,9 @@ import jp.spring.web.util.UrlPathHelper;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -21,7 +23,7 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
     public DefaultUrlMappingBuilder() {}
 
     @Override
-    public UrlMapping buildUrlMapping(String name, Class<?> controller) {
+    public List<UrlMapping> buildUrlMapping(String name, Class<?> controller) {
         String[] urls = null;
         String clazzUrl = "";
 
@@ -34,6 +36,7 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
             }
         }
 
+        List<UrlMapping> urlMappings = new ArrayList<>();
         Method[] methods = controller.getMethods();
         UrlMapping urlMapping = null;
         for(Method method : methods) {
@@ -43,19 +46,24 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
                 boolean hasUrl = false;
                 for(String url : urls) {
                     try {
-                       buildUrlMapping(name, method, clazzUrl, url);
-                        hasUrl = true;
+                        if(!StringUtils.isEmpty(url)) {
+                            urlMapping = buildUrlMapping(name, method, clazzUrl, url);
+                            urlMappings.add(urlMapping);
+                            hasUrl = true;
+                        }
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
                 if(!hasUrl) {
                     urlMapping = new UrlMapping(method, name);
+                    urlMapping.setUrl(clazzUrl + method.getName());
+                    urlMappings.add(urlMapping);
                 }
             }
         }
 
-        return urlMapping;
+        return urlMappings;
     }
 
     private static UrlMapping buildUrlMapping(String beanName, Method method, String classUrl, String url) {
@@ -101,10 +109,11 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
                 urlMapping.setUrl(classUrl + url);
                 urlMapping.setUrlExpression("^" + classUrl + urlExpression + "$");
                 urlMapping.setPathVariableMap(pathVariableMap);
-            } else {
-                urlMapping.setUrl(classUrl + url);
             }
+        } else {
+            urlMapping.setUrl(classUrl + url);
         }
+
         return urlMapping;
     }
 }

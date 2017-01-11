@@ -5,6 +5,7 @@ import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.context.WebApplicationContext;
 import jp.spring.ioc.context.impl.ClassPathXmlApplicationContext;
 import jp.spring.ioc.stereotype.Controller;
+import jp.spring.web.servlet.handler.UrlHandlerMapping;
 import jp.spring.web.servlet.handler.UrlMapping;
 import jp.spring.web.servlet.handler.UrlMappingBuilder;
 import jp.spring.web.servlet.handler.impl.DefaultUrlHandlerMapping;
@@ -27,12 +28,19 @@ public class DefaultWebApplicationContext extends ClassPathXmlApplicationContext
 
         List<String> beanNames = beanFactory.getBeanNamByAnnotation(Controller.class);
         UrlMappingBuilder builder = new DefaultUrlMappingBuilder();
-        DefaultUrlHandlerMapping urlHanlderMapping = new DefaultUrlHandlerMapping();
+        DefaultUrlHandlerMapping urlHandlerMapping = new DefaultUrlHandlerMapping();
 
-        UrlMapping urlMapping;
+        List<UrlMapping> urlMappings;
         for(String beanName : beanNames) {
-            urlMapping = builder.buildUrlMapping(beanName, beanFactory.getType(beanName));
+            urlMappings = builder.buildUrlMapping(beanName, beanFactory.getType(beanName));
+            urlHandlerMapping.addUrlMappings(urlMappings);
+
         }
+
+        BeanDefinition urlHandlerDefinition = new BeanDefinition();
+        urlHandlerDefinition.setBeanClass(DefaultUrlHandlerMapping.class);
+        urlHandlerDefinition.setBean(urlHandlerMapping);
+        beanFactory.registerBeanDefinition(UrlHandlerMapping.URL_HANDLER_MAPPING, urlHandlerDefinition);
 
     }
 
