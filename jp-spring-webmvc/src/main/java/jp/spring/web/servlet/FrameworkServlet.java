@@ -50,7 +50,7 @@ public abstract class FrameworkServlet extends HttpServlet{
         try {
             doService(request, response);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 

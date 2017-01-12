@@ -1,7 +1,12 @@
 package jp.spring.web.servlet.handler;
 
+
+import jp.spring.ioc.util.StringUtils;
+
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -13,7 +18,9 @@ public class UrlMapping {
 
     private final Method method;
 
-    private boolean hasPathVairable = false;
+    private List<RequestMethodParameter> requestMethodParameters;
+
+    private boolean hasPathVariable = false;
 
     private Pattern urlPattern = null;
 
@@ -28,12 +35,26 @@ public class UrlMapping {
         this.beanName = beanName;
     }
 
+    public String getPathVariable(String readUrl, String pathVariableName) {
+        if(!hasPathVariable) {
+            return null;
+        }
+
+        Matcher m = urlPattern.matcher(readUrl);
+        if(m.find()) {
+            int index = pathVariableMap.get(pathVariableName);
+            return m.groupCount() >= index ? StringUtils.decode(m.group(index)) : null;
+        }
+        return  null;
+    }
+
+    /*Getters and setters*/
     public Method getMethod() {
         return method;
     }
 
     public void setUrlExpression(String urlExpression) {
-        this.hasPathVairable = true;
+        this.hasPathVariable = true;
         this.urlPattern = Pattern.compile(urlExpression);
     }
 
@@ -61,8 +82,16 @@ public class UrlMapping {
         this.pathVariableMap = pathVariableMap;
     }
 
-    public boolean isHasPathVairable() {
-        return hasPathVairable;
+    public boolean isHasPathVariable() {
+        return hasPathVariable;
+    }
+
+    public List<RequestMethodParameter> getRequestMethodParameters() {
+        return requestMethodParameters;
+    }
+
+    public void setRequestMethodParameters(List<RequestMethodParameter> requestMethodParameters) {
+        this.requestMethodParameters = requestMethodParameters;
     }
 
     @Override

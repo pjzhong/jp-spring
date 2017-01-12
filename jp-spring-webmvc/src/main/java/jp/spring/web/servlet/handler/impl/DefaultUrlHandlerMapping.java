@@ -54,7 +54,6 @@ public class DefaultUrlHandlerMapping implements UrlHandlerMapping {
                 allowedMethods = urlMapping.getMethod().getAnnotation(RequestMapping.class).method();
 
                 for(RequestMethod allowedMethod : allowedMethods) {
-                    System.out.println(allowedMethod.name());
                     if(allowedMethod.name().equals(requestMethod)) {
                         return urlMapping;
                     }
@@ -70,7 +69,7 @@ public class DefaultUrlHandlerMapping implements UrlHandlerMapping {
             if(urlMapping == null) {
                 continue;
             }
-            if(urlMapping.isHasPathVairable()) {
+            if(urlMapping.isHasPathVariable()) {
                 PATHVARIABLE_URL_MAP.add(urlMapping);
             }
 

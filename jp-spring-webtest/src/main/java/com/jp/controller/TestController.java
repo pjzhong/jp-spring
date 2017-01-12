@@ -1,9 +1,13 @@
 package com.jp.controller;
 
+import com.jp.Model.User;
+import com.jp.service.OutputService;
+import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.web.annotation.PathVariable;
 import jp.spring.web.annotation.RequestMapping;
 import jp.spring.web.annotation.RequestMethod;
+import jp.spring.web.annotation.RequestParam;
 
 
 /**
@@ -12,13 +16,19 @@ import jp.spring.web.annotation.RequestMethod;
 @Controller
 public class TestController {
 
+    @Autowired
+    OutputService outputService;
+
     public TestController() {
         System.out.println("Hello I am TestController");
     }
 
 
     @RequestMapping(value = "/test/{one}", method = RequestMethod.GET)
-    public String test2(@PathVariable("one") Integer one) {
+    public String test2(@PathVariable("one") Integer one, User user) {
+        System.out.println(outputService);
+        outputService.output(one);
+        outputService.output(user);
         return "test";
     }
 

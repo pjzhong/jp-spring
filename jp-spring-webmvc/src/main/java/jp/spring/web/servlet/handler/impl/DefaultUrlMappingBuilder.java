@@ -1,15 +1,17 @@
 package jp.spring.web.servlet.handler.impl;
 
+import jp.spring.ioc.stereotype.Controller;
 import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
-import jp.spring.web.annotation.PathVariable;
-import jp.spring.web.annotation.RequestMapping;
+import jp.spring.web.annotation.*;
+import jp.spring.web.servlet.handler.RequestMethodParameter;
 import jp.spring.web.servlet.handler.UrlMapping;
 import jp.spring.web.servlet.handler.UrlMappingBuilder;
 import jp.spring.web.util.UrlPathHelper;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,6 +26,10 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
 
     @Override
     public List<UrlMapping> buildUrlMapping(String name, Class<?> controller) {
+        if(!JpUtils.isAnnotated(controller, Controller.class)) {
+            return null;
+        }
+
         String[] urls = null;
         String clazzUrl = "";
 
@@ -44,10 +50,11 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
                 method.setAccessible(true);
                 urls = method.getAnnotation(RequestMapping.class).value();
                 boolean hasUrl = false;
+                urlMapping = new UrlMapping(method, name);
                 for(String url : urls) {
                     try {
                         if(!StringUtils.isEmpty(url)) {
-                            urlMapping = buildUrlMapping(name, method, clazzUrl, url);
+                            urlMapping = buildUrlMapping(urlMapping, clazzUrl, url);
                             urlMappings.add(urlMapping);
                             hasUrl = true;
                         }
@@ -56,7 +63,6 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
                     }
                 }
                 if(!hasUrl) {
-                    urlMapping = new UrlMapping(method, name);
                     urlMapping.setUrl(clazzUrl + method.getName());
                     urlMappings.add(urlMapping);
                 }
@@ -66,15 +72,13 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
         return urlMappings;
     }
 
-    private static UrlMapping buildUrlMapping(String beanName, Method method, String classUrl, String url) {
-        UrlMapping urlMapping = new UrlMapping(method, beanName);
-
+    private UrlMapping buildUrlMapping(UrlMapping urlMapping, String classUrl, String url) {
         if(UrlPathHelper.PATTERN_PATH_VARIABLE.matcher(url).find()) {
-            Annotation[][] methodParamAnnos = method.getParameterAnnotations();
+            Annotation[][] methodParamAnnos = urlMapping.getMethod().getParameterAnnotations();
             if(!JpUtils.isEmpty(methodParamAnnos)) {
                 Map<String, Integer> pathVariableMap = new HashMap<>();
                 Annotation[] paramAnnos = null;
-                Class<?>[] paramTypes = method.getParameterTypes();
+                Class<?>[] paramTypes = urlMapping.getMethod().getParameterTypes();
                 Class<?> paramType;
 
                 int index = 1; //the regex index in url;
@@ -113,6 +117,41 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
         } else {
             urlMapping.setUrl(classUrl + url);
         }
+
+        buildUrlMappingParameter(urlMapping);
+        return urlMapping;
+    }
+
+    private UrlMapping buildUrlMappingParameter(UrlMapping urlMapping) {
+        Annotation[][] paramAnnotations = urlMapping.getMethod().getParameterAnnotations();
+        if(!JpUtils.isEmpty(paramAnnotations)) {
+            Class<?>[] paramTypes = urlMapping.getMethod().getParameterTypes();
+            urlMapping.setRequestMethodParameters(new ArrayList<RequestMethodParameter>());
+
+            for(int i = 0; i < paramAnnotations.length; i++) {
+                buildUrlMappingParameter(urlMapping, paramTypes[i], paramAnnotations[i]);
+            }
+        }
+
+        return urlMapping;
+    }
+
+    private UrlMapping buildUrlMappingParameter(UrlMapping urlMapping, Class<?> paramType, Annotation[] annotation) {
+        List<RequestMethodParameter> methodParameters = urlMapping.getRequestMethodParameters();
+
+        RequestMethodParameter parameter = new RequestMethodParameter();
+        parameter.setType(paramType);
+        parameter.setPrimitiveType(JpUtils.isPrimietive(paramType));
+        if(annotation != null && annotation.length > 0) {
+            Class<?> annotationType = annotation[0].annotationType();
+            if(annotationType.equals(RequestParam.class)
+                    || annotationType.equals(PathVariable.class)
+                    || annotationType.equals(RequestHeader.class)
+                    || annotationType.equals(CookieValue.class)) {
+                parameter.setAnnotation(annotation[0]);
+            }
+        }
+        methodParameters.add(parameter);
 
         return urlMapping;
     }

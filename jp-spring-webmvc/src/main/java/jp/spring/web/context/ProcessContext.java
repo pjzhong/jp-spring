@@ -39,6 +39,10 @@ public class ProcessContext {
         return (HttpServletResponse) getContext().objectMap.get(RESPONSE);
     }
 
+    public static HttpSession getSession() {
+        return getRequest().getSession();
+    }
+
     public static HttpSession getSeesion() {
         return getRequest().getSession();
     }
