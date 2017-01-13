@@ -3,6 +3,7 @@ package jp.spring.web.servlet;
 import jp.spring.ioc.context.WebApplicationContext;
 
 import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -10,9 +11,15 @@ import java.io.IOException;
 /**
  * Created by Administrator on 1/3/2017.
  */
-public abstract class FrameworkServlet extends HttpServletBean {
+public abstract class FrameworkServlet extends HttpServlet{
 
     private WebApplicationContext webApplicationContext;
+
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+        processRequest(req, resp);
+    }
 
 
     @Override
@@ -43,7 +50,7 @@ public abstract class FrameworkServlet extends HttpServletBean {
         try {
             doService(request, response);
         } catch (Exception e) {
-
+            e.printStackTrace();
         }
     }
 

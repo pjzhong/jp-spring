@@ -1,12 +1,12 @@
 package jp.spring.ioc.beans.factory;
 
+import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.BeanPostProcessor;
+import jp.spring.ioc.util.JpUtils;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.lang.annotation.Annotation;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -16,17 +16,31 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
-    private Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
+    private final Map<String, BeanDefinition> beanNameDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
+
+    private final Map<Class<?>, String[]> beanNamesByType = new ConcurrentHashMap<Class<?>, String[]>();
+
+    private final Map<Class<?>, List<?>> beansByType = new HashMap<>();
 
     private final List<String> beanDefinitionIds = new ArrayList<String>();
 
-    private List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
+    private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
+
+    /**
+     * For cache
+     * */
+    private final Map<Class<? extends Annotation>,String[]> beanNamesByAnnotation = new HashMap<>();
+
+    /**
+     * initializing bean
+     * */
+    protected abstract Object doCreateBean(BeanDefinition beanDefinition) throws Exception;
 
     @Override
     public Object getBean(String name) throws Exception {
-        BeanDefinition beanDefinition = beanDefinitionMap.get(name);
+        BeanDefinition beanDefinition = beanNameDefinitionMap.get(name);
         if(beanDefinition == null) {
-            throw new IllegalArgumentException("No bean named " + name + "is defined");
+            throw new IllegalArgumentException("No bean named " + name + " is defined");
         }
         Object bean = beanDefinition.getBean();
         if(bean == null) {
@@ -35,37 +49,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             beanDefinition.setBean(bean);
         }
         return bean;
-    }
-
-    @Override
-    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception{
-        if(beanDefinitionMap.containsKey(name)) {
-            throw new IllegalArgumentException("Bean " + name + "must be unique");
-        }
-        beanDefinitionMap.put(name, beanDefinition);
-        beanDefinitionIds.add(name);
-    }
-
-    public void preInstantiateSingletons() throws Exception {
-        for(Iterator<String> it = this.beanDefinitionIds.iterator(); it.hasNext();) {
-            String beanName  = it.next();
-            getBean(beanName);
-        }
-    }
-
-    public <A> List<A> getBeansForType(Class<A> type) throws Exception {
-        List<A> beans = new ArrayList<A>();
-        for(String beanDefinitionName : beanDefinitionIds) {
-            if(type.isAssignableFrom(beanDefinitionMap.get(beanDefinitionName).getBeanClass())) {
-                beans.add((A)getBean(beanDefinitionName));
-            }
-        }
-
-        return beans;
-    }
-
-    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {
-        this.beanPostProcessors.add(beanPostProcessor);
     }
 
     protected Object initializeBean(Object bean, String name) throws Exception {
@@ -79,11 +62,90 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             }
         }
 
+        invokeAware(bean);
         return bean;
     }
 
-    /**
-     * initializing bean
-     * */
-    protected abstract Object doCreateBean(BeanDefinition beanDefinition) throws Exception;
+    private void invokeAware(Object bean) throws Exception{
+        if(bean instanceof BeanFactoryAware) {
+            ((BeanFactoryAware) bean).setBeanFactory(this);
+        }
+    }
+
+    @Override
+    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception{
+        if(beanNameDefinitionMap.containsKey(name)) {
+            throw new IllegalArgumentException("Bean " + name + "must be unique");
+        }
+        beanNameDefinitionMap.put(name, beanDefinition);
+        beanDefinitionIds.add(name);
+    }
+
+    public Class<?> getType (String name) {
+        if(beanNameDefinitionMap.get(name) != null) {
+            return beanNameDefinitionMap.get(name).getBeanClass();
+        }
+        return  null;
+    }
+
+    public <A> List<A> getBeansForType(Class<A> type) throws Exception {
+        List<A> beans = new ArrayList<A>();
+
+        if(beansByType.get(type) != null) {
+            return (List<A>)beansByType.get(type);
+        }
+
+        for(String beanDefinitionName : beanDefinitionIds) {
+            if(type.isAssignableFrom(beanNameDefinitionMap.get(beanDefinitionName).getBeanClass())) {
+                beans.add((A) getBean(beanDefinitionName));
+            }
+        }
+
+        beansByType.put(type, beans);
+        return beans;
+    }
+
+    public List<String> getBeanNamesForType(Class<?> targetType) {
+        List<String> result = new ArrayList<String>();
+
+        String[] temp = beanNamesByType.get(targetType);
+        if(temp != null) {
+            result = Arrays.asList(temp);
+            return result;
+        }
+
+        boolean matchFound;
+        for(String beanName : beanDefinitionIds) {
+            BeanDefinition beanDefinition = beanNameDefinitionMap.get(beanName);
+            matchFound = targetType.isAssignableFrom( beanDefinition.getBeanClass());
+            if(matchFound) {
+                result.add(beanName);
+            }
+        }
+        beanNamesByType.put(targetType, result.toArray(new String[result.size()]));
+        return result;
+    }
+
+    public List<String> getBeanNamByAnnotation(Class<? extends Annotation> annotation) {
+        if(beanNamesByAnnotation.get(annotation) != null) {
+            String[] names = beanNamesByAnnotation.get(annotation);
+            return Arrays.asList(names);
+        }
+
+        List<String> result = new ArrayList<String>();
+        BeanDefinition beanDefinition;
+        for(String beanName : beanDefinitionIds) {
+            beanDefinition = beanNameDefinitionMap.get(beanName);
+            if(JpUtils.isAnnotated(beanDefinition.getBeanClass(), annotation)) {
+               result.add(beanName);
+            }
+        }
+        beanNamesByAnnotation.put(annotation, result.toArray(new String[result.size()]));
+        return result;
+    }
+
+
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {
+        this.beanPostProcessors.add(beanPostProcessor);
+    };
 }

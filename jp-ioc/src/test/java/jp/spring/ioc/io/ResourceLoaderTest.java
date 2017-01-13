@@ -12,11 +12,11 @@ import java.io.InputStream;
 public class ResourceLoaderTest {
 
     public static void main(String[] args) throws Exception {
-        ResourceLoader resourceLoader = new URLResourceLoader();
+       /* ResourceLoader resourceLoader = new URLResourceLoader();
         Resource resource = resourceLoader.getResource("tinyioc.xml");
         InputStream inputStream = resource.getInputStream();
         if(inputStream != null) {
             System.out.println("Success");
-        }
+        }*/
     }
 }

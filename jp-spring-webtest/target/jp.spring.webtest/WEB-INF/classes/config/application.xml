@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans>
+    <context:component-scan base-package="com.jp"/>
+
+    <bean id="ViewResolver" class="jp.spring.web.view.DefaultViewResolver">
+        <property name="folder" value="/"/>
+        <property name="extension" value=".jsp"/>
+    </bean>
+</beans>

@@ -1,4 +1,5 @@
-import jp.spring.ioc.stereotype.Component;
+package jp.spring.ioc.stereotype;
+
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

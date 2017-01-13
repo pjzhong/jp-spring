@@ -65,36 +65,41 @@ public class JpUtils {
     }
 
     public static Object convert(String value, Class<?> targetClass) {
-        if(String.class.equals(targetClass)) {
-            return value;
-        } else if(Integer.TYPE.equals(targetClass) || Integer.class.equals(targetClass)) {
-            if(value == null) { return 0; }
-            return Integer.valueOf(value);
-        }  else if(Long.TYPE.equals(targetClass) || Long.class.equals(targetClass)) {
-            if (value == null) {
-                return 0L;
-            }
-            return Long.valueOf(value);
-        }  else if(Float.TYPE.equals(targetClass) || Float.class.equals(targetClass)) {
-            if (value == null) {
-                return 0.0F;
-            }
-            return Float.valueOf(value);
-        }  else if(Double.TYPE.equals(targetClass) || Double.class.equals(targetClass)) {
-            if (value == null) {
-                return 0.0;
-            }
-            return Double.valueOf(value);
-        } else if(Boolean.TYPE.equals(targetClass) || Boolean.class.equals(targetClass)) {
-            if(value == null) {
-                return false;
-            } else {
-                if("y".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value) || "1".equalsIgnoreCase(value)) {
-                    return true;
-                } else if ("n".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value) || "0".equalsIgnoreCase(value)) {
+        try {
+            if(String.class.equals(targetClass)) {
+                return value;
+            } else if(Integer.TYPE.equals(targetClass) || Integer.class.equals(targetClass)) {
+                if(value == null) { return 0; }
+                return Integer.valueOf(value);
+            }  else if(Long.TYPE.equals(targetClass) || Long.class.equals(targetClass)) {
+                if (value == null) {
+                    return 0L;
+                }
+                return Long.valueOf(value);
+            }  else if(Float.TYPE.equals(targetClass) || Float.class.equals(targetClass)) {
+                if (value == null) {
+                    return 0.0F;
+                }
+                return Float.valueOf(value);
+            }  else if(Double.TYPE.equals(targetClass) || Double.class.equals(targetClass)) {
+                if (value == null) {
+                    return 0.0;
+                }
+                return Double.valueOf(value);
+            } else if(Boolean.TYPE.equals(targetClass) || Boolean.class.equals(targetClass)) {
+                if(value == null) {
                     return false;
+                } else {
+                    value = value.toLowerCase();
+                    if("y".equalsIgnoreCase(value) || "yes".equalsIgnoreCase(value) || "true".equalsIgnoreCase(value) || "1".equalsIgnoreCase(value)) {
+                        return true;
+                    } else if ("n".equalsIgnoreCase(value) || "no".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value) || "0".equalsIgnoreCase(value)) {
+                        return false;
+                    }
                 }
             }
+        } catch (NumberFormatException e) {
+            System.out.println(e);
         }
         return null;
     }
@@ -111,5 +116,22 @@ public class JpUtils {
             }
         }
         return list;
+    }
+
+
+    public static Method findMethod(Class<?> clazz, String name) {
+        if(clazz != null && name != null) {
+            Class<?> searchType = clazz;
+            while(searchType != null) {
+                Method[] methods = (searchType.isInterface() ? searchType.getMethods() : searchType.getDeclaredMethods());
+                for(Method method : methods) {
+                    if(name.equals(method.getName())) {
+                        return method;
+                    }
+                }
+            }
+        }
+
+        return  null;
     }
 }

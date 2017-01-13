@@ -2,6 +2,7 @@ package jp.spring.ioc.aop;
 
 import jp.spring.ioc.aop.proxy.ProxyFactory;
 import jp.spring.ioc.beans.BeanPostProcessor;
+import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.factory.BeanFactory;
 import org.aopalliance.intercept.MethodInterceptor;

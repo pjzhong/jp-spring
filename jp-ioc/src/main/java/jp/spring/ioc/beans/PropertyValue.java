@@ -10,6 +10,8 @@ public class PropertyValue {
 
     private final Object value;
 
+    private boolean isRequired = false;
+
     public PropertyValue(String name, Object value) {
         this.name = name;
         this.value = value;
@@ -21,6 +23,14 @@ public class PropertyValue {
 
     public Object getValue() {
         return value;
+    }
+
+    public boolean isRequired() {
+        return isRequired;
+    }
+
+    public void setRequired(boolean required) {
+        isRequired = required;
     }
 
     @Override
