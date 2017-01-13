@@ -10,6 +10,7 @@ import jp.spring.web.servlet.handler.UrlMapping;
 import jp.spring.web.servlet.handler.UrlMappingBuilder;
 import jp.spring.web.servlet.handler.impl.DefaultUrlHandlerMapping;
 import jp.spring.web.servlet.handler.impl.DefaultUrlMappingBuilder;
+import jp.spring.web.view.ViewResolver;
 
 import java.util.List;
 
@@ -46,6 +47,14 @@ public class DefaultWebApplicationContext extends ClassPathXmlApplicationContext
 
     @Override
     public Object getBean(String name) throws Exception {
+
+        if(name.equals(ViewResolver.RESOLVER_NAME)) {
+           List<ViewResolver> resolvers =  beanFactory.getBeansForType(ViewResolver.class);
+           if(!resolvers.isEmpty()) {
+               return resolvers.get(0);
+           }
+        }
+
         return beanFactory.getBean(name);
     }
 

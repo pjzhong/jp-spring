@@ -7,12 +7,15 @@ import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.annotation.*;
 import jp.spring.web.context.ProcessContext;
+import jp.spring.web.exception.NotFoundException;
 import jp.spring.web.servlet.handler.RequestMethodParameter;
 import jp.spring.web.servlet.handler.UrlHandlerMapping;
 import jp.spring.web.servlet.handler.UrlMapping;
 import jp.spring.web.util.FileUtils;
 import jp.spring.web.util.UrlPathHelper;
+import jp.spring.web.view.ViewResolver;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,6 +40,8 @@ public class DispatcherServlet extends FrameworkServlet {
 
     private static UrlHandlerMapping urlHandlerMapping;
 
+    private static ViewResolver viewResolver;
+
     private UrlPathHelper urlPathHelper = new UrlPathHelper();
 
 
@@ -45,6 +50,7 @@ public class DispatcherServlet extends FrameworkServlet {
         try {
             webApplicationContext = (WebApplicationContext) getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
             urlHandlerMapping = (UrlHandlerMapping) webApplicationContext.getBean(UrlHandlerMapping.URL_HANDLER_MAPPING);
+            viewResolver = (ViewResolver) webApplicationContext.getBean(ViewResolver.RESOLVER_NAME);
         } catch (Exception e) {
             System.out.println("DispatcherServlet init failed");
             e.printStackTrace();
@@ -60,6 +66,10 @@ public class DispatcherServlet extends FrameworkServlet {
         }
 
         UrlMapping urlMapping = urlHandlerMapping.getUrlMapping(request);
+        if(urlMapping == null) {
+            response.setStatus(response.SC_NOT_FOUND);
+            throw new ServletException("Request of " + path + "Not Found");
+        }
 
         //Build context
         ProcessContext
@@ -70,8 +80,19 @@ public class DispatcherServlet extends FrameworkServlet {
 
         Object controller = webApplicationContext.getBean(urlMapping.getBeanName());
         Object[] paras = autowireParameters(urlMapping);
-        urlMapping.getMethod().invoke(controller, paras);
-        System.out.println(urlMapping);
+        Object result = urlMapping.getMethod().invoke(controller, paras);
+
+        if(result instanceof String ) {
+            String pagePath = (String) result;
+            if(!StringUtils.isEmpty(pagePath)) {
+               String[] pagePaths = pagePath.split(":");
+                if(pagePaths[0].equals("redirect")) {
+                    response.sendRedirect(pagePaths[1]);
+                } else {
+                    viewResolver.toPage(pagePath);
+                }
+            }
+        }
     }
 
     protected static Object[] autowireParameters(UrlMapping urlMapping) throws Exception {

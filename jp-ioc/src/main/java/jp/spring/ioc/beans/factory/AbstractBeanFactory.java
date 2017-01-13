@@ -20,6 +20,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     private final Map<Class<?>, String[]> beanNamesByType = new ConcurrentHashMap<Class<?>, String[]>();
 
+    private final Map<Class<?>, List<?>> beansByType = new HashMap<>();
+
     private final List<String> beanDefinitionIds = new ArrayList<String>();
 
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
@@ -89,12 +91,17 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     public <A> List<A> getBeansForType(Class<A> type) throws Exception {
         List<A> beans = new ArrayList<A>();
 
+        if(beansByType.get(type) != null) {
+            return (List<A>)beansByType.get(type);
+        }
+
         for(String beanDefinitionName : beanDefinitionIds) {
             if(type.isAssignableFrom(beanNameDefinitionMap.get(beanDefinitionName).getBeanClass())) {
-                beans.add((A)getBean(beanDefinitionName));
+                beans.add((A) getBean(beanDefinitionName));
             }
         }
 
+        beansByType.put(type, beans);
         return beans;
     }
 

@@ -25,11 +25,12 @@ public class TestController {
 
 
     @RequestMapping(value = "/test/{one}", method = RequestMethod.GET)
-    public String test2(@PathVariable("one") Integer one, User user) {
+    public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float number) {
         System.out.println(outputService);
         outputService.output(one);
         outputService.output(user);
-        return "test";
+        outputService.output(number);
+        return "teasdfasdfst";
     }
 
     @RequestMapping(value = "/test456465", method = RequestMethod.POST)
