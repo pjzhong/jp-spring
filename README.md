@@ -2,9 +2,10 @@
   https://github.com/code4craft/tiny-spring
   https://github.com/menyouping/jw
 
-Git is a distributed version control system.
-Git is free sotware distributed under the GPL.
-Git has a mutable index called stage
-Git tracks changes
-Creating a new branch is quick AND simple
-I am dev, I am in dev again
+这是一个模仿Spring的MVC框架，还在开发之中.......
+
+目前已经实现了以下功能:
+
+1.@Autowired
+![输入图片说明](http://git.oschina.net/uploads/images/2017/0115/175933_d0e195c7_602060.png "在这里输入图片标题")
+
