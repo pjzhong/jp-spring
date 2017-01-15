@@ -43,7 +43,7 @@ public class TestController {
 }
 ```
 
-TODO
+<hr/>
 
 目前，我还没做到完全零配置，所以还是需要一些配置
 1.web.xml
@@ -69,6 +69,7 @@ TODO
     </servlet-mapping>
 </web-app>
 ```
+contextConfigLocation这个名字是规定， 对应的值就是配置文件的路径， “/”就是从根路径开始
 
 2.application.xml
 ```xml
