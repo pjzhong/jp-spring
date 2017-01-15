@@ -1,14 +1,10 @@
 ### jp-spring是一个Spring-like MVC框架
 > 所以很多名称都是从Spring那里拿过来的。 目前还是在完善中......
 
-Inspired by:
-  https://github.com/code4craft/tiny-spring 
-  https://github.com/menyouping/jw
-
 它目前有两部分组成
-- jp-ioc  (负责bean的创建和注入，例如常用的@Autowired)
+- jp-ioc  (负责bean的创建和注入，例如常用的@Autowired。此模块还有AOP,详情请看最底部介绍。)
 - jp-webmvc (负责Request的映射)
-- jp-webtest (前面两个项目测试)
+- jp-webtest (前面两个项目测试， 有具体的例子)
 
 
 目前实现了：
@@ -74,11 +70,18 @@ contextConfigLocation这个名字是规定， 对应的值就是配置文件的�
 2.application.xml
 ```xml
 <beans>
-    <context:component-scan base-package="com.jp"/>
+    <context:component-scan base-package="com.jp"/> /*哪个包需要扫描*/
 
+    /*一个简单是视图处理，目前仅支持html和jsp*/
     <bean id="ViewResolver" class="jp.spring.web.view.DefaultViewResolver">
-        <property name="folder" value="/"/>
-        <property name="extension" value=".jsp"/>
+        <property name="folder" value="/"/> /*页面在哪个文件按*/
+        <property name="extension" value=".jsp"/> /*页面的扩展名*/
     </bean>
 </beans>
 ```
+
+<hr/>
+
+Inspired by:
+  https://github.com/code4craft/tiny-spring 
+  https://github.com/menyouping/jw
