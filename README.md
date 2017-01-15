@@ -49,6 +49,10 @@ org/
 　　　　　　┗ service/
 ```
 
+```xml
+<try>asdfasdf<try>
+```
+
 可见，基础包名为：org.smart4j.sample，下面的配置中会用到它。
 
 ### 2. 配置 Maven 依赖
