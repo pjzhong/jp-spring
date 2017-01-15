@@ -4,8 +4,7 @@
 
 这是一个模仿Spring的MVC框架。
 1. web.xml配置
-```
-web-app>
+> web-app>
 <context-param>
   <param-name>contextConfigLocation</param-name>
   <param-value>/config/application.xml</param-value>
@@ -24,6 +23,5 @@ web-app>
       <url-pattern>/</url-pattern>
   </servlet-mapping>
 </web-app>
-```
 2. 这里是列表文本
 
