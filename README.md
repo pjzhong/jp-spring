@@ -7,8 +7,9 @@
 - jp-webtest (前面两个项目测试)
 
 
-目前已经实现了：
+目前实现了：
 通过@Controller来标记控制器，使用@RequestMapping并且可以使用@PathVariable, 目前只支持Method级别的@PathVariable
+必须在标签里面输入变量名，因为我目前不知道怎么获取方法参数的名字，虽然JAVA8可以了，但还没用过...
 ```java
 @Controller
 public class TestController {
