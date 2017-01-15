@@ -1,8 +1,13 @@
 ### jp-spring是一个Spring-like MVC框架
 > 所以很多名称都是从Spring那里拿过来的。 目前还是在完善中......
 
+<hr/>
+Inspired by:
+  https://github.com/code4craft/tiny-spring 
+  https://github.com/menyouping/jw
+
 它目前有两部分组成
-- jp-ioc  (负责bean的创建和注入，例如常用的@Autowired。此模块还有AOP,详情请看最底部介绍。)
+- jp-ioc  (负责bean的创建和注入，例如常用的@Autowired。此模块还有AOP,详情请看最上面第一个链接。)
 - jp-webmvc (负责Request的映射)
 - jp-webtest (前面两个项目测试， 有具体的例子)
 
@@ -79,9 +84,3 @@ contextConfigLocation这个名字是规定， 对应的值就是配置文件的�
     </bean>
 </beans>
 ```
-
-<hr/>
-
-Inspired by:
-  https://github.com/code4craft/tiny-spring 
-  https://github.com/menyouping/jw
