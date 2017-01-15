@@ -7,5 +7,32 @@
 目前已经实现了以下功能:
 
 1.@Autowired
-![输入图片说明](http://git.oschina.net/uploads/images/2017/0115/175933_d0e195c7_602060.png "在这里输入图片标题")
+```
+@Controller
+public class TestController {
+
+    @Autowired
+    OutputService outputService;
+
+    public TestController() {
+        System.out.println("Hello I am TestController");
+    }
+
+
+    @RequestMapping(value = "/test/{one}", method = RequestMethod.GET)
+    public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float number) {
+        System.out.println(outputService);
+        outputService.output(one);
+        outputService.output(user);
+        outputService.output(number);
+        return "test";
+    }
+
+    @RequestMapping(value = "/test456465", method = RequestMethod.POST)
+    public String test() {
+        return "test";
+    }
+}
+
+```
 
