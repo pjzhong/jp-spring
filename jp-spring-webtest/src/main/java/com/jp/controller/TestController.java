@@ -30,7 +30,7 @@ public class TestController {
         outputService.output(one);
         outputService.output(user);
         outputService.output(number);
-        return "teasdfasdfst";
+        return "test";
     }
 
     @RequestMapping(value = "/test456465", method = RequestMethod.POST)

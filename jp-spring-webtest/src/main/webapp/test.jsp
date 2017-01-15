@@ -5,7 +5,6 @@
 </head>
 <body>
 <h1>Hello World</h1>
-<h1>What the hell is going on?</h1>
 <div class="big">
     Css Testing
 </div>
