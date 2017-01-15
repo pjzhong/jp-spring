@@ -16,6 +16,7 @@ Inspired by:
 通过@Controller来标记控制器，使用@RequestMapping并且可以使用@PathVariable, 目前只支持Method级别的@PathVariable
 必须在标签里面输入变量名，因为我目前不知道怎么获取方法参数的名字，虽然JAVA8可以了，但还没用过...
 
+@Autowired如果找到了多个实现类，目前是拿找到的第一个来进行注入的
 ```java
 @Controller
 public class TestController {
