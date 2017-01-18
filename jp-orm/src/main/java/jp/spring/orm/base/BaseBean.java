@@ -12,8 +12,11 @@ import java.io.Serializable;
  */
 public abstract class BaseBean implements Serializable {
 
+
+
     @Override
     public int hashCode() {
+        BaseBean.class.getDeclaredFields();
         return HashCodeBuilder.reflectionHashCode(this);
     }
 

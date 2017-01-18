@@ -12,11 +12,21 @@ public class ProductService {
 
     @Test
     public void test() {
-        System.out.println(getProduct(2));
+        getProduct(1);
     }
 
     public Product getProduct(int productId) {
-        String sql = ConfigHelper.getStringProperty("select.product.id");
-        return DBHelper.queryBean(Product.class, sql, productId);
+        String sql = ConfigHelper.getStringProperty("insert.product");
+
+        Product product = new Product();
+        product.setCode("MP010");
+        product.setName("IPhone 6s plush");
+        product.setProductTypeId(2);
+        product.setDescription("IPhone 6s 尊贵独享版");
+        product.setPrice(100000);
+
+        DBHelper.update(sql, product);
+
+        return product;
     }
 }

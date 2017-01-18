@@ -59,6 +59,8 @@ public class DispatcherServlet extends FrameworkServlet {
 
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         String path = urlPathHelper.getLookupPathForRequest(request);
 
         if(isStaticResource(response, path)) {
@@ -82,7 +84,10 @@ public class DispatcherServlet extends FrameworkServlet {
         Object[] paras = autowireParameters(urlMapping);
         Object result = urlMapping.getMethod().invoke(controller, paras);
 
-        if(result instanceof String ) {
+        if(JpUtils.isAnnotated(urlMapping.getMethod(), ResponseBody.class)) {
+            response.setHeader("Context-type", "application/json;charset=UTF-8");
+            response.getWriter().write(JSON.toJSONString(result));
+        }else if(result instanceof String ) {
             String pagePath = (String) result;
             if(!StringUtils.isEmpty(pagePath)) {
                String[] pagePaths = pagePath.split(":");
@@ -96,6 +101,9 @@ public class DispatcherServlet extends FrameworkServlet {
     }
 
     protected static Object[] autowireParameters(UrlMapping urlMapping) throws Exception {
+        if(urlMapping.getRequestMethodParameters() == null) {
+            return null;
+        }
         List<RequestMethodParameter> methodParameters = urlMapping.getRequestMethodParameters();
         Object[] paras = new Object[methodParameters.size()];
 

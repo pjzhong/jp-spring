@@ -6,6 +6,7 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 12/15/2016.
@@ -17,6 +18,10 @@ public class JpUtils {
 
     public static String getBindKey(String key) {
         return key.substring(2, key.length() - 1);
+    }
+
+    public static <K, V> boolean isEmpty(Map<K, V> map) {
+        return map == null || map.isEmpty();
     }
 
     public static <T> boolean isEmpty(T[] array) {

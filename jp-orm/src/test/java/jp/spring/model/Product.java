@@ -2,24 +2,18 @@ package jp.spring.model;
 
 import jp.spring.orm.base.BaseBean;
 
+import java.beans.Transient;
+
 /**
  * Created by Administrator on 1/17/2017.
  */
-public class Product extends BaseBean {
-    private int id;
+public class Product extends BaseEntity {
+;
     private long productTypeId;
     private String name;
     private String code;
     private int price;
     private String description;
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public long getProductTypeId() {
         return productTypeId;

@@ -5,6 +5,7 @@ import org.apache.commons.dbutils.BeanProcessor;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.handlers.*;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -97,10 +98,14 @@ public class DBUtil {
     }
 
     // 更新（包括 UPDATE、INSERT、DELETE，返回受影响的行数）
-    public static int update(QueryRunner runner, String sql, Object... params) {
+    public static int update(QueryRunner runner, Connection connection, String sql, Object... params) {
         int result = 0;
         try {
-            result = runner.update(sql, params);
+            if(connection != null) {
+                result = runner.update(connection, sql, params);
+            } else {
+                result = runner.update(sql, params);
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

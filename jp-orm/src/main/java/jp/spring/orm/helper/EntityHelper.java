@@ -32,9 +32,7 @@ public class EntityHelper{
                     columnName = StringUtils.toUnderline(fieldName);
                 }
 
-                if(!fieldName.equals(columnName)) {
-                    fieldMap.put(columnName, fieldName);
-                }
+                fieldMap.put(fieldName, columnName);
             }
 
             if(!fieldMap.isEmpty()) {

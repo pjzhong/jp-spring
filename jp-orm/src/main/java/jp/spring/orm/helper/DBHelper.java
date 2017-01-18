@@ -5,6 +5,7 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.apache.commons.dbutils.QueryRunner;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +16,8 @@ import java.util.Map;
 public class DBHelper {
     private static final BasicDataSource dataSource = new BasicDataSource();
     private static final QueryRunner runner = new QueryRunner(dataSource);
+
+    private static ThreadLocal<Connection> connectionThreadLocal = new ThreadLocal<Connection>();
 
     static {
         dataSource.setDriverClassName(ConfigHelper.getStringProperty("jdbc.driver"));
@@ -28,6 +31,48 @@ public class DBHelper {
         return dataSource;
     }
 
+    public static void beginTransaction() {
+        Connection connection = connectionThreadLocal.get();
+        if(connection == null) {
+            try {
+                connection = getDataSource().getConnection();
+                connection.setAutoCommit(false);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                connectionThreadLocal.set(connection);
+            }
+        }
+    }
+
+    public static void commitTransaction() {
+        Connection connection = connectionThreadLocal.get();
+        if(connection != null) {
+            try {
+                connection.commit();
+                connection.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                connectionThreadLocal.remove();
+            }
+        }
+    }
+
+    public static void rollbackTransaction() {
+        Connection connection = connectionThreadLocal.get();
+        if(connection != null) {
+            try {
+                connection.rollback();
+                connection.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                connectionThreadLocal.remove();
+            }
+        }
+    }
+
     public static <T>  T queryBean(Class<T> cls, String sql, Object... params) {
         Map<String, String> map = EntityHelper.getFieldMap(cls);
         return DBUtil.queryBean(runner, cls, map, sql, params);
@@ -39,6 +84,7 @@ public class DBHelper {
     }
 
     public static int update(String sql, Object... params) {
-        return DBUtil.update(runner, sql, params);
+        Connection connection = connectionThreadLocal.get();
+        return DBUtil.update(runner, connection, sql, params);
     }
 }

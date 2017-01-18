@@ -18,12 +18,16 @@ public class TestBaseBean extends BaseBean {
 
 
     public static void main(String[] args) {
-        TestBaseBean testBaseBean = new TestBaseBean();
+        /*TestBaseBean testBaseBean = new TestBaseBean();
 
         testBaseBean.list.add("Amazing");
         testBaseBean.list.add("excellent");
 
-        System.out.println(testBaseBean);
+        System.out.println(testBaseBean);*/
+
+        ProductService service = CGlibProxy.getInstance().getProxy(ProductService.class);
+
+        System.out.println(service.getProduct(3));
     }
 
 }

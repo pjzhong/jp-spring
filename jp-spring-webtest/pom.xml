@@ -21,6 +21,12 @@
             <artifactId>jp.spring.webmvc</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
+        <dependency>
+            <groupId>jp.spring</groupId>
+            <artifactId>jp.spring.orm</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
     </dependencies>
     <build>
         <finalName>jp.spring.webtest</finalName>

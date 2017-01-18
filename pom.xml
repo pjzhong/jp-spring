@@ -8,6 +8,7 @@
     <modules>
         <module>jp-ioc</module>
         <module>jp-spring-webmvc</module>
+        <module>jp-orm</module>
         <module>jp-spring-webtest</module>
     </modules>
     <packaging>pom</packaging>
