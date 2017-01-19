@@ -7,7 +7,6 @@ import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.annotation.*;
 import jp.spring.web.context.ProcessContext;
-import jp.spring.web.exception.NotFoundException;
 import jp.spring.web.servlet.handler.RequestMethodParameter;
 import jp.spring.web.servlet.handler.UrlHandlerMapping;
 import jp.spring.web.servlet.handler.UrlMapping;
@@ -54,6 +53,7 @@ public class DispatcherServlet extends FrameworkServlet {
         } catch (Exception e) {
             System.out.println("DispatcherServlet init failed");
             e.printStackTrace();
+            System.exit(0);
         }
     }
 

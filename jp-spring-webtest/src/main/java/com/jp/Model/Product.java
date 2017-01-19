@@ -1,5 +1,6 @@
 package com.jp.Model;
 
+
 import jp.spring.orm.annotation.Table;
 import jp.spring.orm.base.BaseBean;
 

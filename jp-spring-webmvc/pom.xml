@@ -20,6 +20,17 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>jp.spring</groupId>
+            <artifactId>jp.spring.ioc</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>jp.spring</groupId>
+            <artifactId>jp.spring.aop</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
 
         <dependency>
             <groupId>commons-fileupload</groupId>
@@ -51,12 +62,7 @@
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>${servler.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>jp.spring</groupId>
-            <artifactId>jp.spring.ioc</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

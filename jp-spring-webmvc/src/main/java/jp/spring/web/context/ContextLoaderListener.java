@@ -16,7 +16,7 @@ public class ContextLoaderListener implements ServletContextListener{
         ServletContext servletContext = sce.getServletContext();
         String configLocation = servletContext.getInitParameter("contextConfigLocation");
         try {
-            WebApplicationContext webApplicationContext = new DefaultWebApplicationContext(configLocation);
+            WebApplicationContext webApplicationContext = new DefaultXMLWebApplicationContext(configLocation);
             servletContext.setAttribute(webApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, webApplicationContext);
         } catch (Exception e) {
             e.printStackTrace();

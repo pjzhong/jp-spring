@@ -21,7 +21,11 @@ public class HelloService implements ApplicationContextAware{
     private OutputService outputService;
 
     public void helloWorld() {
-       outputService.output(text);
+       System.out.println("hi!");
+    }
+
+    public void helloWorld2(String test) {
+        System.out.println("hi!");
     }
 
 
