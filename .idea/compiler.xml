@@ -55,7 +55,6 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="true" />
-        <module name="jp.spring.orm" />
       </profile>
       <profile default="false" name="Annotation profile for jp-spring-orm" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
@@ -64,8 +63,16 @@
         <processorPath useClasspath="true" />
         <module name="jp-spring-orm" />
       </profile>
+      <profile default="false" name="Annotation profile for jp-aop" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="jp-aop" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
+      <module name="jp-aop" target="1.8" />
       <module name="jp-ioc" target="1.8" />
       <module name="jp-orm" target="1.8" />
       <module name="jp-spring" target="1.8" />
