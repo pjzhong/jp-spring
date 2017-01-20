@@ -1,5 +1,6 @@
 ### jp-spring是一个Spring-like MVC框架
 > 所以很多名称都是从Spring那里拿过来的。 目前还是在完善中......
+> 目前还是一个 toy
 
 <hr/>
 Inspired by:
