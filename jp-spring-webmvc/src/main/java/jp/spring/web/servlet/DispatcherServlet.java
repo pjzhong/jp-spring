@@ -7,7 +7,6 @@ import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.annotation.*;
 import jp.spring.web.context.ProcessContext;
-import jp.spring.web.exception.NotFoundException;
 import jp.spring.web.servlet.handler.RequestMethodParameter;
 import jp.spring.web.servlet.handler.UrlHandlerMapping;
 import jp.spring.web.servlet.handler.UrlMapping;
@@ -54,11 +53,14 @@ public class DispatcherServlet extends FrameworkServlet {
         } catch (Exception e) {
             System.out.println("DispatcherServlet init failed");
             e.printStackTrace();
+            System.exit(0);
         }
     }
 
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
+        request.setCharacterEncoding("UTF-8");
+        response.setCharacterEncoding("UTF-8");
         String path = urlPathHelper.getLookupPathForRequest(request);
 
         if(isStaticResource(response, path)) {
@@ -82,7 +84,10 @@ public class DispatcherServlet extends FrameworkServlet {
         Object[] paras = autowireParameters(urlMapping);
         Object result = urlMapping.getMethod().invoke(controller, paras);
 
-        if(result instanceof String ) {
+        if(JpUtils.isAnnotated(urlMapping.getMethod(), ResponseBody.class)) {
+            response.setHeader("Context-type", "application/json;charset=UTF-8");
+            response.getWriter().write(JSON.toJSONString(result));
+        }else if(result instanceof String ) {
             String pagePath = (String) result;
             if(!StringUtils.isEmpty(pagePath)) {
                String[] pagePaths = pagePath.split(":");
@@ -96,6 +101,9 @@ public class DispatcherServlet extends FrameworkServlet {
     }
 
     protected static Object[] autowireParameters(UrlMapping urlMapping) throws Exception {
+        if(urlMapping.getRequestMethodParameters() == null) {
+            return null;
+        }
         List<RequestMethodParameter> methodParameters = urlMapping.getRequestMethodParameters();
         Object[] paras = new Object[methodParameters.size()];
 
@@ -120,7 +128,7 @@ public class DispatcherServlet extends FrameworkServlet {
         if(parameter.isPrimitiveType() && parameter.isHasAnnotation()) {
             String name = null, value = null;
             //因为UrlMapping都是UrlMappingBuilder创造的，所以确保了有value()这个方法.....
-            Method method =  JpUtils.findMethod(parameter.getAnnotation().annotationType(), "value");
+            Method method =  parameter.getValueMethod();
             name = (String)method.invoke(parameter.getAnnotation(), null);
             if(name.isEmpty()) {
                 return null;

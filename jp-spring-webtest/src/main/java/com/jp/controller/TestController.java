@@ -19,11 +19,6 @@ public class TestController {
     @Autowired
     OutputService outputService;
 
-    public TestController() {
-        System.out.println("Hello I am TestController");
-    }
-
-
     @RequestMapping(value = "/test/{one}", method = RequestMethod.GET)
     public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float number) {
         System.out.println(outputService);

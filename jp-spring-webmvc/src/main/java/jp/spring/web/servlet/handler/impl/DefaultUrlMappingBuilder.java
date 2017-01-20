@@ -149,6 +149,8 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
                     || annotationType.equals(RequestHeader.class)
                     || annotationType.equals(CookieValue.class)) {
                 parameter.setAnnotation(annotation[0]);
+                Method valueMethod = JpUtils.findMethod(annotation[0].getClass(), "value");
+                parameter.setValueMethod(valueMethod);
             }
         }
         methodParameters.add(parameter);

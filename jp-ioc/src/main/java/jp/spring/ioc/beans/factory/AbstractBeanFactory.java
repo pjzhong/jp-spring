@@ -12,7 +12,7 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Administrator on 12/25/2016.
  * 简单的规定了如何获取和注册Bean
- * 至于具体如何创造Bean，则留给子类去实现
+ * 至于如何创造Bean，则留给子类去实现
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
 
@@ -22,19 +22,25 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     private final Map<Class<?>, List<?>> beansByType = new HashMap<>();
 
+    private final Map<Class<? extends Annotation>, String[]> beanNamesByAnnotation = new HashMap<>();
+
     private final List<String> beanDefinitionIds = new ArrayList<String>();
 
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
 
     /**
-     * For cache
-     * */
-    private final Map<Class<? extends Annotation>,String[]> beanNamesByAnnotation = new HashMap<>();
-
-    /**
      * initializing bean
      * */
     protected abstract Object doCreateBean(BeanDefinition beanDefinition) throws Exception;
+
+    @Override
+    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception{
+        if(beanNameDefinitionMap.containsKey(name)) {
+            throw new IllegalArgumentException("Bean " + name + "must be unique");
+        }
+        beanNameDefinitionMap.put(name, beanDefinition);
+        beanDefinitionIds.add(name);
+    }
 
     @Override
     public Object getBean(String name) throws Exception {
@@ -48,7 +54,11 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             bean = initializeBean(bean, name);
             beanDefinition.setBean(bean);
         }
-        return bean;
+        return beanDefinition.getBean();
+    }
+
+    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {
+        this.beanPostProcessors.add(beanPostProcessor);
     }
 
     protected Object initializeBean(Object bean, String name) throws Exception {
@@ -72,15 +82,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
     }
 
-    @Override
-    public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception{
-        if(beanNameDefinitionMap.containsKey(name)) {
-            throw new IllegalArgumentException("Bean " + name + "must be unique");
-        }
-        beanNameDefinitionMap.put(name, beanDefinition);
-        beanDefinitionIds.add(name);
-    }
-
+    //various getters
     public Class<?> getType (String name) {
         if(beanNameDefinitionMap.get(name) != null) {
             return beanNameDefinitionMap.get(name).getBeanClass();
@@ -143,9 +145,4 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         beanNamesByAnnotation.put(annotation, result.toArray(new String[result.size()]));
         return result;
     }
-
-
-    public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {
-        this.beanPostProcessors.add(beanPostProcessor);
-    };
 }

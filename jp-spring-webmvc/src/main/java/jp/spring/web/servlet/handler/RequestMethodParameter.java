@@ -1,6 +1,7 @@
 package jp.spring.web.servlet.handler;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
 
 /**
  * Created by Administrator on 1/12/2017.
@@ -11,7 +12,17 @@ public class RequestMethodParameter {
 
     private Annotation annotation = null;
 
+    private Method valueMethod = null;
+
     private boolean isPrimitiveType = false;
+
+    public Method getValueMethod() {
+        return valueMethod;
+    }
+
+    public void setValueMethod(Method valueMethod) {
+        this.valueMethod = valueMethod;
+    }
 
     public Class<?> getType() {
         return type;
