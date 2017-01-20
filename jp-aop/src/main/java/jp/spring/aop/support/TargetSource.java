@@ -1,7 +1,9 @@
 package jp.spring.aop.support;
 
+import java.lang.reflect.Method;
+
 /**
- * Created by Administrator on 1/19/2017.
+ * 用于AOP实现，此类封装了被代理的原对象的基本信息
  */
 public class TargetSource {
 
@@ -9,12 +11,18 @@ public class TargetSource {
 
     private Class<?>[] interfaces;
 
-    private Object target;
+    private Object targetObject;
 
-    public TargetSource(Object target) {
-        this.target = target;
+    private Method targetMethod;
+
+    private Object[] methodParams;
+
+    public TargetSource(Object target, Method targetMethod, Object[] methodParams) {
+        this.targetObject = target;
         this.targetClass = target.getClass();
         this.interfaces = target.getClass().getInterfaces();
+        this.targetMethod = targetMethod;
+        this.methodParams = methodParams;
     }
 
     public Class<?> getTargetClass() {
@@ -25,7 +33,15 @@ public class TargetSource {
         return interfaces;
     }
 
-    public Object getTarget() {
-        return target;
+    public Object getTargetObject() {
+        return targetObject;
+    }
+
+    public Object[] getMethodParams() {
+        return methodParams;
+    }
+
+    public Method getTargetMethod() {
+        return targetMethod;
     }
 }

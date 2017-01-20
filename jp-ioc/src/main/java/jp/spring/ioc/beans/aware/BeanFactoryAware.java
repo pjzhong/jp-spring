@@ -7,5 +7,5 @@ import jp.spring.ioc.beans.factory.BeanFactory;
  */
 public interface BeanFactoryAware {
 
-    public void setBeanFactory(BeanFactory beanFactory) throws Exception;
+    public void setBeanFactory(BeanFactory beanFactory);
 }

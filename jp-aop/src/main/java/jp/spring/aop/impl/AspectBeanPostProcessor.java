@@ -1,13 +1,15 @@
 package jp.spring.aop.impl;
 
 import jp.spring.aop.BaseAspect;
-import jp.spring.aop.support.AdviseSupport;
-import jp.spring.aop.support.TargetSource;
+import jp.spring.aop.Proxy;
+import jp.spring.aop.ProxyFactory;
 import jp.spring.ioc.beans.BeanPostProcessor;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.factory.BeanFactory;
+import jp.spring.ioc.util.JpUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,21 +27,24 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
         List<BaseAspect> baseAspects = beanFactory.getBeansForType(BaseAspect.class);
+        List<Proxy> proxies = new ArrayList<>();
         for(BaseAspect aspect : baseAspects) {
-            if(aspect.match(bean.getClass())) {
-                AdviseSupport support = new AdviseSupport();
-                support.setInterceptor(aspect);
-                support.setTargetSource(new TargetSource(bean));
-
-                return new CglibAopProxy(support).getProxy();
+            if(aspect.getPointcut().match(bean.getClass())) {
+                if(aspect instanceof Proxy) {
+                    proxies.add((Proxy) aspect);
+                }
             }
+        }
+
+        if(!JpUtils.isEmpty(proxies)) {
+            bean = ProxyFactory.getInstance().createProxy(bean, proxies);
         }
 
         return bean;
     }
 
     @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws Exception {
+    public void setBeanFactory(BeanFactory beanFactory) {
         if(beanFactory instanceof AbstractBeanFactory) {
             this.beanFactory = (AbstractBeanFactory)beanFactory;
         }
