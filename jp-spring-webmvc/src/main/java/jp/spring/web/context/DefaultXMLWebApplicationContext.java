@@ -2,7 +2,7 @@ package jp.spring.web.context;
 
 import jp.spring.aop.BaseAspect;
 import jp.spring.aop.impl.AspectBeanPostProcessor;
-import jp.spring.aop.impl.ExecutionAspect;
+import jp.spring.aop.impl.ExecutionAspectProxy;
 import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.context.WebApplicationContext;
@@ -59,7 +59,7 @@ public class DefaultXMLWebApplicationContext extends ClassPathXmlApplicationCont
         BeanDefinition beanDefinition;
         for(String name : beanNames) {
             beanDefinition = new BeanDefinition();
-            BaseAspect aspect = new ExecutionAspect(beanFactory.getType(name), beanFactory.getBean(name));
+            BaseAspect aspect = new ExecutionAspectProxy(beanFactory.getType(name), beanFactory.getBean(name));
 
 /*            beanDefinition.setBeanClass(aspect.getClass());*/
             beanDefinition.setBeanClass(aspect.getClass());

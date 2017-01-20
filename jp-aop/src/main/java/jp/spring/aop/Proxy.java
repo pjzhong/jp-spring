@@ -1,9 +1,11 @@
 package jp.spring.aop;
 
+import jp.spring.aop.support.ProxyChain;
+
 /**
  * Created by Administrator on 1/19/2017.
  */
 public interface Proxy {
 
-    Object getProxy();
+    void doProxy(ProxyChain proxyChain);
 }

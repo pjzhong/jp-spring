@@ -1,10 +1,10 @@
 package jp.spring.aop;
 
-import net.sf.cglib.proxy.MethodInterceptor;
-
 /**
  * Created by Administrator on 1/18/2017.
+ * 用于管理切面
  */
-public abstract class BaseAspect implements MethodInterceptor, ClassFilter, MethodMatcher{
+public abstract class BaseAspect {
 
+    public abstract Pointcut getPointcut();
 }

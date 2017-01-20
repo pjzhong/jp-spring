@@ -54,7 +54,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
             bean = initializeBean(bean, name);
             beanDefinition.setBean(bean);
         }
-        return bean;
+        return beanDefinition.getBean();
     }
 
     public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {
