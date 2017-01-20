@@ -5,10 +5,10 @@ import jp.spring.aop.BaseAspect;
 import jp.spring.aop.Pointcut;
 import jp.spring.aop.Proxy;
 import jp.spring.aop.annotation.After;
+import jp.spring.aop.annotation.Error;
 import jp.spring.aop.annotation.Before;
 import jp.spring.aop.support.ProxyChain;
 import jp.spring.ioc.util.JpUtils;
-import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -42,6 +42,11 @@ public class ExecutionAspectProxy extends BaseAspect implements Proxy {
         if(!JpUtils.isEmpty(methods)) {
             afterMethod = methods.get(0);
         }
+
+        methods = JpUtils.findMethods(aspectClass, Error.class);
+        if(!JpUtils.isEmpty(methods)) {
+            errorMethod = methods.get(0);
+        }
     }
 
     @Override
@@ -55,7 +60,7 @@ public class ExecutionAspectProxy extends BaseAspect implements Proxy {
                 proxyChain.doProxyChain();
             }
         } catch (Throwable e) {
-            invoke(interceptor, errorMethod, proxyChain.getTarget());
+            invoke(interceptor, errorMethod, e, proxyChain.getTarget());
         }
     }
 
