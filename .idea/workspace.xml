@@ -46,8 +46,8 @@
           </provider>
           <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
             <state split_layout="FIRST">
-              <first_editor vertical-scroll-proportion="0.8895349">
-                <caret line="56" column="2" selection-start-line="56" selection-start-column="2" selection-end-line="56" selection-end-column="27" />
+              <first_editor vertical-scroll-proportion="0.6686047">
+                <caret line="47" column="2" selection-start-line="47" selection-start-column="2" selection-end-line="47" selection-end-column="2" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -62,8 +62,8 @@
           </provider>
           <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
             <state split_layout="FIRST">
-              <first_editor vertical-scroll-proportion="1.9331396">
-                <caret line="112" column="43" selection-start-line="112" selection-start-column="43" selection-end-line="112" selection-end-column="43" />
+              <first_editor vertical-scroll-proportion="0.690407">
+                <caret line="73" column="11" selection-start-line="73" selection-start-column="11" selection-end-line="73" selection-end-column="11" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -212,11 +212,11 @@
         <option value="$PROJECT_DIR$/jp-aop/src/main/java/jp/spring/aop/support/ProxyChain.java" />
         <option value="$PROJECT_DIR$/jp-aop/READEME.mb" />
         <option value="$PROJECT_DIR$/.idea/libraries/Arquillian_JUnit_Release.xml" />
-        <option value="$PROJECT_DIR$/README.md" />
         <option value="$PROJECT_DIR$/jp-aop/src/main/java/jp/spring/aop/annotation/AfterThrow.java" />
         <option value="$PROJECT_DIR$/jp-aop/src/main/java/jp/spring/aop/impl/ExecutionAspectProxy.java" />
         <option value="$PROJECT_DIR$/.idea/workspace.xml" />
         <option value="$PROJECT_DIR$/jp-aop/READEME.md" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -1810,8 +1810,8 @@
       </provider>
       <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
         <state split_layout="FIRST">
-          <first_editor vertical-scroll-proportion="0.8895349">
-            <caret line="56" column="2" selection-start-line="56" selection-start-column="2" selection-end-line="56" selection-end-column="27" />
+          <first_editor vertical-scroll-proportion="0.6686047">
+            <caret line="47" column="2" selection-start-line="47" selection-start-column="2" selection-end-line="47" selection-end-column="2" />
             <folding />
           </first_editor>
           <second_editor />
@@ -1830,8 +1830,8 @@
       </provider>
       <provider selected="true" editor-type-id="split-provider[text-editor;MarkdownPreviewEditor]">
         <state split_layout="FIRST">
-          <first_editor vertical-scroll-proportion="1.9331396">
-            <caret line="112" column="43" selection-start-line="112" selection-start-column="43" selection-end-line="112" selection-end-column="43" />
+          <first_editor vertical-scroll-proportion="0.690407">
+            <caret line="73" column="11" selection-start-line="73" selection-start-column="11" selection-end-line="73" selection-end-column="11" />
             <folding />
           </first_editor>
           <second_editor />

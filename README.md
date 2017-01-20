@@ -63,7 +63,7 @@ public class OutputServiceImple implements OutputService {
 ```
 
 **创建 Aspect**
-具体介绍请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/blob/master/jp-aop/READEME.mb?dir=0&filepath=jp-aop%2FREADEME.mb&oid=130f13429fe41a779a5dd32ab260f4191061b7eb&sha=92daf3a188044a4053484190320f84569d78a58f">AOP-README</a>
+具体介绍请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/blob/master/jp-aop/READEME.md?dir=0&filepath=jp-aop%2FREADEME.md&oid=753d50f8e9bf9d34a6363c8b935d801637a7a23c&sha=523f58efd9782c9a67704d17e92805e469e59a1d">AOP-README</a>
 ```java
 @Aspect
 @Pointcut("execution(com.jp.controller.*.*())")

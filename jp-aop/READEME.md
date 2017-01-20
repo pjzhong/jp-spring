@@ -37,15 +37,15 @@ public class ControllerAspect {
 
 规则最核心的有两部分， 以上面的@Pointcut作为例子
   第一部分.类名规则:
-                     1.com.jp.controller.\* &nbsp;&nbsp;&nbsp; **com.jp.controller包下面的所有类。 ！！！注意不包含子目录**
-                     2.com.jp.controller.. &nbsp;&nbsp;&nbsp; **com.jp.controller包下面的所有类,包含子目录**
+  1.com.jp.controller.\* &nbsp;&nbsp;&nbsp; **com.jp.controller包下面的所有类。 ！！！注意不包含子目录**        
+  2.com.jp.controller.. &nbsp;&nbsp;&nbsp; **com.jp.controller包下面的所有类,包含子目录**
   第二部分.方法名规则： 
-                     1.\*() , **任何方法。 ！！！注意， 目前只能根据方法名来进行过滤，但是方法名后面的()还是要加上**
-                     2.\*Service， **以Service结尾的方法，都会被拦截。  ！！！注意， 目前只能根据方法名来进行过滤，但是方法名后面的()还是要加上**
+  1.\*() , **任何方法。 ！！！注意， 目前只能根据方法名来进行过滤，但是方法名后面的()还是要加上**
+  2.\*Service， **以Service结尾的方法，都会被拦截。  ！！！注意， 目前只能根据方法名来进行过滤，但是方法名后面的()还是要加上**
                         
   然后把两部份组合起来: 
-         1.com.jp.controller.* + "." + \*() = com.jp.controller.*.*(),  &nbsp;&nbsp;&nbsp;  com.jp.controller包下面的所有类的方法都会被拦截。!!!不包含子目录
-         2.com.jp.controller.. + "." + \*Service() = com.jp.controller...\*Service()  &nbsp;&nbsp;&nbsp; com.jp.controller包下面的所有类的方法都会被拦截。!!!包含子目录                
+  1.com.jp.controller.* + "." + \*() = com.jp.controller.*.*(),  &nbsp;&nbsp;&nbsp;  com.jp.controller包下面的所有类的方法都会被拦截。!!!不包含子目录
+  2.com.jp.controller.. + "." + \*Service() = com.jp.controller...\*Service()  &nbsp;&nbsp;&nbsp; com.jp.controller包下面的所有类的方法都会被拦截。!!!包含子目录                
 
   最后这样把他们包起来
     1. execution("com.jp.controller.\*.*()")
