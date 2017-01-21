@@ -16,6 +16,7 @@ jp-spring目前有下面5个部分
 
 
 **创建Controller**
+详情请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/blob/master/jp-spring-webmvc/READEME.md?dir=0&filepath=jp-spring-webmvc%2FREADEME.md&oid=aa4d8c10cd15757acf404baf8542d707c9d90456&sha=6a73525cdf0582043385b33126c4430c254e8c84">这里</a> 
 ```java
 @Controller
 public class TestController {
