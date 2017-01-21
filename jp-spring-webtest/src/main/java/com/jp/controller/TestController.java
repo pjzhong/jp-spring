@@ -14,6 +14,7 @@ import jp.spring.web.annotation.RequestParam;
  * Created by Administrator on 1/11/2017.
  */
 @Controller
+@RequestMapping("/example")
 public class TestController {
 
     @Autowired
@@ -28,7 +29,7 @@ public class TestController {
         return "test";
     }
 
-    @RequestMapping(value = "/test456465", method = RequestMethod.POST)
+    @RequestMapping(method = RequestMethod.GET)
     public String test() {
         return "test";
     }

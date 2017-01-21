@@ -70,7 +70,7 @@ public class DispatcherServlet extends FrameworkServlet {
         UrlMapping urlMapping = urlHandlerMapping.getUrlMapping(request);
         if(urlMapping == null) {
             response.setStatus(response.SC_NOT_FOUND);
-            throw new ServletException("Request of " + path + "Not Found");
+            return;
         }
 
         //Build context

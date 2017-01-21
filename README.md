@@ -7,7 +7,7 @@ Inspired by:
   https://github.com/code4craft/tiny-spring 
   https://github.com/menyouping/jw
 
-它目前有两部分组成
+jp-spring目前有下面5个部分
 - jp-ioc (负责bean的创建和注入，下面的模块都依赖这个核心。 核心的详解请看<a href=" https://github.com/code4craft/tiny-spring "> 这里 </a>)
 - jp-aop (AOP模块， 负责管理和创建Aspect，并对目标类进行织入)
 - jp-orm (ORM模块，现在还没完成)

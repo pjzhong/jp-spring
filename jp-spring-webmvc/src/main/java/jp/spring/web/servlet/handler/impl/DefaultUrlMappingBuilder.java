@@ -34,11 +34,14 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
         String clazzUrl = "";
 
         if(JpUtils.isAnnotated(controller, RequestMapping.class)) {
-            urls = controller.getAnnotation(RequestMapping.class).value();
+           urls = controller.getAnnotation(RequestMapping.class).value();
             if(StringUtils.isEmpty(urls) || urls.length > 1) {
                 throw new IllegalArgumentException("Incorrect use of @RequestMapping on " + controller);
             } else {
                 clazzUrl = urls[0];
+                if(!StringUtils.isEmpty(clazzUrl) && !clazzUrl.startsWith("/")) {
+                    clazzUrl = "/" + clazzUrl ;
+                }
             }
         }
 
@@ -54,6 +57,9 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
                 for(String url : urls) {
                     try {
                         if(!StringUtils.isEmpty(url)) {
+                            if(!url.startsWith("/")) {
+                                url = "/" + url;
+                            }
                             urlMapping = buildUrlMapping(urlMapping, clazzUrl, url);
                             urlMappings.add(urlMapping);
                             hasUrl = true;
