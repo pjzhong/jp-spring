@@ -82,6 +82,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
         Object controller = webApplicationContext.getBean(urlMapping.getBeanName());
         Object[] paras = autowireParameters(urlMapping);
+        urlMapping.getMethod().setAccessible(true);
         Object result = urlMapping.getMethod().invoke(controller, paras);
 
         if(JpUtils.isAnnotated(urlMapping.getMethod(), ResponseBody.class)) {
