@@ -1,10 +1,9 @@
 package jp.spring.ioc.beans.factory.impl;
 
 import jp.spring.ioc.BeansException;
-import jp.spring.ioc.beans.*;
-import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.support.*;
+import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
 
 import java.lang.reflect.Field;
@@ -30,35 +29,69 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
     }
 
     protected void resolveDependency(Object bean, BeanDefinition beanDefinition)  throws Exception{
-        Autowireds autowireds = beanDefinition.getAutowireds();
+        List<InjectField> fields = beanDefinition.getInjectFields();
+        if(JpUtils.isEmpty(fields)) {
+            return;
+        }
 
-        Object value;
-        for(Autowired autowired : autowireds.getAutowiredList()) {
-                Map<String, Object> matchingBeans = findAutowireCandidates(autowired.getId(), autowired.getAutowiredType());
-                if(matchingBeans.isEmpty() && autowired.isRequired()) {
-                    if(autowired.isRequired()) {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append("Inject ")
-                                .append(autowired.getAutowiredType())
-                                .append(" to ")
-                                .append(beanDefinition.getBeanClass())
-                                .append(" failed");
-                        throw new BeansException(stringBuilder.toString());
-                    }
-                }
+        /* 两种情况:
+         * 1.没有@Qualifier, 那么根据类型来获取注入对象。多个取第一个
+         * 2.用户添加了@Qualifier, 使用@Qualifier的值来获取注入对象
+         */
+        Object value = null;
+        for(InjectField injectField : beanDefinition.getInjectFields()) {
 
-               //现在还没有写如何处理个多个符合类型的情况，所以只是简单的选择第一个
+            if(StringUtils.isEmpty(injectField.getId())) {
+                Map<String, Object> matchingBeans = findAutowireCandidates(injectField.getId(), injectField.getAutowiredType());
                 value = matchingBeans.entrySet().iterator().next().getValue();
-                autowired.inject(bean, value);
+            } else {
+                value = getBean(injectField.getId());
+            }
+
+            if(value == null && injectField.isRequired()) {
+                if(injectField.isRequired()) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append("Inject ")
+                            .append(injectField.getAutowiredType())
+                            .append(" to ")
+                            .append(beanDefinition.getBeanClass())
+                            .append(" failed");
+                    throw new BeansException(stringBuilder.toString());
+                }
+            }
+
+            injectField.inject(bean, value);
         }
     }
 
     protected void injectPropertyValue(Object bean, BeanDefinition beanDefinition) throws Exception {
-        for(PropertyValue propertyValue : beanDefinition.getPropertyValues().getPropertyValues()) {
+        List<PropertyValue> values = beanDefinition.getPropertyValues();
+        if(values == null) {
+            return;
+        }
+
+        for(PropertyValue propertyValue : beanDefinition.getPropertyValues()) {
             Object value = propertyValue.getValue();
+            if(value == null) { // value的来源：用户在XML文件里声明，或者放在在properties文件里面
+                String strValue =  getProperties().getProperty(propertyValue.getName());
+                if(JpUtils.isPrimietive(propertyValue.getField().getType())) {
+                    value = JpUtils.convert(strValue, propertyValue.getField().getType());
+                }
+            }
+
             if(value instanceof BeanReference) {
                 BeanReference beanReference = (BeanReference) value;
                 value = getBean(beanReference.getName());
+            }
+
+            if(value == null && propertyValue.isRequired()) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Inject ").append(propertyValue.getName())
+                        .append(" to ").append(beanDefinition.getBeanClassName())
+                        .append(" failed");
+                throw new BeansException(builder.toString());
+            } else if(value == null) { //空值没有注入的必要
+                continue;
             }
 
             try {
@@ -68,7 +101,10 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
                 declaredMethod.setAccessible(true);
                 declaredMethod.invoke(bean, value);
             } catch (NoSuchMethodException e) {
-                Field declareField = bean.getClass().getDeclaredField(propertyValue.getName());
+                Field declareField = propertyValue.getField();
+                if(declareField == null) {
+                    declareField = bean.getClass().getDeclaredField(propertyValue.getName());
+                }
                 declareField.setAccessible(true);
                 declareField.set(bean, value);
             }
@@ -89,11 +125,5 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         }
 
         return result;
-    }
-
-    public static void main(String[] args) {
-        Map<String, String> stringStringMap = new HashMap<>();
-
-        System.out.println(stringStringMap.entrySet().iterator().next());
     }
 }

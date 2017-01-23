@@ -3,7 +3,7 @@ package jp.spring.aop.impl;
 import jp.spring.aop.BaseAspect;
 import jp.spring.aop.Proxy;
 import jp.spring.aop.ProxyFactory;
-import jp.spring.ioc.beans.BeanPostProcessor;
+import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.factory.BeanFactory;

@@ -7,10 +7,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jp.spring.webmvc</artifactId>
+    <artifactId>jp-webmvc</artifactId>
     <packaging>jar</packaging>
 
-    <name>jp.spring.webmvc</name>
+    <name>jp-webmvc</name>
     <url>http://maven.apache.org</url>
 
     <properties>
@@ -22,13 +22,13 @@
     <dependencies>
         <dependency>
             <groupId>jp.spring</groupId>
-            <artifactId>jp.spring.ioc</artifactId>
+            <artifactId>jp-ioc</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>jp.spring</groupId>
-            <artifactId>jp.spring.aop</artifactId>
+            <artifactId>jp-aop</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
 

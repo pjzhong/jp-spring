@@ -1,5 +1,8 @@
 package jp.spring.ioc.beans.support;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by Administrator on 12/24/2016.
  */
@@ -11,9 +14,9 @@ public class BeanDefinition {
 
     private String beanClassName;
 
-    private PropertyValues propertyValues = new PropertyValues();
+    private List<PropertyValue> propertyValues = null;
 
-    private Autowireds autowireds = new Autowireds();
+    private List<InjectField> injectFields = null;
 
     public BeanDefinition() {
     }
@@ -47,20 +50,27 @@ public class BeanDefinition {
         return bean;
     }
 
-    public PropertyValues getPropertyValues() {
+    public void add(InjectField injectField) {
+        if(injectFields == null) {
+            injectFields = new ArrayList<>();
+        }
+        injectFields.add(injectField);
+    }
+
+    public void add(PropertyValue propertyValue) {
+        if(propertyValues == null) {
+            propertyValues = new ArrayList<>();
+        }
+
+        propertyValues.add(propertyValue);
+    }
+
+    public List<PropertyValue> getPropertyValues() {
         return propertyValues;
     }
 
-    public void setPropertyValues(PropertyValues propertyValues) {
-        this.propertyValues = propertyValues;
-    }
-
-    public void setAutowireds(Autowireds autowireds) {
-        this.autowireds = autowireds;
-    }
-
-    public Autowireds getAutowireds() {
-        return autowireds;
+    public List<InjectField> getInjectFields() {
+        return injectFields;
     }
 
     @Override
@@ -68,7 +78,7 @@ public class BeanDefinition {
         return "BeanDefinition{" +
                 "beanClassName='" + beanClassName + '\'' +
                 ", propertyValues=" + propertyValues +
-                ", autowireds=" + autowireds +
+                ", injectFields=" + injectFields +
                 '}';
     }
 }

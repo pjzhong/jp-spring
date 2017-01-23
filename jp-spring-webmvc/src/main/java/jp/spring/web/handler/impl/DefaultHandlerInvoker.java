@@ -29,7 +29,7 @@ import java.util.Map;
 /**
  * Created by Administrator on 1/23/2017.
  */
-public class DefaultHanlderInvoker implements HandlerInvoker {
+public class DefaultHandlerInvoker implements HandlerInvoker {
 
     ViewResolver viewResolver = null;
 
@@ -133,7 +133,7 @@ public class DefaultHanlderInvoker implements HandlerInvoker {
     }
 
     /**
-     * Autowired POJO
+     * InjectField POJO
      * */
     private static Object autowiredParameter(Class<?> paramClass)  throws Exception {
         HttpServletRequest request = ProcessContext.getRequest();

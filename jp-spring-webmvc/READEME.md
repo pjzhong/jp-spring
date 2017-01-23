@@ -1,7 +1,10 @@
 webmvc 模块使用说明
 `======================`
 依赖：jp-ioc(核心模块)
-
+      fastJson
+      com.google.guava
+      commons-io
+      commons-fileupload
 <hr>
 首先创建一个Controller吧
 ```java

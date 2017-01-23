@@ -15,8 +15,6 @@ public class StringUtils {
      * */
     public static final Pattern PATTERN_CONFIG = Pattern.compile("(\\$\\{([^}]+)\\})");
 
-    public static final Pattern PATTERN_PATH_VARIABLE = Pattern.compile("(\\{([^}]+)\\})");
-
     public static final Pattern TO_UNDERLINE = Pattern.compile("[A-Z]");
 
     public static final Pattern TO_CAML_HUMB = Pattern.compile("_[a-z]");
@@ -86,10 +84,6 @@ public class StringUtils {
             builder.deleteCharAt(0);
         }
         return builder.toString();
-    }
-
-    public static void main(String[] args) {
-        System.out.println(toUnderline("productTypeId"));
     }
 
     // 将下划线风格替换为驼峰风格
