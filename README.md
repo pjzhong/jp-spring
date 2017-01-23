@@ -1,6 +1,6 @@
 ### jp-spring是一个Spring-like MVC框架
-> 一些名称为了方便熟悉直接Spring那里拿来......
-> 用了那么久Spring，也该动手模仿一下来加深理
+> 一些名称为了方便熟悉直接从pring那里拿来......
+> 用了那么久Spring，也该动手模仿一下来加深理理解
 
 <hr/>
 Inspired by:
@@ -141,3 +141,6 @@ contextConfigLocation这个名字是规定， 对应的值就是配置文件的�
 
 下一步我打算使用Annotation来代替XML, 然后只需配置一些属性放在 xxx.properties文件就行，例如数据库链接，需要的扫描的包，或者页面文件夹和扩展名等。
 尽快实现
+
+<hr>
+如果这个项目对你有帮助，可否留下一颗星星？
