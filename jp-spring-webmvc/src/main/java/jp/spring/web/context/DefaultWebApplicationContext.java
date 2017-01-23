@@ -7,6 +7,7 @@ import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.context.WebApplicationContext;
 import jp.spring.ioc.context.impl.ClassPathPropertiesApplicationContext;
+import jp.spring.ioc.context.impl.ClassPathXmlApplicationContext;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerInvoker;
@@ -23,7 +24,7 @@ import java.util.List;
 /**
  * Created by Administrator on 1/10/2017.
  */
-public class DefaultWebApplicationContext extends ClassPathPropertiesApplicationContext implements WebApplicationContext {
+public class DefaultWebApplicationContext extends ClassPathXmlApplicationContext implements WebApplicationContext {
 
     public DefaultWebApplicationContext(String location) throws Exception{
         super(location);

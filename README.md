@@ -15,6 +15,31 @@ jp-spring目前有下面5个部分
 - jp-webtest (所有模块在这里都会具体例子)
 
 
+**核心模块ioc， 请点 <a href="https://git.oschina.net/pj_zhong/jp-spring/blob/master/jp-ioc/README.md?dir=0&filepath=jp-ioc%2FREADME.md&oid=3999b5e82cf0cf5f7ff12400bcb392e9d95dd287&sha=6db89758dd2d1e377c27c77858ead1c4f3b777f8">这里</a>**
+```java
+@Component("helloService")
+public class HelloService {
+
+    @Value("jdbc.driver")
+    private String text;
+
+    @Autowired
+    private OutputService outputService;
+
+    @Autowired
+    @Qualifier("outService-2")
+    private OutputService outputService2;
+
+    public void helloWorld(String text) {
+        outputService.output(text);
+    }
+
+    public void outPutHello(String text) {
+        outputService2.output(text);
+    }
+}
+```
+
 **创建Controller**
 详情请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/blob/master/jp-spring-webmvc/READEME.md?dir=0&filepath=jp-spring-webmvc%2FREADEME.md&oid=aa4d8c10cd15757acf404baf8542d707c9d90456&sha=6a73525cdf0582043385b33126c4430c254e8c84">这里</a> 
 ```java
@@ -43,24 +68,6 @@ public class TestController {
         return "test";
     }
 }
-```
-
-**创建 Service**
-```java
-public interface OutputService {
-
-    public <T> void output(T text);
-}
-
-@Service
-public class OutputServiceImple implements OutputService {
-
-    @Override
-    public <T> void output(T text) {
-        System.out.println(text);
-    }
-}
-
 ```
 
 **创建 Aspect**
