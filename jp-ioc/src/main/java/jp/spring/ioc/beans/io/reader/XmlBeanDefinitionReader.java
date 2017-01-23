@@ -1,13 +1,11 @@
 package jp.spring.ioc.beans.io.reader;
 
-import jp.spring.ioc.beans.BeanDefinition;
-import jp.spring.ioc.beans.BeanReference;
-import jp.spring.ioc.beans.PropertyValue;
 import jp.spring.ioc.beans.io.Resource;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.loader.AnnotationResourceLoader;
-import jp.spring.ioc.stereotype.Component;
-import jp.spring.ioc.util.StringUtils;
+import jp.spring.ioc.beans.support.BeanDefinition;
+import jp.spring.ioc.beans.support.BeanReference;
+import jp.spring.ioc.beans.support.PropertyValue;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -16,7 +14,6 @@ import org.w3c.dom.NodeList;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.InputStream;
-import java.util.Set;
 
 /**
  * Created by Administrator on 12/25/2016.

@@ -1,12 +1,12 @@
 package jp.spring.ioc.beans.io.reader;
 
 
-import jp.spring.ioc.beans.Autowireds;
-import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.loader.AnnotationResourceLoader;
 import jp.spring.ioc.beans.io.resources.FileResource;
+import jp.spring.ioc.beans.support.Autowireds;
+import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.stereotype.Component;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.ioc.stereotype.Repository;
@@ -63,13 +63,13 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
     protected Autowireds parseAutowired(Class<?> beanClass) {
         Field[] fields = beanClass.getDeclaredFields();
         Autowireds autowireds = new Autowireds();
-        jp.spring.ioc.beans.Autowired autowired;
+        jp.spring.ioc.beans.support.Autowired autowired;
         for(Field field : fields) {
             if(JpUtils.isAnnotated(field, Autowired.class)) {
                 String id = StringUtils.lowerFirst( field.getType().getSimpleName());
                 boolean isRequired = field.getAnnotation(Autowired.class).required();
 
-                autowired = new jp.spring.ioc.beans.Autowired(id, field);
+                autowired = new  jp.spring.ioc.beans.support.Autowired(id, field);
                 autowired.setRequired(isRequired);
 
                 autowireds.addAutowired(autowired);

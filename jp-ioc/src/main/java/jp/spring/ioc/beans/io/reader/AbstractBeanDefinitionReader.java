@@ -1,7 +1,7 @@
 package jp.spring.ioc.beans.io.reader;
 
-import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.io.ResourceLoader;
+import jp.spring.ioc.beans.support.BeanDefinition;
 
 import java.util.HashMap;
 import java.util.Map;

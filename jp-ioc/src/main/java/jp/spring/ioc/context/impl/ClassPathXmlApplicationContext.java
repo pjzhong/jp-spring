@@ -1,10 +1,10 @@
 package jp.spring.ioc.context.impl;
 
-import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.factory.impl.AutowireCapableBeanFactory;
 import jp.spring.ioc.beans.io.loader.URLResourceLoader;
 import jp.spring.ioc.beans.io.reader.XmlBeanDefinitionReader;
+import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.context.AbstractApplicationContext;
 
 import java.util.Map;

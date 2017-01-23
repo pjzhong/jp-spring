@@ -27,6 +27,10 @@ public class ProcessContext {
         return  context.get();
     }
 
+    public static void destoryContext() {
+        context.remove();
+    }
+
     public static ProcessContext getContext() {
         return context.get();
     }

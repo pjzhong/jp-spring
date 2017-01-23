@@ -1,8 +1,8 @@
 package jp.spring.ioc.context;
 
-import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.BeanPostProcessor;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
+import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.context.impl.ApplicationContextAwareProcessor;
 
 import java.util.List;
