@@ -2,6 +2,7 @@ package jp.spring.ioc.beans.io.reader;
 
 
 import jp.spring.ioc.beans.factory.annotation.Autowired;
+import jp.spring.ioc.beans.factory.annotation.Qualifier;
 import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.loader.ClassResourceLoader;
@@ -81,7 +82,10 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
     private InjectField parseAutowired(Field field) {
         InjectField injectField;
 
-        String id = StringUtils.lowerFirst(field.getType().getSimpleName());
+        String id = null;
+        if(JpUtils.isAnnotated(field, Qualifier.class)) {
+          id = field.getAnnotation(Qualifier.class).value();
+        }
         boolean isRequired = field.getAnnotation(Autowired.class).required();
         injectField = new InjectField(id, field);
         injectField.setRequired(isRequired);

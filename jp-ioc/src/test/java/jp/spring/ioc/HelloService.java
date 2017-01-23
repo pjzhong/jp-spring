@@ -1,6 +1,7 @@
 package jp.spring.ioc;
 
 import jp.spring.ioc.beans.factory.annotation.Autowired;
+import jp.spring.ioc.beans.factory.annotation.Qualifier;
 import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.context.ApplicationContext;
 import jp.spring.ioc.context.ApplicationContextAware;
@@ -12,9 +13,9 @@ import java.util.List;
  * Created by Administrator on 12/24/2016.
  */
 @Service("helloService")
-public class HelloService implements ApplicationContextAware{
+public class HelloService {
 
-    @Value("jdbc.driver")
+    @Value(value = "jdbc.driver", required = false)
     private String text;
 
     ApplicationContext applicationContext;
@@ -22,26 +23,15 @@ public class HelloService implements ApplicationContextAware{
     @Autowired
     private OutputService outputService;
 
+    @Autowired
+    @Qualifier("outService-2")
+    private OutputService outputService2;
+
     public void helloWorld() {
-       System.out.println(text);
+        outputService.output(text);
     }
 
-    public void helloWorld2(String test) {
-        System.out.println(text);
-    }
-
-
-    public void helloWorlds(String fdsf) {
-        outputService.output(fdsf);
-    }
-
-
-    public void setOutputService(OutputServiceImpl outputService) {
-        this.outputService = outputService;
-    }
-
-    @Override
-    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
-        this.applicationContext = applicationContext;
+    public void outPutHello(String text) {
+        outputService2.output(text);
     }
 }

@@ -13,10 +13,6 @@ public class OutputServiceImpl implements OutputService {
     private HelloService helloService;
 
     public void output(String text) {
- /*       if(helloService == null) {
-            throw new RuntimeException("HelloService is null");
-        }*/
-        System.out.println(helloService);
         System.out.println(text);
     }
 
