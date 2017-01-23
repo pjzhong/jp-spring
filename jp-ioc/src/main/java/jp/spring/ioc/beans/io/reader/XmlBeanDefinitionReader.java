@@ -2,7 +2,7 @@ package jp.spring.ioc.beans.io.reader;
 
 import jp.spring.ioc.beans.io.Resource;
 import jp.spring.ioc.beans.io.ResourceLoader;
-import jp.spring.ioc.beans.io.loader.AnnotationResourceLoader;
+import jp.spring.ioc.beans.io.loader.ClassResourceLoader;
 import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.beans.support.BeanReference;
 import jp.spring.ioc.beans.support.PropertyValue;
@@ -62,7 +62,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
     protected void processBeanDefinition(Element element) {
         if("context:component-scan".equals(element.getTagName())) {
             String basePackage = element.getAttribute("base-package");
-            AnnotationBeanDefinitionReader reader = new AnnotationBeanDefinitionReader(new AnnotationResourceLoader());
+            AnnotationBeanDefinitionReader reader = new AnnotationBeanDefinitionReader(new ClassResourceLoader());
             try {
                 reader.loadBeanDefinitions(basePackage);
             } catch (Exception e) {
@@ -90,7 +90,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
                 String name = propertyElement.getAttribute("name");
                 String value = propertyElement.getAttribute("value");
                 if(value != null && value.length() > 0) {
-                    beanDefinition.getPropertyValues().addPropertyValue(new PropertyValue(name, value));
+                    beanDefinition.add(new PropertyValue(name, value));
                 } else {
                     String ref = propertyElement.getAttribute("ref");
                     if(ref == null || ref.length() == 0) {
@@ -98,7 +98,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
                         + name + " must specify a ref or value");
                     }
                     BeanReference beanReference = new BeanReference(ref);
-                    beanDefinition.getPropertyValues().addPropertyValue(new PropertyValue(name, beanReference));
+                    beanDefinition.add(new PropertyValue(name, beanReference));
                 }
 
             }

@@ -1,8 +1,8 @@
 <component name="ArtifactManager">
-  <artifact type="war" name="jp-spring-webtest:war">
+  <artifact type="war" name="jp.spring.webtest:war">
     <output-path>$PROJECT_DIR$/jp-spring-webtest/target</output-path>
     <root id="archive" name="jp.spring.webtest.war">
-      <element id="artifact" artifact-name="jp-spring-webtest:war exploded" />
+      <element id="artifact" artifact-name="jp.spring.webtest:war exploded" />
     </root>
   </artifact>
 </component>

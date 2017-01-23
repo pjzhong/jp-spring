@@ -1,7 +1,6 @@
 package jp.spring.ioc.beans.factory;
 
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
-import jp.spring.ioc.beans.BeanPostProcessor;
 import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.util.JpUtils;
 
@@ -11,7 +10,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Administrator on 12/25/2016.
- * 简单的规定了如何获取和注册Bean
+ * 简单的规定了如何获取和注册Bean,
  * 至于如何创造Bean，则留给子类去实现
  */
 public abstract class AbstractBeanFactory implements BeanFactory {
@@ -27,6 +26,8 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     private final List<String> beanDefinitionIds = new ArrayList<String>();
 
     private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
+
+    private final Properties properties = new Properties();
 
     /**
      * initializing bean
@@ -63,10 +64,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     protected Object initializeBean(Object bean, String name) throws Exception {
         if(!beanPostProcessors.isEmpty()) {
-            for(BeanPostProcessor beanPostProcessor : beanPostProcessors) {
-                bean = beanPostProcessor.postProcessBeforeInitialization(bean, name);
-            }
-
             for(BeanPostProcessor beanPostProcessor : beanPostProcessors) {
                 bean = beanPostProcessor.postProcessAfterInitialization(bean, name);
             }
@@ -144,5 +141,9 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         }
         beanNamesByAnnotation.put(annotation, result.toArray(new String[result.size()]));
         return result;
+    }
+
+    public Properties getProperties() {
+        return properties;
     }
 }

@@ -5,7 +5,7 @@ import java.lang.reflect.Field;
 /**
  * Created by Administrator on 1/8/2017.
  */
-public class Autowired {
+public class InjectField {
 
     private boolean isRequired = true;
 
@@ -13,7 +13,7 @@ public class Autowired {
 
     private final String id;
 
-    public Autowired(String id, Field field) {
+    public InjectField(String id, Field field) {
         this.id = id;
         this.field = field;
     }

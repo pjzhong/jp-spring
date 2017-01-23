@@ -6,7 +6,7 @@ import jp.spring.aop.helper.AspectHelper;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.context.WebApplicationContext;
-import jp.spring.ioc.context.impl.ClassPathXmlApplicationContext;
+import jp.spring.ioc.context.impl.ClassPathPropertiesApplicationContext;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerInvoker;
@@ -15,7 +15,7 @@ import jp.spring.web.handler.HandlerMappingBuilder;
 import jp.spring.web.handler.impl.DefaultHandlerMapping;
 
 import jp.spring.web.handler.impl.DefaultHandlerMappingBuilder;
-import jp.spring.web.handler.impl.DefaultHanlderInvoker;
+import jp.spring.web.handler.impl.DefaultHandlerInvoker;
 import jp.spring.web.view.ViewResolver;
 
 import java.util.List;
@@ -23,9 +23,9 @@ import java.util.List;
 /**
  * Created by Administrator on 1/10/2017.
  */
-public class DefaultXMLWebApplicationContext extends ClassPathXmlApplicationContext implements WebApplicationContext {
+public class DefaultWebApplicationContext extends ClassPathPropertiesApplicationContext implements WebApplicationContext {
 
-    public DefaultXMLWebApplicationContext(String location) throws Exception{
+    public DefaultWebApplicationContext(String location) throws Exception{
         super(location);
     }
 
@@ -55,7 +55,7 @@ public class DefaultXMLWebApplicationContext extends ClassPathXmlApplicationCont
 
         BeanDefinition invokerDefinition = new BeanDefinition();
         invokerDefinition.setBeanClass(HandlerInvoker.class);
-        invokerDefinition.setBean(new DefaultHanlderInvoker());
+        invokerDefinition.setBean(new DefaultHandlerInvoker());
         beanFactory.registerBeanDefinition(HandlerInvoker.DEFAULT_HANDLER_INVOKER, invokerDefinition);
     }
 

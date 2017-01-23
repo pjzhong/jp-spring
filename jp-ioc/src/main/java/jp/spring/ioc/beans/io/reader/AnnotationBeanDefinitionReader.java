@@ -2,11 +2,11 @@ package jp.spring.ioc.beans.io.reader;
 
 
 import jp.spring.ioc.beans.factory.annotation.Autowired;
+import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.beans.io.ResourceLoader;
-import jp.spring.ioc.beans.io.loader.AnnotationResourceLoader;
-import jp.spring.ioc.beans.io.resources.FileResource;
-import jp.spring.ioc.beans.support.Autowireds;
-import jp.spring.ioc.beans.support.BeanDefinition;
+import jp.spring.ioc.beans.io.loader.ClassResourceLoader;
+import jp.spring.ioc.beans.io.resources.ClassResource;
+import jp.spring.ioc.beans.support.*;
 import jp.spring.ioc.stereotype.Component;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.ioc.stereotype.Repository;
@@ -17,6 +17,8 @@ import jp.spring.ioc.util.StringUtils;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by Administrator on 1/8/2017.
@@ -28,18 +30,22 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
     }
 
     @Override
-    public void loadBeanDefinitions(String location) throws Exception {
-        if(getResourceLoader() instanceof AnnotationResourceLoader) {
-            FileResource[] fileResources = (FileResource[]) getResourceLoader().getResource(location);
-            for(FileResource fileResource : fileResources) {
-                doLoadBeanDefinitions(fileResource);
+    public void loadBeanDefinitions(String strLocation) throws Exception {
+        if(getResourceLoader() instanceof ClassResourceLoader) {
+
+            String[] locations = strLocation.split(";");
+            for(String location : locations) {
+                ClassResource[] classResources = (ClassResource[]) getResourceLoader().getResource(location);
+                for(ClassResource classResource : classResources) {
+                    doLoadBeanDefinitions(classResource);
+                }
             }
         }
     }
 
-    protected void doLoadBeanDefinitions(FileResource fileResource) {
+    protected void doLoadBeanDefinitions(ClassResource classResource) {
         try {
-            String className = fileResource.getClassName();
+            String className = classResource.getClassName();
             Class<?> beanClass = AnnotationBeanDefinitionReader.class.getClassLoader().loadClass(className);
 
             if(JpUtils.isAnnotated(beanClass, Component.class)) {
@@ -47,36 +53,59 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
                 if(StringUtils.isEmpty(name)) {
                     name = StringUtils.lowerFirst(beanClass.getSimpleName());
                 }
-
-                Autowireds autowireds = parseAutowired(beanClass);
-
                 BeanDefinition beanDefinition = new BeanDefinition();
                 beanDefinition.setBeanClass(beanClass);
-                beanDefinition.setAutowireds(autowireds);
+
+                parseFields(beanDefinition, beanClass);
+
+
                 getRegistry().put(name, beanDefinition);
             }
         } catch (ClassNotFoundException e) {
-            //Nothing should do now - 2017-1-8
+            //Simply skip
         }
     }
 
-    protected Autowireds parseAutowired(Class<?> beanClass) {
+    protected void parseFields(BeanDefinition beanDefinition, Class<?> beanClass) {
         Field[] fields = beanClass.getDeclaredFields();
-        Autowireds autowireds = new Autowireds();
-        jp.spring.ioc.beans.support.Autowired autowired;
+
         for(Field field : fields) {
             if(JpUtils.isAnnotated(field, Autowired.class)) {
-                String id = StringUtils.lowerFirst( field.getType().getSimpleName());
-                boolean isRequired = field.getAnnotation(Autowired.class).required();
-
-                autowired = new  jp.spring.ioc.beans.support.Autowired(id, field);
-                autowired.setRequired(isRequired);
-
-                autowireds.addAutowired(autowired);
+                beanDefinition.add( parseAutowired(field));
+            } else if(JpUtils.isAnnotated(field, Value.class)) {
+                beanDefinition.add( parseValue(field));
             }
         }
+    }
 
-        return autowireds;
+    private InjectField parseAutowired(Field field) {
+        InjectField injectField;
+
+        String id = StringUtils.lowerFirst(field.getType().getSimpleName());
+        boolean isRequired = field.getAnnotation(Autowired.class).required();
+        injectField = new InjectField(id, field);
+        injectField.setRequired(isRequired);
+
+
+        return injectField;
+    }
+
+    private PropertyValue parseValue(Field field) {
+        PropertyValue propertyValue = null;
+
+        Value value =  field.getAnnotation(Value.class);
+        String id = value.value();
+        if(StringUtils.isEmpty(id)) {
+            id = StringUtils.lowerFirst(field.getName());
+        }
+        boolean isRequired = field.getAnnotation(Value.class).required();
+
+        propertyValue = new PropertyValue();
+        propertyValue.setField(field);
+        propertyValue.setName(id);
+        propertyValue.setRequired(isRequired);
+
+        return propertyValue;
     }
 
     private String determinedName(Class<?> beanClass) {

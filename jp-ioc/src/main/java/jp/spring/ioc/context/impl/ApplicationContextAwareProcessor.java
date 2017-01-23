@@ -1,6 +1,6 @@
 package jp.spring.ioc.context.impl;
 
-import jp.spring.ioc.beans.BeanPostProcessor;
+import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.context.AbstractApplicationContext;
 import jp.spring.ioc.context.ApplicationContextAware;
 

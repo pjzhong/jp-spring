@@ -2,7 +2,7 @@ package jp.spring.ioc.beans.io.loader;
 
 import jp.spring.ioc.beans.io.Resource;
 import jp.spring.ioc.beans.io.ResourceLoader;
-import jp.spring.ioc.beans.io.resources.FileResource;
+import jp.spring.ioc.beans.io.resources.ClassResource;
 import jp.spring.ioc.util.StringUtils;
 
 import java.io.File;
@@ -20,7 +20,7 @@ import java.util.jar.JarFile;
 /**
  * Created by Administrator on 1/8/2017.
  */
-public class AnnotationResourceLoader implements ResourceLoader {
+public class ClassResourceLoader implements ResourceLoader {
 
     @Override
     public Resource[] getResource(String location) {
@@ -32,13 +32,13 @@ public class AnnotationResourceLoader implements ResourceLoader {
      * @param pkgName 支持多folder, 以";"分隔
      * @return
      * @throws Exception*/
-    protected static FileResource[] findClassFile(String pkgName) {
+    protected static ClassResource[] findClassFile(String pkgName) {
         if(StringUtils.isEmpty(pkgName)) {
             return null;
         }
 
-        Set<FileResource> list = new LinkedHashSet<FileResource>();
-        Set<FileResource> classFiles = null;
+        Set<ClassResource> list = new LinkedHashSet<ClassResource>();
+        Set<ClassResource> classFiles = null;
 
         String[] pkgs = pkgName.split("\\s*;\\s*");
         for(String pkg : pkgs) {
@@ -48,19 +48,19 @@ public class AnnotationResourceLoader implements ResourceLoader {
             }
         }
 
-        return list.toArray(new FileResource[list.size()]);
+        return list.toArray(new ClassResource[list.size()]);
     }
 
     /**
      * Get all class from this package
      * @param pkg
      */
-    protected static Set<FileResource> getClassFile(String pkg) {
-        Set<FileResource> classes = new LinkedHashSet<FileResource>();
+    protected static Set<ClassResource> getClassFile(String pkg) {
+        Set<ClassResource> classes = new LinkedHashSet<ClassResource>();
         boolean recursive = true;
         String pkgDirName = pkg.replace(".", "/");
         try {
-            URL url = AnnotationResourceLoader.class.getClassLoader().getResource(pkgDirName);
+            URL url = ClassResourceLoader.class.getClassLoader().getResource(pkgDirName);
             if(null == url) { return classes; }
 
             String protocol = url.getProtocol();
@@ -82,7 +82,7 @@ public class AnnotationResourceLoader implements ResourceLoader {
      * pkgName look like this —— com.zjp.pkg
      * pkgPath look like this —— com/zjp/pkg
      */
-    protected static void findClazzsByFile(String pkgName, String pkgPath, final boolean recursive, Set<FileResource> classFiles) {
+    protected static void findClazzsByFile(String pkgName, String pkgPath, final boolean recursive, Set<ClassResource> classFiles) {
         File dir = new File(pkgPath);
         if(!dir.exists() || !dir.isDirectory()) {
             return;
@@ -104,12 +104,12 @@ public class AnnotationResourceLoader implements ResourceLoader {
                  className = file.getName();
                  className = className.substring(0, className.length() - 6); // ".class".length = 6
                  className = pkgName + "." + className;
-                classFiles.add(new FileResource(file, className));
+                classFiles.add(new ClassResource(file, className));
             }
         }
     }
 
-    public static void findClassByJar(String pkgName, JarFile jar, final boolean recursive, Set<FileResource> classResource) {
+    public static void findClassByJar(String pkgName, JarFile jar, final boolean recursive, Set<ClassResource> classResource) {
         String packageDirName = pkgName.replace(".", "/");
 
         Enumeration<JarEntry> jarEntries = jar.entries();
@@ -132,7 +132,7 @@ public class AnnotationResourceLoader implements ResourceLoader {
                     if(name.endsWith(".class") && !jarEntry.isDirectory()) {
                         className = name.substring(pkgName.length() + 1, name.length() - 6); // ".class".length = 6
                         className = pkgName + "." + className;
-                        classResource.add(new FileResource(null, className));
+                        classResource.add(new ClassResource(null, className));
                     }
                 }
             }
