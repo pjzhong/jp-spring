@@ -1,21 +1,21 @@
 package jp.spring.web.context;
 
-import jp.spring.aop.BaseAspect;
+
 import jp.spring.aop.helper.AspectHelper;
-import jp.spring.aop.impl.AspectBeanPostProcessor;
-import jp.spring.aop.impl.ExecutionAspectProxy;
+
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.context.WebApplicationContext;
 import jp.spring.ioc.context.impl.ClassPathXmlApplicationContext;
-import jp.spring.ioc.stereotype.Aspect;
 import jp.spring.ioc.stereotype.Controller;
-import jp.spring.ioc.util.StringUtils;
-import jp.spring.web.servlet.handler.UrlHandlerMapping;
-import jp.spring.web.servlet.handler.UrlMapping;
-import jp.spring.web.servlet.handler.UrlMappingBuilder;
-import jp.spring.web.servlet.handler.impl.DefaultUrlHandlerMapping;
-import jp.spring.web.servlet.handler.impl.DefaultUrlMappingBuilder;
+import jp.spring.web.handler.Handler;
+import jp.spring.web.handler.HandlerInvoker;
+import jp.spring.web.handler.HandlerMapping;
+import jp.spring.web.handler.HandlerMappingBuilder;
+import jp.spring.web.handler.impl.DefaultHandlerMapping;
+
+import jp.spring.web.handler.impl.DefaultHandlerMappingBuilder;
+import jp.spring.web.handler.impl.DefaultHanlderInvoker;
 import jp.spring.web.view.ViewResolver;
 
 import java.util.List;
@@ -38,20 +38,25 @@ public class DefaultXMLWebApplicationContext extends ClassPathXmlApplicationCont
 
     private void initControllers(AbstractBeanFactory beanFactory) throws Exception {
         List<String> beanNames = beanFactory.getBeanNamByAnnotation(Controller.class);
-        UrlMappingBuilder builder = new DefaultUrlMappingBuilder();
-        DefaultUrlHandlerMapping urlHandlerMapping = new DefaultUrlHandlerMapping();
+        HandlerMappingBuilder builder = new DefaultHandlerMappingBuilder();
+        DefaultHandlerMapping handlerMapping = new DefaultHandlerMapping();
 
-        List<UrlMapping> urlMappings;
+        List<Handler> handlers;
         for(String beanName : beanNames) {
-            urlMappings = builder.buildUrlMapping(beanName, beanFactory.getType(beanName));
-            urlHandlerMapping.addUrlMappings(urlMappings);
-
+            handlers = builder.buildHandler(beanName, beanFactory.getType(beanName));
+            handlerMapping.addHandlers(handlers);
         }
 
-        BeanDefinition urlHandlerDefinition = new BeanDefinition();
-        urlHandlerDefinition.setBeanClass(DefaultUrlHandlerMapping.class);
-        urlHandlerDefinition.setBean(urlHandlerMapping);
-        beanFactory.registerBeanDefinition(UrlHandlerMapping.URL_HANDLER_MAPPING, urlHandlerDefinition);
+        //注册 handlerMapping 和 handlerInvoker到 factory 里面去。 ！！！这个手动注册虽然不好, 但在没想到其它方法之前，先这样吧......
+        BeanDefinition handlerDefinition = new BeanDefinition();
+        handlerDefinition.setBeanClass(HandlerMapping.class);
+        handlerDefinition.setBean(handlerMapping);
+        beanFactory.registerBeanDefinition(HandlerMapping.DEFAULT_HANDLER_MAPPING, handlerDefinition);
+
+        BeanDefinition invokerDefinition = new BeanDefinition();
+        invokerDefinition.setBeanClass(HandlerInvoker.class);
+        invokerDefinition.setBean(new DefaultHanlderInvoker());
+        beanFactory.registerBeanDefinition(HandlerInvoker.DEFAULT_HANDLER_INVOKER, invokerDefinition);
     }
 
     private void initAspect(AbstractBeanFactory beanFactory) throws Exception {

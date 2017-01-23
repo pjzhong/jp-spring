@@ -1,7 +1,8 @@
-package jp.spring.web.servlet.handler;
+package jp.spring.web.handler;
 
 
 import jp.spring.ioc.util.StringUtils;
+import jp.spring.web.handler.support.RequestMethodParameter;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -12,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Created by Administrator on 1/10/2017.
  */
-public class UrlMapping {
+public class Handler {
 
     private final String beanName;
 
@@ -30,7 +31,7 @@ public class UrlMapping {
      * */
     private Map<String, Integer> pathVariableMap = null;
 
-    public UrlMapping(Method method, String beanName) {
+    public Handler(Method method, String beanName) {
         this.method = method;
         this.beanName = beanName;
     }
@@ -96,7 +97,7 @@ public class UrlMapping {
 
     @Override
     public String toString() {
-        return "UrlMapping{" +
+        return "Handler{" +
                 "method=" + method +
                 ", beanName='" + beanName + '\'' +
                 ", url='" + url + '\'' +

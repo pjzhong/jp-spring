@@ -1,17 +1,16 @@
-package jp.spring.web.servlet.handler.impl;
+package jp.spring.web.handler.impl;
 
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.annotation.*;
-import jp.spring.web.servlet.handler.RequestMethodParameter;
-import jp.spring.web.servlet.handler.UrlMapping;
-import jp.spring.web.servlet.handler.UrlMappingBuilder;
+import jp.spring.web.handler.Handler;
+import jp.spring.web.handler.HandlerMappingBuilder;
+import jp.spring.web.handler.support.RequestMethodParameter;
 import jp.spring.web.util.UrlPathHelper;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,12 +19,12 @@ import java.util.Map;
 /**
  * Created by Administrator on 1/10/2017.
  */
-public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
+public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
 
-    public DefaultUrlMappingBuilder() {}
+    public DefaultHandlerMappingBuilder() {}
 
     @Override
-    public List<UrlMapping> buildUrlMapping(String name, Class<?> controller) {
+    public List<Handler> buildHandler(String name, Class<?> controller) {
         if(!JpUtils.isAnnotated(controller, Controller.class)) {
             return null;
         }
@@ -45,23 +44,23 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
             }
         }
 
-        List<UrlMapping> urlMappings = new ArrayList<>();
+        List<Handler> handlers = new ArrayList<>();
         Method[] methods = controller.getMethods();
-        UrlMapping urlMapping = null;
+        Handler handler = null;
         for(Method method : methods) {
             if(JpUtils.isAnnotated(method, RequestMapping.class)) {
                 method.setAccessible(true);
                 urls = method.getAnnotation(RequestMapping.class).value();
                 boolean hasUrl = false;
-                urlMapping = new UrlMapping(method, name);
+                handler = new Handler(method, name);
                 for(String url : urls) {
                     try {
                         if(!StringUtils.isEmpty(url)) {
                             if(!url.startsWith("/")) {
                                 url = "/" + url;
                             }
-                            urlMapping = buildUrlMapping(urlMapping, clazzUrl, url);
-                            urlMappings.add(urlMapping);
+                            handler = buildHandler(handler, clazzUrl, url);
+                            handlers.add(handler);
                             hasUrl = true;
                         }
                     } catch (Exception e) {
@@ -69,22 +68,22 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
                     }
                 }
                 if(!hasUrl) {
-                    urlMapping.setUrl(clazzUrl + method.getName());
-                    urlMappings.add(urlMapping);
+                    handler.setUrl(clazzUrl + method.getName());
+                    handlers.add(handler);
                 }
             }
         }
 
-        return urlMappings;
+        return handlers;
     }
 
-    private UrlMapping buildUrlMapping(UrlMapping urlMapping, String classUrl, String url) {
+    private Handler buildHandler(Handler handler, String classUrl, String url) {
         if(UrlPathHelper.PATTERN_PATH_VARIABLE.matcher(url).find()) {
-            Annotation[][] methodParamAnnos = urlMapping.getMethod().getParameterAnnotations();
+            Annotation[][] methodParamAnnos = handler.getMethod().getParameterAnnotations();
             if(!JpUtils.isEmpty(methodParamAnnos)) {
                 Map<String, Integer> pathVariableMap = new HashMap<>();
                 Annotation[] paramAnnos = null;
-                Class<?>[] paramTypes = urlMapping.getMethod().getParameterTypes();
+                Class<?>[] paramTypes = handler.getMethod().getParameterTypes();
                 Class<?> paramType;
 
                 int index = 1; //the regex index in url;
@@ -116,34 +115,34 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
                         }
                     }
                 }
-                urlMapping.setUrl(classUrl + url);
-                urlMapping.setUrlExpression("^" + classUrl + urlExpression + "$");
-                urlMapping.setPathVariableMap(pathVariableMap);
+                handler.setUrl(classUrl + url);
+                handler.setUrlExpression("^" + classUrl + urlExpression + "$");
+                handler.setPathVariableMap(pathVariableMap);
             }
         } else {
-            urlMapping.setUrl(classUrl + url);
+            handler.setUrl(classUrl + url);
         }
 
-        buildUrlMappingParameter(urlMapping);
-        return urlMapping;
+        buildHandlerParameter(handler);
+        return handler;
     }
 
-    private UrlMapping buildUrlMappingParameter(UrlMapping urlMapping) {
-        Annotation[][] paramAnnotations = urlMapping.getMethod().getParameterAnnotations();
+    private Handler buildHandlerParameter(Handler handler) {
+        Annotation[][] paramAnnotations = handler.getMethod().getParameterAnnotations();
         if(!JpUtils.isEmpty(paramAnnotations)) {
-            Class<?>[] paramTypes = urlMapping.getMethod().getParameterTypes();
-            urlMapping.setRequestMethodParameters(new ArrayList<RequestMethodParameter>());
+            Class<?>[] paramTypes = handler.getMethod().getParameterTypes();
+            handler.setRequestMethodParameters(new ArrayList<RequestMethodParameter>());
 
             for(int i = 0; i < paramAnnotations.length; i++) {
-                buildUrlMappingParameter(urlMapping, paramTypes[i], paramAnnotations[i]);
+                buildHandlerParameter(handler, paramTypes[i], paramAnnotations[i]);
             }
         }
 
-        return urlMapping;
+        return handler;
     }
 
-    private UrlMapping buildUrlMappingParameter(UrlMapping urlMapping, Class<?> paramType, Annotation[] annotation) {
-        List<RequestMethodParameter> methodParameters = urlMapping.getRequestMethodParameters();
+    private Handler buildHandlerParameter(Handler handler, Class<?> paramType, Annotation[] annotation) {
+        List<RequestMethodParameter> methodParameters = handler.getRequestMethodParameters();
 
         RequestMethodParameter parameter = new RequestMethodParameter();
         parameter.setType(paramType);
@@ -161,6 +160,6 @@ public class DefaultUrlMappingBuilder implements UrlMappingBuilder{
         }
         methodParameters.add(parameter);
 
-        return urlMapping;
+        return handler;
     }
 }

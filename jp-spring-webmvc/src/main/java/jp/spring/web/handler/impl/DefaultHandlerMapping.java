@@ -1,12 +1,14 @@
-package jp.spring.web.servlet.handler.impl;
+package jp.spring.web.handler.impl;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
+
 import jp.spring.ioc.util.JpUtils;
 import jp.spring.web.annotation.RequestMapping;
 import jp.spring.web.annotation.RequestMethod;
-import jp.spring.web.servlet.handler.UrlHandlerMapping;
-import jp.spring.web.servlet.handler.UrlMapping;
+import jp.spring.web.handler.Handler;
+import jp.spring.web.handler.HandlerMapping;
+
 import jp.spring.web.util.UrlPathHelper;
 
 import javax.servlet.http.HttpServletRequest;
@@ -17,16 +19,16 @@ import java.util.List;
 /**
  * Created by Administrator on 1/10/2017.
  */
-public class DefaultUrlHandlerMapping implements UrlHandlerMapping {
+public class DefaultHandlerMapping implements HandlerMapping {
 
-    private static final Multimap<String, UrlMapping> URL_MAP = ArrayListMultimap.create();
+    private static final Multimap<String, Handler> URL_MAP = ArrayListMultimap.create();
 
-    private static final List<UrlMapping> PATHVARIABLE_URL_MAP = new ArrayList<UrlMapping>();
+    private static final List<Handler> PATH_VARIABLE_URL_MAP = new ArrayList<Handler>();
 
     UrlPathHelper urlPathHelper = new UrlPathHelper();
 
     @Override
-    public UrlMapping getUrlMapping(HttpServletRequest request) {
+    public Handler getHandler(HttpServletRequest request) {
         String path = urlPathHelper.getLookupPathForRequest(request);
         String method = request.getMethod();
 
@@ -37,10 +39,10 @@ public class DefaultUrlHandlerMapping implements UrlHandlerMapping {
         return match(method, path);
     }
 
-    private UrlMapping match(String requestMethod, String path) {
-        Collection<UrlMapping> urlMappings = URL_MAP.get(path);
+    private Handler match(String requestMethod, String path) {
+        Collection<Handler> urlMappings = URL_MAP.get(path);
         if(JpUtils.isEmpty(urlMappings)) {
-            for(UrlMapping urlMapping : PATHVARIABLE_URL_MAP) {
+            for(Handler urlMapping : PATH_VARIABLE_URL_MAP) {
                 if(urlMapping.getUrlPattern().matcher(path).find()) {
                     urlMappings = URL_MAP.get(urlMapping.getUrl());
                     break;
@@ -50,7 +52,7 @@ public class DefaultUrlHandlerMapping implements UrlHandlerMapping {
 
         if(!JpUtils.isEmpty(urlMappings)) {
             RequestMethod[] allowedMethods;
-            for(UrlMapping urlMapping : urlMappings) {
+            for(Handler urlMapping : urlMappings) {
                 allowedMethods = urlMapping.getMethod().getAnnotation(RequestMapping.class).method();
 
                 for(RequestMethod allowedMethod : allowedMethods) {
@@ -64,16 +66,18 @@ public class DefaultUrlHandlerMapping implements UrlHandlerMapping {
         return null;
     }
 
-    public void addUrlMappings(List<UrlMapping> urlMappings) {
-        for(UrlMapping urlMapping : urlMappings) {
-            if(urlMapping == null) {
+    public void addHandlers(Collection<Handler> handlers) {
+        for(Handler handler : handlers) {
+            if(handler == null) {
                 continue;
             }
-            if(urlMapping.isHasPathVariable()) {
-                PATHVARIABLE_URL_MAP.add(urlMapping);
+
+            if(handler.isHasPathVariable()) {
+                PATH_VARIABLE_URL_MAP.add(handler);
             }
 
-            URL_MAP.put(urlMapping.getUrl(), urlMapping);;
+            URL_MAP.put(handler.getUrl(), handler);
         }
     }
+
 }

@@ -9,7 +9,7 @@ import jp.spring.ioc.stereotype.Aspect;
 /**
  * Created by Administrator on 1/20/2017.
  */
-@Aspect
+/*@Aspect*/
 @Pointcut("execution(com.jp.controller.*.test*())")
 public class TestControllerAspect {
 
