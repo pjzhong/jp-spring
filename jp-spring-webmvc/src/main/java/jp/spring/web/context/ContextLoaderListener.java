@@ -11,12 +11,16 @@ import javax.servlet.ServletContextListener;
  */
 public class ContextLoaderListener implements ServletContextListener{
 
+    /**
+     * 默认只载入根目录下的配置文件
+     * @param sce
+     */
     @Override
     public void contextInitialized(ServletContextEvent sce)  {
         ServletContext servletContext = sce.getServletContext();
         String configLocation = servletContext.getInitParameter("contextConfigLocation");
         try {
-            WebApplicationContext webApplicationContext = new DefaultXMLWebApplicationContext(configLocation);
+            WebApplicationContext webApplicationContext = new DefaultWebApplicationContext("/");
             servletContext.setAttribute(webApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, webApplicationContext);
         } catch (Exception e) {
             e.printStackTrace();

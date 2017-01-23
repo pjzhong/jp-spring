@@ -1,6 +1,7 @@
 package jp.spring.ioc;
 
 import jp.spring.ioc.beans.factory.annotation.Autowired;
+import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.context.ApplicationContext;
 import jp.spring.ioc.context.ApplicationContextAware;
 import jp.spring.ioc.stereotype.Service;
@@ -13,6 +14,7 @@ import java.util.List;
 @Service("helloService")
 public class HelloService implements ApplicationContextAware{
 
+    @Value("jdbc.driver")
     private String text;
 
     ApplicationContext applicationContext;
@@ -21,16 +23,16 @@ public class HelloService implements ApplicationContextAware{
     private OutputService outputService;
 
     public void helloWorld() {
-       System.out.println("hi!");
+       System.out.println(text);
     }
 
     public void helloWorld2(String test) {
-        System.out.println("hi!");
+        System.out.println(text);
     }
 
 
     public void helloWorlds(String fdsf) {
-        outputService.output(text);
+        outputService.output(fdsf);
     }
 
 

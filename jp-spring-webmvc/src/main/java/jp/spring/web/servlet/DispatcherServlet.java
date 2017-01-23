@@ -65,7 +65,7 @@ public class DispatcherServlet extends FrameworkServlet {
         try {
             handlerInvoker.invokeHandler(handler);
         } catch (Exception e) {
-
+            e.printStackTrace();
         } finally {
             ProcessContext.destoryContext();
         }

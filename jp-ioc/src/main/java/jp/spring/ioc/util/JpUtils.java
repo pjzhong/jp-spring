@@ -103,8 +103,8 @@ public class JpUtils {
                     }
                 }
             }
-        } catch (NumberFormatException e) {
-            System.out.println(e);
+        } catch (Exception e) {
+           throw new RuntimeException("Covert failed", e);
         }
         return null;
     }
@@ -126,13 +126,10 @@ public class JpUtils {
 
     public static Method findMethod(Class<?> clazz, String name) {
         if(clazz != null && name != null) {
-            Class<?> searchType = clazz;
-            while(searchType != null) {
-                Method[] methods = (searchType.isInterface() ? searchType.getMethods() : searchType.getDeclaredMethods());
-                for(Method method : methods) {
-                    if(name.equals(method.getName())) {
-                        return method;
-                    }
+            Method[] methods = (clazz.isInterface() ? clazz.getMethods() : clazz.getDeclaredMethods());
+            for(Method method : methods) {
+                if(name.equals(method.getName())) {
+                    return method;
                 }
             }
         }

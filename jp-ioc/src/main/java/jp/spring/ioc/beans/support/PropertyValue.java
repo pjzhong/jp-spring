@@ -1,16 +1,24 @@
 package jp.spring.ioc.beans.support;
 
+import java.lang.reflect.Field;
+
 /**
  * 用于bean的属性注入
  * @author yihua.huang@dianping.com
  */
 public class PropertyValue {
 
-    private final String name;
+    private  String name;
 
-    private final Object value;
+    private Field field;
+
+    private  Object value;
 
     private boolean isRequired = false;
+
+    public PropertyValue() {
+
+    }
 
     public PropertyValue(String name, Object value) {
         this.name = name;
@@ -31,6 +39,22 @@ public class PropertyValue {
 
     public void setRequired(boolean required) {
         isRequired = required;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setValue(Object value) {
+        this.value = value;
+    }
+
+    public Field getField() {
+        return field;
+    }
+
+    public void setField(Field field) {
+        this.field = field;
     }
 
     @Override

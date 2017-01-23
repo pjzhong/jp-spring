@@ -9,20 +9,12 @@ public class BeansException extends RuntimeException {
         super(msg);
     }
 
-    @Override
-    public boolean equals(Object other) {
-        if (this == other) {
-            return true;
-        }
-        if (!(other instanceof BeansException)) {
-            return false;
-        }
-        BeansException otherBe = (BeansException) other;
-        return (getMessage().equals(otherBe.getMessage()));
+    public BeansException(Throwable e) {
+        super(e);
     }
 
-    @Override
-    public int hashCode() {
-        return getMessage().hashCode();
+    public BeansException(String msg, Throwable t) {
+        super(msg, t);
     }
+
 }

@@ -70,6 +70,34 @@
         <processorPath useClasspath="true" />
         <module name="jp-aop" />
       </profile>
+      <profile default="false" name="Annotation profile for jp.spring.ioc" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="jp.spring.ioc" />
+      </profile>
+      <profile default="false" name="Annotation profile for jp.spring.webmvc" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="jp.spring.webmvc" />
+      </profile>
+      <profile default="false" name="Annotation profile for jp.spring.webtest" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="jp.spring.webtest" />
+      </profile>
+      <profile default="false" name="Annotation profile for jp.spring.aop" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="true" />
+        <module name="jp.spring.aop" />
+      </profile>
     </annotationProcessing>
     <bytecodeTargetLevel target="1.8">
       <module name="jp-aop" target="1.8" />
@@ -80,7 +108,12 @@
       <module name="jp-spring-webmvc" target="1.8" />
       <module name="jp-spring-webmvcTest" target="1.8" />
       <module name="jp-spring-webtest" target="1.8" />
+      <module name="jp.spring" target="1.8" />
+      <module name="jp.spring.aop" target="1.8" />
+      <module name="jp.spring.ioc" target="1.8" />
       <module name="jp.spring.orm" target="1.8" />
+      <module name="jp.spring.webmvc" target="1.8" />
+      <module name="jp.spring.webtest" target="1.8" />
     </bytecodeTargetLevel>
   </component>
 </project>
