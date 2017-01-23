@@ -1,4 +1,4 @@
-package jp.spring.ioc.beans;
+package jp.spring.ioc.beans.support;
 
 /**
  * Created by Administrator on 12/26/2016.

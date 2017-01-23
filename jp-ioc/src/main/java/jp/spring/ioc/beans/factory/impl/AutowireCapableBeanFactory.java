@@ -4,6 +4,7 @@ import jp.spring.ioc.BeansException;
 import jp.spring.ioc.beans.*;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
+import jp.spring.ioc.beans.support.*;
 import jp.spring.ioc.util.StringUtils;
 
 import java.lang.reflect.Field;

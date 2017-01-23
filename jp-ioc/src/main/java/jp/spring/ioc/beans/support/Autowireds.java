@@ -1,4 +1,4 @@
-package jp.spring.ioc.beans;
+package jp.spring.ioc.beans.support;
 
 import java.util.ArrayList;
 import java.util.Collections;

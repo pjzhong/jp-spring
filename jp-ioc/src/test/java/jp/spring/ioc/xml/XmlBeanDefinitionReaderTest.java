@@ -1,8 +1,8 @@
 package jp.spring.ioc.xml;
 
-import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.io.loader.URLResourceLoader;
 import jp.spring.ioc.beans.io.reader.XmlBeanDefinitionReader;
+import jp.spring.ioc.beans.support.BeanDefinition;
 
 import java.util.Map;
 

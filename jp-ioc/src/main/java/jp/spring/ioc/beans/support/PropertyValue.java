@@ -1,4 +1,4 @@
-package jp.spring.ioc.beans;
+package jp.spring.ioc.beans.support;
 
 /**
  * 用于bean的属性注入

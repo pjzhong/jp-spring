@@ -1,8 +1,8 @@
 package jp.spring.ioc.beans.factory;
 
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
-import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.BeanPostProcessor;
+import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.util.JpUtils;
 
 import java.lang.annotation.Annotation;

@@ -1,10 +1,11 @@
 package jp.spring.web.context;
 
 import jp.spring.aop.BaseAspect;
+import jp.spring.aop.helper.AspectHelper;
 import jp.spring.aop.impl.AspectBeanPostProcessor;
 import jp.spring.aop.impl.ExecutionAspectProxy;
-import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
+import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.context.WebApplicationContext;
 import jp.spring.ioc.context.impl.ClassPathXmlApplicationContext;
 import jp.spring.ioc.stereotype.Aspect;
@@ -54,24 +55,11 @@ public class DefaultXMLWebApplicationContext extends ClassPathXmlApplicationCont
     }
 
     private void initAspect(AbstractBeanFactory beanFactory) throws Exception {
-        List<String> beanNames = beanFactory.getBeanNamByAnnotation(Aspect.class);
-
-        BeanDefinition beanDefinition;
-        for(String name : beanNames) {
-            beanDefinition = new BeanDefinition();
-            BaseAspect aspect = new ExecutionAspectProxy(beanFactory.getType(name), beanFactory.getBean(name));
-
-/*            beanDefinition.setBeanClass(aspect.getClass());*/
-            beanDefinition.setBeanClass(aspect.getClass());
-            beanDefinition.setBean(aspect);
-
-            registerBeanDefinition(name + ".proxy", beanDefinition);
-        }
-
-        //注册Aspect处理器
-        beanDefinition = new BeanDefinition();
-        beanDefinition.setBeanClass(AspectBeanPostProcessor.class);
-        registerBeanDefinition(StringUtils.lowerFirst(AspectBeanPostProcessor.class.getSimpleName()), beanDefinition);
+       try {
+           AspectHelper.getInstance().initAspect(beanFactory);
+       } catch (ClassNotFoundException e) {
+           //User didn't import aop package , simply skip
+       }
     }
 
     @Override
