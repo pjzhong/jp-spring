@@ -15,16 +15,8 @@ public class ApplicationContextTest {
     @Test
     public void test() throws Exception {
         ApplicationContext applicationContext = new ClassPathPropertiesApplicationContext("/");
-/*        TestController testController = (TestController) applicationContext.getBean("testController");
-        System.out.println(testController.out());*/
         HelloService helloService = (HelloService) applicationContext.getBean("helloService");
         helloService.helloWorld();
-
-        System.out.println();
-
-/*
-        System.out.println();
-        helloService.helloWorld();*/
-
+        helloService.outPutHello("test");
     }
 }

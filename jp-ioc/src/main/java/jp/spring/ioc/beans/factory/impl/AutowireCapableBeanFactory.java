@@ -34,24 +34,33 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
             return;
         }
 
-        Object value;
-        for(InjectField injectField :beanDefinition.getInjectFields()) {
-                Map<String, Object> matchingBeans = findAutowireCandidates(injectField.getId(), injectField.getAutowiredType());
-                if(matchingBeans.isEmpty() && injectField.isRequired()) {
-                    if(injectField.isRequired()) {
-                        StringBuilder stringBuilder = new StringBuilder();
-                        stringBuilder.append("Inject ")
-                                .append(injectField.getAutowiredType())
-                                .append(" to ")
-                                .append(beanDefinition.getBeanClass())
-                                .append(" failed");
-                        throw new BeansException(stringBuilder.toString());
-                    }
-                }
+        /* 两种情况:
+         * 1.没有@Qualifier, 那么根据类型来获取注入对象。多个取第一个
+         * 2.用户添加了@Qualifier, 使用@Qualifier的值来获取注入对象
+         */
+        Object value = null;
+        for(InjectField injectField : beanDefinition.getInjectFields()) {
 
-               //现在还没有写如何处理个多个符合类型的情况，所以只是简单的选择第一个
+            if(StringUtils.isEmpty(injectField.getId())) {
+                Map<String, Object> matchingBeans = findAutowireCandidates(injectField.getId(), injectField.getAutowiredType());
                 value = matchingBeans.entrySet().iterator().next().getValue();
-                injectField.inject(bean, value);
+            } else {
+                value = getBean(injectField.getId());
+            }
+
+            if(value == null && injectField.isRequired()) {
+                if(injectField.isRequired()) {
+                    StringBuilder stringBuilder = new StringBuilder();
+                    stringBuilder.append("Inject ")
+                            .append(injectField.getAutowiredType())
+                            .append(" to ")
+                            .append(beanDefinition.getBeanClass())
+                            .append(" failed");
+                    throw new BeansException(stringBuilder.toString());
+                }
+            }
+
+            injectField.inject(bean, value);
         }
     }
 
@@ -62,24 +71,12 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         }
 
         for(PropertyValue propertyValue : beanDefinition.getPropertyValues()) {
-
             Object value = propertyValue.getValue();
             if(value == null) { // value的来源：用户在XML文件里声明，或者放在在properties文件里面
-                try {
-                    String strValue =  getProperties().getProperty(propertyValue.getName());
-                    if(JpUtils.isPrimietive(propertyValue.getField().getType())) {
-                        value = JpUtils.convert(strValue, propertyValue.getField().getType());
-                    }
-                } catch (Exception e) {
-                    if(propertyValue.isRequired()) {
-                        StringBuilder builder = new StringBuilder();
-                        builder.append("inject ").append(propertyValue.getName())
-                                .append(" to ").append(beanDefinition.getBeanClassName())
-                                .append("failed");
-                        throw new BeansException(builder.toString(), e);
-                    }
+                String strValue =  getProperties().getProperty(propertyValue.getName());
+                if(JpUtils.isPrimietive(propertyValue.getField().getType())) {
+                    value = JpUtils.convert(strValue, propertyValue.getField().getType());
                 }
-
             }
 
             if(value instanceof BeanReference) {
@@ -87,8 +84,13 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
                 value = getBean(beanReference.getName());
             }
 
-            //空值没有注入的必要
-            if(value == null) {
+            if(value == null && propertyValue.isRequired()) {
+                StringBuilder builder = new StringBuilder();
+                builder.append("Inject ").append(propertyValue.getName())
+                        .append(" to ").append(beanDefinition.getBeanClassName())
+                        .append(" failed");
+                throw new BeansException(builder.toString());
+            } else if(value == null) { //空值没有注入的必要
                 continue;
             }
 
