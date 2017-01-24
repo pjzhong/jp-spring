@@ -7,7 +7,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>jp.spring.orm</artifactId>
+    <artifactId>jp-orm</artifactId>
     <packaging>jar</packaging>
 
     <name>jp-orm</name>
