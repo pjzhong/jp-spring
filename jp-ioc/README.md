@@ -65,7 +65,7 @@ public class outputServiceImpl2  implements OutputService {
 <hr>
 **@Value**
 这个标记主要是用来为类注入配置中的值。
-就像 HelloService 的例子中， 成员变量text， ioc会从配置文件需要合适的值并对其注入
+就像 HelloService 的例子中， 成员变量text， ioc会从配置文件选取合适的值并对其注入
 配置文件
 ```java
 package.scan=jp.spring
@@ -73,7 +73,7 @@ test=123456
 jdbc.driver=com.mysql.jdbc.Driver
 ```
 
-@Value默认注入失败也不会报错的, 如果想提示注入失败可以这样写
+@Value默认注入失败也不会报错的, 如果需要提示注入失败可以这样写
 ```java
 @Component("helloService")
 public class HelloService {
