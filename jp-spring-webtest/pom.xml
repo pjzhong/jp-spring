@@ -24,7 +24,7 @@
 
         <dependency>
             <groupId>jp.spring</groupId>
-            <artifactId>jp.spring.orm</artifactId>
+            <artifactId>jp-orm</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
