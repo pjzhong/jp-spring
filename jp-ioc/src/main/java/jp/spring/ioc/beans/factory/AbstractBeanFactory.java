@@ -29,6 +29,14 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     private final Properties properties = new Properties();
 
+    public void refresh() {
+        try {
+            beforeInitializeBean();
+        } catch (Exception e) {
+            throw new RuntimeException("Error Raised when refresh factory", e);
+        }
+    }
+
     /**
      * initializing bean
      * */
@@ -37,7 +45,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     @Override
     public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception{
         if(beanNameDefinitionMap.containsKey(name)) {
-            throw new IllegalArgumentException("Bean " + name + "must be unique");
+            throw new IllegalArgumentException("Bean name " + name + " must be unique");
         }
         beanNameDefinitionMap.put(name, beanDefinition);
         beanDefinitionIds.add(name);
@@ -52,7 +60,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         Object bean = beanDefinition.getBean();
         if(bean == null) {
             bean = doCreateBean(beanDefinition);
-            bean = initializeBean(bean, name);
+            bean = afterInitializeBean(bean, name);
             beanDefinition.setBean(bean);
         }
         return beanDefinition.getBean();
@@ -62,7 +70,15 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         this.beanPostProcessors.add(beanPostProcessor);
     }
 
-    protected Object initializeBean(Object bean, String name) throws Exception {
+    protected void beforeInitializeBean() throws Exception {
+        if(!beanPostProcessors.isEmpty()) {
+            for(BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+                beanPostProcessor.postProcessBeforeInitialization();
+            }
+        }
+    }
+
+    protected Object afterInitializeBean(Object bean, String name) throws Exception {
         if(!beanPostProcessors.isEmpty()) {
             for(BeanPostProcessor beanPostProcessor : beanPostProcessors) {
                 bean = beanPostProcessor.postProcessAfterInitialization(bean, name);
@@ -88,19 +104,19 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
 
     public <A> List<A> getBeansForType(Class<A> type) throws Exception {
-        List<A> beans = new ArrayList<A>();
-
         if(beansByType.get(type) != null) {
             return (List<A>)beansByType.get(type);
         }
 
+        List<A> beans = new ArrayList<A>();
         for(String beanDefinitionName : beanDefinitionIds) {
             if(type.isAssignableFrom(beanNameDefinitionMap.get(beanDefinitionName).getBeanClass())) {
                 beans.add((A) getBean(beanDefinitionName));
             }
         }
-
-        beansByType.put(type, beans);
+        if(!JpUtils.isEmpty(beans)) {
+            beansByType.put(type, beans);
+        }
         return beans;
     }
 
@@ -121,7 +137,10 @@ public abstract class AbstractBeanFactory implements BeanFactory {
                 result.add(beanName);
             }
         }
-        beanNamesByType.put(targetType, result.toArray(new String[result.size()]));
+
+        if(!JpUtils.isEmpty(result)) {
+            beanNamesByType.put(targetType, result.toArray(new String[result.size()]));
+        }
         return result;
     }
 
@@ -139,7 +158,10 @@ public abstract class AbstractBeanFactory implements BeanFactory {
                result.add(beanName);
             }
         }
-        beanNamesByAnnotation.put(annotation, result.toArray(new String[result.size()]));
+
+        if(!JpUtils.isEmpty(result)) {
+            beanNamesByAnnotation.put(annotation, result.toArray(new String[result.size()]));
+        }
         return result;
     }
 

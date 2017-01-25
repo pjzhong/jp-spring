@@ -43,7 +43,9 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
 
             if(StringUtils.isEmpty(injectField.getId())) {
                 Map<String, Object> matchingBeans = findAutowireCandidates(injectField.getId(), injectField.getAutowiredType());
-                value = matchingBeans.entrySet().iterator().next().getValue();
+                if(!JpUtils.isEmpty(matchingBeans)) {
+                    value = matchingBeans.entrySet().iterator().next().getValue();
+                }
             } else {
                 value = getBean(injectField.getId());
             }
@@ -96,7 +98,7 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
 
             try {
                 Method declaredMethod = bean.getClass().getDeclaredMethod(
-                        "set" + StringUtils.upperFirst(propertyValue.getName()), value.getClass());
+                        "set" + StringUtils.upperFirst(propertyValue.getField().getName()), value.getClass());
 
                 declaredMethod.setAccessible(true);
                 declaredMethod.invoke(bean, value);

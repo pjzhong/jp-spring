@@ -36,6 +36,7 @@ public class ProcessContext {
     }
 
     public static HttpServletRequest getRequest() {
+
         return (HttpServletRequest) getContext().objectMap.get(REQUEST);
     }
 

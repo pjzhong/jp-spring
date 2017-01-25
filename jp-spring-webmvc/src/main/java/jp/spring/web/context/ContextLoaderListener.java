@@ -18,7 +18,8 @@ public class ContextLoaderListener implements ServletContextListener{
     @Override
     public void contextInitialized(ServletContextEvent sce)  {
         ServletContext servletContext = sce.getServletContext();
-        String configLocation = servletContext.getInitParameter("contextConfigLocation");
+   /*     String configLocation = servletContext.getInitParameter("contextConfigLocation");*/
+        String configLocation = "/";
         try {
             WebApplicationContext webApplicationContext = new DefaultWebApplicationContext(configLocation);
             servletContext.setAttribute(webApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE, webApplicationContext);
@@ -31,4 +32,6 @@ public class ContextLoaderListener implements ServletContextListener{
     public void contextDestroyed(ServletContextEvent sce) {
 
     }
+
+
 }

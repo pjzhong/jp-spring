@@ -8,7 +8,7 @@
 <div class="big">
     Css Testing
 </div>
-<div class="jsp">
+<div class="page">
  I am a Jsp Page
 </div>
 </body>

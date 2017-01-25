@@ -1,5 +1,6 @@
 package jp.spring.ioc.beans.io.reader;
 
+import jp.spring.ioc.beans.io.BeanDefinitionReader;
 import jp.spring.ioc.beans.io.Resource;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.loader.ClassResourceLoader;
@@ -62,7 +63,7 @@ public class XmlBeanDefinitionReader extends AbstractBeanDefinitionReader {
     protected void processBeanDefinition(Element element) {
         if("context:component-scan".equals(element.getTagName())) {
             String basePackage = element.getAttribute("base-package");
-            AnnotationBeanDefinitionReader reader = new AnnotationBeanDefinitionReader(new ClassResourceLoader());
+            AbstractBeanDefinitionReader reader = AnnotationBeanDefinitionReader.getInstance();
             try {
                 reader.loadBeanDefinitions(basePackage);
             } catch (Exception e) {

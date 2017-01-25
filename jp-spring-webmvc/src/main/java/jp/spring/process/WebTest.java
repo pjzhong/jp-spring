@@ -1,0 +1,18 @@
+package jp.spring.process;
+
+import jp.spring.ioc.beans.factory.BeanPostProcessor;
+import jp.spring.ioc.stereotype.Component;
+
+/**
+ * Created by Administrator on 1/24/2017.
+ */
+@Component("webTest")
+public class WebTest  {
+    public WebTest() {
+        System.out.println("I am WebTest");
+    }
+    
+    public String toString() {
+        return  "I am webTest";
+    }
+}

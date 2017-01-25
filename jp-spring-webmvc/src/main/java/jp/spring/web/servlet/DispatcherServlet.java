@@ -10,7 +10,7 @@ import jp.spring.web.handler.HandlerMapping;
 
 import jp.spring.web.util.FileUtils;
 import jp.spring.web.util.UrlPathHelper;
-
+import jp.spring.web.util.WebUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -52,7 +52,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
         Handler handler = handlerMapping.getHandler(request);
         if(handler == null) {
-            response.setStatus(response.SC_NOT_FOUND);
+            response.sendError(response.SC_NOT_FOUND, path + " Not Found");
             return;
         }
 
@@ -66,10 +66,10 @@ public class DispatcherServlet extends FrameworkServlet {
             handlerInvoker.invokeHandler(handler);
         } catch (Exception e) {
             e.printStackTrace();
+            WebUtil.sendError(response.SC_INTERNAL_SERVER_ERROR, e.getMessage(), response);
         } finally {
             ProcessContext.destoryContext();
         }
-
     }
 
     protected boolean isStaticResource(HttpServletResponse response, String path) {

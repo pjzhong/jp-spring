@@ -1,14 +1,16 @@
 package com.jp.Model;
 
 
+/*
 import jp.spring.orm.annotation.Table;
 import jp.spring.orm.base.BaseBean;
+*/
 
 /**
  * Created by Administrator on 1/17/2017.
  */
-@Table("product")
-public class Product extends BaseBean {
+/*@Table("product")*/
+public class Product /*extends BaseBean*/ {
     private int id;
     private long productTypeId;
     private String name;
