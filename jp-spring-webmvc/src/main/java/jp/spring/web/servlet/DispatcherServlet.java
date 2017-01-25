@@ -43,26 +43,26 @@ public class DispatcherServlet extends FrameworkServlet {
     }
 
     @Override
-    protected void doService(HttpServletRequest request, HttpServletResponse response) throws Exception {
+    protected void doService(HttpServletRequest request, HttpServletResponse response) {
         String path = urlPathHelper.getLookupPathForRequest(request);
-
         if(isStaticResource(response, path)) {
             return;
         }
 
-        Handler handler = handlerMapping.getHandler(request);
-        if(handler == null) {
-            response.sendError(response.SC_NOT_FOUND, path + " Not Found");
-            return;
-        }
-
-        //Build context
-        ProcessContext
-                .buildContext()
-                .set(ProcessContext.REQUEST, request)
-                .set(ProcessContext.RESPONSE, response)
-                .set(ProcessContext.REQUEST_URL, path);
         try {
+            Handler handler = handlerMapping.getHandler(request);
+            if(handler == null) {
+                response.sendError(response.SC_NOT_FOUND, path + " Not Found");
+                return;
+            }
+
+            //Build context
+            ProcessContext
+                    .buildContext()
+                    .set(ProcessContext.REQUEST, request)
+                    .set(ProcessContext.RESPONSE, response)
+                    .set(ProcessContext.REQUEST_URL, path);
+
             handlerInvoker.invokeHandler(handler);
         } catch (Exception e) {
             e.printStackTrace();

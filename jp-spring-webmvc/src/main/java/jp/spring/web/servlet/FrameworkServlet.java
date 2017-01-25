@@ -18,41 +18,33 @@ public abstract class FrameworkServlet extends HttpServlet{
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        processRequest(req, resp);
+        doService(req, resp);
     }
 
 
     @Override
     protected final void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        processRequest(req, resp);
+        doService(req, resp);
     }
 
     @Override
     protected final void doPost(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        processRequest(req, resp);
+        doService(req, resp);
     }
 
     @Override
     protected final void doPut(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        processRequest(req, resp);
+        doService(req, resp);
     }
 
     @Override
     protected final void doDelete(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        processRequest(req, resp);
+        doService(req, resp);
     }
 
-    protected  void processRequest(HttpServletRequest request, HttpServletResponse response)  throws ServletException, IOException {
-        try {
-            doService(request, response);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    protected abstract void doService(HttpServletRequest request, HttpServletResponse response) throws Exception;
+    protected abstract void doService(HttpServletRequest request, HttpServletResponse response);
 }
