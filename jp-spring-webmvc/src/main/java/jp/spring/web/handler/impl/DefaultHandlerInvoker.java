@@ -44,10 +44,10 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
             Object result = method.invoke(controller, args);
 
             HttpServletResponse response = ProcessContext.getResponse();
-            if(JpUtils.isAnnotated(handler.getMethod(), ResponseBody.class)) {
+            if(JpUtils.isAnnotated(handler.getMethod(), ResponseBody.class) || !(result instanceof String) ) {
                 response.setHeader("Context-type", "application/json;charset=UTF-8");
                 response.getWriter().write(JSON.toJSONString(result));
-            }else if(result instanceof String ) {
+            } else if(result instanceof String ) {
                 String pagePath = (String) result;
                 if(!StringUtils.isEmpty(pagePath)) {
                     String[] pagePaths = pagePath.split(":");
@@ -61,8 +61,6 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
                     }
                 }
             }
-
-
 
         } catch (Exception e) {
             throw new RuntimeException("Error raised in HandlerInvoker", e);
@@ -97,6 +95,7 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
             String name = null, value = null;
             //因为UrlMapping都是UrlMappingBuilder创造的，所以确保了有value()这个方法.....
             Method method =  parameter.getValueMethod();
+            method.setAccessible(true);
             name = (String) method.invoke(parameter.getAnnotation(), null);
             if(name.isEmpty()) {
                 return null;

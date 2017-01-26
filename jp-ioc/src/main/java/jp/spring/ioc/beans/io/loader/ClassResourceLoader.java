@@ -3,6 +3,7 @@ package jp.spring.ioc.beans.io.loader;
 import jp.spring.ioc.beans.io.Resource;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.resources.ClassResource;
+import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
 
 import java.io.File;
@@ -60,17 +61,21 @@ public class ClassResourceLoader implements ResourceLoader {
         boolean recursive = true;
         String pkgDirName = pkg.replace(".", "/");
         try {
-            URL url = ClassResourceLoader.class.getClassLoader().getResource(pkgDirName);
-            if(null == url) { return classes; }
+           Enumeration<URL> urls = ClassResourceLoader.class.getClassLoader().getResources(pkgDirName);
+           if(urls == null) { return null;}
 
-            String protocol = url.getProtocol();
-            if("file".equals(protocol)) { // 如果是以文件的形式保存在服务器上
-                String filePath = URLDecoder.decode(url.getFile(), "UTF-8"); // 获取包的物理路径
-                findClazzsByFile(pkg, filePath, recursive, classes);
-            } else if ("jar".equals(protocol)) {
-                JarFile jar = ((JarURLConnection)url.openConnection()).getJarFile();
-                findClassByJar(pkg, jar, recursive, classes);
-            }
+           URL url = null;
+           while(urls.hasMoreElements()) {
+              url = urls.nextElement();
+              String protocol = url.getProtocol();
+              if("file".equals(protocol)) { // 如果是以文件的形式保存在服务器上
+                    String filePath = URLDecoder.decode(url.getFile(), "UTF-8"); // 获取包的物理路径
+                    findClazzsByFile(pkg, filePath, recursive, classes);
+              } else if ("jar".equals(protocol)) {
+                  JarFile jar = ((JarURLConnection)url.openConnection()).getJarFile();
+                  findClassByJar(pkg, jar, recursive, classes);
+             }
+           }
         } catch (IOException e) {
             e.printStackTrace();
         }

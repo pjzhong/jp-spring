@@ -65,7 +65,7 @@ public class outputServiceImpl2  implements OutputService {
 <hr>
 **@Value**
 这个标记主要是用来为类注入配置中的值。
-就像 HelloService 的例子中， 成员变量text， ioc会从配置文件选取合适的值并对其注入
+就像 HelloService 的例子中， 成员变量text， ioc会从配置文件需要合适的值并对其注入
 配置文件
 ```java
 package.scan=jp.spring
@@ -73,7 +73,7 @@ test=123456
 jdbc.driver=com.mysql.jdbc.Driver
 ```
 
-@Value默认注入失败也不会报错的, 如果需要提示注入失败可以这样写
+@Value默认注入失败也不会报错的, 如果想提示注入失败可以这样写
 ```java
 @Component("helloService")
 public class HelloService {
@@ -84,3 +84,39 @@ public class HelloService {
 }
 ```
 目前@Value只支持配置在成员变量上
+<hr>
+** beanPostProcessor, 初始化和加工** 
+(2017-1-25)在开发这个项目中，如何整合各个组件(jp-ioc, jp-web, jp-aop)这个问题一直困扰着我。
+我的想法是尽可能隔离各个组件，让每个组件都只依赖于jp-ioc。 在前期开发的时候，一直没这方面的经验，
+所以只好的在WebApplicationContext里面人工组合了各个组件了(下下签啊)。
+
+在看到<a href="https://my.oschina.net/huangyong/blog/173260">smart-plugin</a> 里面提到的插件式开发。
+我对此挺感兴趣的，就决定用这个方法来试下吧。
+
+beanPostProcessor在Spring Ioc container里面是一个对外扩展的接口(在bean初始化前后做一些额外的加工)，可以让用户或者或者组件对其感兴趣的bean进行一些处理
+例如 AOP对目标对象的织入。
+
+好，那我们就以这个类为桥梁，连接各个模块。不过，我稍微改变了一下
+
+```java
+/**
+ * ioc容器在初始化和创建bean对外暴露的接口
+ * 其它模块如果需要对ioc注册自己的beanPostProcessor。
+ * 只需要这样做：
+ * 创建一个class继承beanPostProcessor标记上component，创建jp.spring.process包并放在里面。
+ * 这样容器在启动的时候就会去加载。
+ * */
+public interface BeanPostProcessor {
+
+    /**
+     * 对某一类的bean进行特定的初始化，例如controller, aspect
+     * */
+    void postProcessBeforeInitialization() throws Exception;
+
+    /**
+    * 在bean初始化完成之后，进行额外加工。例如 aop的织入
+    */
+    Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+}
+```
+具体例子可以查看 webmvc和aop模块jp.spring.process包里面的beanPostProcessor实现

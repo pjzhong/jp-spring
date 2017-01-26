@@ -43,12 +43,15 @@ public class ClassResource implements Resource {
 
         ClassResource that = (ClassResource) o;
 
-        return file != null ? file.equals(that.file) : that.file == null;
+        if (file != null ? !file.equals(that.file) : that.file != null) return false;
+        return className != null ? className.equals(that.className) : that.className == null;
 
     }
 
     @Override
     public int hashCode() {
-        return file != null ? file.hashCode() : 0;
+        int result = file != null ? file.hashCode() : 0;
+        result = 31 * result + (className != null ? className.hashCode() : 0);
+        return result;
     }
 }

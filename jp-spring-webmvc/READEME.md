@@ -15,7 +15,6 @@ public class ControllerExample {
 ```
 这样就可以了，一个非常最简单的控制器，虽然什么方法都没有。
 但这样没什么用吧，那我们加个方法并告诉Controller需要处理哪些请求
-
 ```java
 @Controller
 @RequestMapping("/example")
@@ -32,6 +31,9 @@ public class ControllerExample {
      }
 }
 ```
+方法结果处理：
+ 情况1：如果方法标记了@ResponseBody或者没有标记@ResponseBody并且返回值不是String类型的，都会转换成json格式返回客户端
+ 情况2：没有标记@ResponseBody并且返回值是String类型，那么系统就会认为这个返回值是一个页面，并将此页面返回到客户端
 **Class级别的@RequestMapping不是必须的。**
 
 

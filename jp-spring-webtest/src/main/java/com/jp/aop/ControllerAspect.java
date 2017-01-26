@@ -3,7 +3,6 @@ package com.jp.aop;
 import jp.spring.aop.annotation.After;
 import jp.spring.aop.annotation.Before;
 import jp.spring.aop.annotation.Pointcut;
-import jp.spring.aop.impl.JoinPointParameter;
 import jp.spring.aop.support.TargetSource;
 import jp.spring.ioc.stereotype.Aspect;
 

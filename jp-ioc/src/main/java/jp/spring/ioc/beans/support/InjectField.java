@@ -42,4 +42,12 @@ public class InjectField {
     public Class<?> getAutowiredType() {
         return field.getType();
     }
+
+    @Override
+    public String toString() {
+        return "InjectField{" +
+                "id='" + id + '\'' +
+                ", field=" + field +
+                '}';
+    }
 }

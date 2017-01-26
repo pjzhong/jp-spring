@@ -15,9 +15,10 @@ public class ApplicationContextAwareProcessor implements BeanPostProcessor {
         this.applicationContext = applicationContext;
     }
 
+
     @Override
-    public Object postProcessBeforeInitialization(Object bean, String beanName) throws Exception {
-        return bean;
+    public void postProcessBeforeInitialization() throws Exception {
+
     }
 
     @Override

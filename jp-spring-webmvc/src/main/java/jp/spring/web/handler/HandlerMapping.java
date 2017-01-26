@@ -9,5 +9,5 @@ public interface HandlerMapping {
 
     String DEFAULT_HANDLER_MAPPING = HandlerMapping.class + ".root";
 
-    Handler getHandler(HttpServletRequest request);
+    Handler getHandler(HttpServletRequest request, String path);
 }

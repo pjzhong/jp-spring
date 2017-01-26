@@ -26,8 +26,12 @@ import java.util.List;
  */
 public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
-    AnnotationBeanDefinitionReader(ResourceLoader resourceLoader) {
+    private AnnotationBeanDefinitionReader(ResourceLoader resourceLoader) {
         super(resourceLoader);
+    }
+
+    public static AnnotationBeanDefinitionReader getInstance() {
+        return new AnnotationBeanDefinitionReader(new ClassResourceLoader());
     }
 
     @Override
@@ -44,27 +48,37 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
         }
     }
 
+    @Override
+    public BeanDefinition loadBeanDefinition(Class<?> beanClass) {
+        return parseClass(beanClass);
+    }
+
     protected void doLoadBeanDefinitions(ClassResource classResource) {
         try {
             String className = classResource.getClassName();
             Class<?> beanClass = AnnotationBeanDefinitionReader.class.getClassLoader().loadClass(className);
-
-            if(JpUtils.isAnnotated(beanClass, Component.class)) {
-                String name = determinedName(beanClass);
-                if(StringUtils.isEmpty(name)) {
-                    name = StringUtils.lowerFirst(beanClass.getSimpleName());
-                }
-                BeanDefinition beanDefinition = new BeanDefinition();
-                beanDefinition.setBeanClass(beanClass);
-
-                parseFields(beanDefinition, beanClass);
-
-
-                getRegistry().put(name, beanDefinition);
-            }
+            parseClass(beanClass);
         } catch (ClassNotFoundException e) {
             //Simply skip
         }
+    }
+
+    protected BeanDefinition parseClass(Class<?> beanClass) {
+        BeanDefinition definition = null;
+        if(JpUtils.isAnnotated(beanClass, Component.class)) {
+            String name = determinedName(beanClass);
+            if(StringUtils.isEmpty(name)) {
+                name = StringUtils.lowerFirst(beanClass.getSimpleName());
+            }
+            definition = new BeanDefinition();
+            definition.setBeanClass(beanClass);
+
+            parseFields(definition, beanClass);
+
+            getRegistry().put(name, definition);
+        }
+
+        return definition;
     }
 
     protected void parseFields(BeanDefinition beanDefinition, Class<?> beanClass) {
