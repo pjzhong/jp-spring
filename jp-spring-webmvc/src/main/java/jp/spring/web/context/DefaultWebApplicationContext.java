@@ -23,4 +23,8 @@ public class DefaultWebApplicationContext extends ClassPathPropertiesApplication
         beanFactory.registerBeanDefinition(name, beanDefinition);
     }
 
+    public String getProperty(String key) {
+        return beanFactory.getProperties().getProperty(key);
+    }
+
 }

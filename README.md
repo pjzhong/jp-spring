@@ -4,8 +4,9 @@
 
 <hr/>
 Inspired by:
-  https://github.com/code4craft/tiny-spring 
-  https://github.com/menyouping/jw
+  <a href="https://github.com/code4craft/tiny-spring" > tiny-spring </a>
+  <a href="https://github.com/menyouping/jw">jw</a>
+  <a href="https://git.oschina.net/huangyong/smart-framework">smart-framework</a>
 
 jp-spring目前有下面5个部分
 - jp-ioc (负责bean的创建和注入，下面的模块都依赖这个核心。 核心的详解请看<a href=" https://github.com/code4craft/tiny-spring "> 这里 </a>)
@@ -107,47 +108,18 @@ public class TestControllerAspect {
 ```
 
 <hr/>
-
-目前，我还没做到完全零配置，所以还是需要一些配置
-1.web.xml
-```xml
-<web-app>
-  <context-param>
-    <param-name>contextConfigLocation</param-name>
-    <param-value>/config/application.xml</param-value>
-  </context-param>
-
-  <listener>
-    <listener-class>jp.spring.web.context.ContextLoaderListener</listener-class>
-  </listener>
-    
-   <servlet>
-       <servlet-name>DispatcherServlet</servlet-name>
-       <servlet-class>jp.spring.web.servlet.DispatcherServlet</servlet-class>
-       <load-on-startup>1</load-on-startup>
-   </servlet> 
-    <servlet-mapping>
-        <servlet-name>DispatcherServlet</servlet-name>
-        <url-pattern>/</url-pattern>
-    </servlet-mapping>
-</web-app>
-```
-contextConfigLocation这个名字是规定， 对应的值就是配置文件的路径， “/”就是从根路径开始
-2.application.xml
-```xml
-<beans>
-    <context:component-scan base-package="com.jp"/> /*哪个包需要扫描,子目录也会扫描。为了方面，我直接从项目根目录开始*/
-
-    /*一个简单是视图处理，目前仅支持html和jsp*/
-    <bean id="ViewResolver" class="jp.spring.web.view.DefaultViewResolver">
-        <property name="folder" value="/"/> /*页面在哪个文件按*/
-        <property name="extension" value=".jsp"/> /*页面的扩展名*/
-    </bean>
-</beans>
+**配置如下**
+在项目根目录下创建一个properties文件，输入下面的内容(jp-webtest里面有具体例子)
+```java
+package.scan=com.jp
+page.folder=/page
+page.extension=.html
+resource.folder=/resources
 ```
 
-下一步我打算使用Annotation来代替XML, 然后只需配置一些属性放在 xxx.properties文件就行，例如数据库链接，需要的扫描的包，或者页面文件夹和扩展名等。
-尽快实现
-
+1.package.scan ——代表需要扫描的包， 自动扫描子目录，如果需要配置多个，请使用 ";" 进行分割。为了方便，我直接从根目录开始扫描
+2.page.folder ——页面的文件，默认从项目根目录开始
+3.page.extension ——页面的扩展名(目前支持jsp和html)，默认jsp
+4.resource.folder ——静态资源的文件夹，必须配置不然找不到静态资源。如果需要配置多个，请使用";" 进行分割。
 <hr>
 如果这个项目对你有帮助，可否留下一颗星星？

@@ -25,11 +25,8 @@ public class DefaultHandlerMapping implements HandlerMapping {
 
     private static final List<Handler> PATH_VARIABLE_URL_MAP = new ArrayList<Handler>();
 
-    UrlPathHelper urlPathHelper = new UrlPathHelper();
-
     @Override
-    public Handler getHandler(HttpServletRequest request) {
-        String path = urlPathHelper.getLookupPathForRequest(request);
+    public Handler getHandler(HttpServletRequest request, String path) {
         String method = request.getMethod();
 
         if(path.length() > 1 && path.endsWith("/")) {

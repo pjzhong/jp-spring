@@ -67,7 +67,6 @@ public class ClassResourceLoader implements ResourceLoader {
            URL url = null;
            while(urls.hasMoreElements()) {
               url = urls.nextElement();
-              System.out.println(url);
               String protocol = url.getProtocol();
               if("file".equals(protocol)) { // 如果是以文件的形式保存在服务器上
                     String filePath = URLDecoder.decode(url.getFile(), "UTF-8"); // 获取包的物理路径

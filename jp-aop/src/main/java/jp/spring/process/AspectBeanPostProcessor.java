@@ -74,8 +74,13 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
         }
     }
 
+    /**
+     * class annotated by Aspect , subclass of BaseAspect and  subclass of beanPostProcessor a
+     * are not the target of this processor
+     * */
     private boolean filtrate(Object bean, String beanName) {
         if(JpUtils.isAnnotated(bean.getClass(), Aspect.class)
+                || bean instanceof BeanPostProcessor
                 || bean instanceof BaseAspect
                 || bean instanceof Proxy) {
             return false;

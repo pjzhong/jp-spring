@@ -3,6 +3,7 @@ package jp.spring.web.servlet;
 
 import jp.spring.ioc.context.WebApplicationContext;
 
+import jp.spring.web.context.DefaultWebApplicationContext;
 import jp.spring.web.context.ProcessContext;
 import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerInvoker;
@@ -12,6 +13,8 @@ import jp.spring.web.util.FileUtils;
 import jp.spring.web.util.UrlPathHelper;
 import jp.spring.web.util.WebUtil;
 
+import javax.servlet.ServletRegistration;
+import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -19,6 +22,7 @@ import java.io.IOException;
 /**
  * Created by Administrator on 1/3/2017.
  */
+@WebServlet(loadOnStartup = 1, urlPatterns = "/")
 public class DispatcherServlet extends FrameworkServlet {
 
     private static WebApplicationContext webApplicationContext;
@@ -44,15 +48,16 @@ public class DispatcherServlet extends FrameworkServlet {
 
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) {
-        String path = urlPathHelper.getLookupPathForRequest(request);
-        if(isStaticResource(response, path)) {
+
+/*        if(isStaticResource(response, path)) {
             return;
-        }
+        }*/
 
         try {
-            Handler handler = handlerMapping.getHandler(request);
+            String path = urlPathHelper.getLookupPathForRequest(request);
+            Handler handler = handlerMapping.getHandler(request, path);
             if(handler == null) {
-                response.sendError(response.SC_NOT_FOUND, path + " Not Found");
+                response.sendError(response.SC_NOT_FOUND,  " Not Found");
                 return;
             }
 

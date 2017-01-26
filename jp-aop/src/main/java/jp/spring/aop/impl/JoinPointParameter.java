@@ -5,6 +5,7 @@ import java.lang.reflect.Method;
 /**
  * Created by Administrator on 1/19/2017.
  */
+@Deprecated
 public class JoinPointParameter {
 
     private Method method;
