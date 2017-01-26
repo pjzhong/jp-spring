@@ -91,11 +91,10 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
                     Method  method = JpUtils.findMethod(type, "value");
                     if(method != null) {
                         method.setAccessible(true);
-                         name = (String) method.invoke(annotation, null);
+                        name = (String) method.invoke(annotation, null);
                     }
                     break;
                 } catch (Exception e) {
-                    e.printStackTrace();
                     break;
                 }
             }

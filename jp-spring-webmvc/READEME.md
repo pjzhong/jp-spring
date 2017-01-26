@@ -17,7 +17,7 @@ public class ControllerExample {
 但这样没什么用吧，那我们加个方法并告诉Controller需要处理哪些请求
 ```java
 @Controller
-@RequestMapping("/example")
+@RequestMapping("/example") //Class级别只支持配置一个路径
 public class ControllerExample {
       
      @RequestMapping(value = "/one", method = RequestMethod.GET) 
