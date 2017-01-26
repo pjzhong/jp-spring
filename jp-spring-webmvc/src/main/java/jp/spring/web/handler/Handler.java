@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by Administrator on 1/10/2017.
+ * 一个HttpRequest的具体处理者
  */
 public class Handler {
 

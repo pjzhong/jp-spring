@@ -1,6 +1,5 @@
 package jp.spring.process;
 
-import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.stereotype.Component;
 
 /**

@@ -4,7 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 
 /**
- * Created by Administrator on 1/12/2017.
+ * 封装请求方法的参数的封住
  */
 public class RequestMethodParameter {
 

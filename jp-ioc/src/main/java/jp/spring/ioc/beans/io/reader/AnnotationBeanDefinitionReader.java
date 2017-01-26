@@ -37,8 +37,7 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
     @Override
     public void loadBeanDefinitions(String strLocation) throws Exception {
         if(getResourceLoader() instanceof ClassResourceLoader) {
-
-            String[] locations = strLocation.split(";");
+            String[] locations = strLocation.split("\\s*;\\s*");
             for(String location : locations) {
                 ClassResource[] classResources = (ClassResource[]) getResourceLoader().getResource(location);
                 for(ClassResource classResource : classResources) {
@@ -66,19 +65,46 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
     protected BeanDefinition parseClass(Class<?> beanClass) {
         BeanDefinition definition = null;
         if(JpUtils.isAnnotated(beanClass, Component.class)) {
-            String name = determinedName(beanClass);
-            if(StringUtils.isEmpty(name)) {
-                name = StringUtils.lowerFirst(beanClass.getSimpleName());
-            }
             definition = new BeanDefinition();
             definition.setBeanClass(beanClass);
 
             parseFields(definition, beanClass);
 
+            String name = determinedName(beanClass);
             getRegistry().put(name, definition);
         }
 
         return definition;
+    }
+
+    /**
+     * 获取户提供的名字， 没有就用是首字母字母小写的简单类名(beanClass.getSimpleName())
+     * */
+    private String determinedName(Class<?> beanClass) {
+        Annotation[] annotations = beanClass.getAnnotations();
+
+        String name = null;
+        for(Annotation annotation : annotations) {
+            Class<? extends Annotation> type = annotation.annotationType();
+            if(JpUtils.isAnnotated(type, Component.class)) {
+                try {
+                    Method  method = JpUtils.findMethod(type, "value");
+                    if(method != null) {
+                        method.setAccessible(true);
+                         name = (String) method.invoke(annotation, null);
+                    }
+                    break;
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    break;
+                }
+            }
+        }
+
+        if(StringUtils.isEmpty(name)) {
+            name = StringUtils.lowerFirst(beanClass.getSimpleName());
+        }
+        return name;
     }
 
     protected void parseFields(BeanDefinition beanDefinition, Class<?> beanClass) {
@@ -97,7 +123,7 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
         InjectField injectField;
 
         String id = null;
-        if(JpUtils.isAnnotated(field, Qualifier.class)) {
+        if(JpUtils.isAnnotated(field, Qualifier.class)) {//用户有提供id，没有就让id的属性为空
           id = field.getAnnotation(Qualifier.class).value();
         }
         boolean isRequired = field.getAnnotation(Autowired.class).required();
@@ -126,25 +152,4 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
         return propertyValue;
     }
 
-    private String determinedName(Class<?> beanClass) {
-        Annotation[] annotations = beanClass.getAnnotations();
-
-        for(Annotation annotation : annotations) {
-            Class<? extends Annotation> type = annotation.annotationType();
-            if(type == Controller.class
-                    || type == Service.class
-                    || type == Repository.class) {
-                try {
-                    Method  method = JpUtils.findMethod(type, "value");
-                    if(method != null) {
-                        return (String) method.invoke(annotation, null);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    break;
-                }
-            }
-        }
-        return null;
-    }
 }

@@ -15,11 +15,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 /**
  * Created by Administrator on 1/10/2017.
  */
 public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
+
+    private final Pattern PATTERN_PATH_VARIABLE = Pattern.compile("(\\{([^}]+)\\})");
 
     public DefaultHandlerMappingBuilder() {}
 
@@ -32,6 +35,7 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
         String[] urls = null;
         String clazzUrl = "";
 
+        //处理Class级别的URL
         if(JpUtils.isAnnotated(controller, RequestMapping.class)) {
            urls = controller.getAnnotation(RequestMapping.class).value();
             if(StringUtils.isEmpty(urls) || urls.length > 1) {
@@ -49,27 +53,25 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
         Handler handler = null;
         for(Method method : methods) {
             if(JpUtils.isAnnotated(method, RequestMapping.class)) {
-                method.setAccessible(true);
-                urls = method.getAnnotation(RequestMapping.class).value();
-                boolean hasUrl = false;
                 handler = new Handler(method, name);
-                for(String url : urls) {
-                    try {
-                        if(!StringUtils.isEmpty(url)) {
-                            if(!url.startsWith("/")) {
-                                url = "/" + url;
-                            }
-                            handler = buildHandler(handler, clazzUrl, url);
-                            handlers.add(handler);
-                            hasUrl = true;
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-                if(!hasUrl) {
-                    handler.setUrl(clazzUrl + method.getName());
+                urls = method.getAnnotation(RequestMapping.class).value();
+                if(StringUtils.isEmpty(urls)) {//urls为空，取方法名作默认url
+                    handler.setUrl(clazzUrl + "/" + method.getName());
                     handlers.add(handler);
+                } else {
+                    for(String url : urls) {
+                        try {
+                            if(!StringUtils.isEmpty(url)) {
+                                if(!url.startsWith("/")) {
+                                    url = "/" + url;
+                                }
+                                handler = buildHandler(handler, clazzUrl, url);
+                                handlers.add(handler);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
                 }
             }
         }
@@ -78,57 +80,70 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
     }
 
     private Handler buildHandler(Handler handler, String classUrl, String url) {
-        if(UrlPathHelper.PATTERN_PATH_VARIABLE.matcher(url).find()) {
-            Annotation[][] methodParamAnnos = handler.getMethod().getParameterAnnotations();
-            if(!JpUtils.isEmpty(methodParamAnnos)) {
-                Map<String, Integer> pathVariableMap = new HashMap<>();
-                Annotation[] paramAnnos = null;
-                Class<?>[] paramTypes = handler.getMethod().getParameterTypes();
-                Class<?> paramType;
-
-                int index = 1; //the regex index in url;
-                String key = null, regexExp = null;
-                String urlExpression = url;
-                for(int i = 0; i < methodParamAnnos.length; i++) {
-                    paramAnnos = methodParamAnnos[i];
-                    for(Annotation annotation : paramAnnos) {
-                        if(PathVariable.class.equals(annotation.annotationType())) {
-                            paramType = paramTypes[i];
-                            key = ((PathVariable) annotation).value();
-                            pathVariableMap.put(key, index);
-
-                            if(String.class.equals(paramType)) {
-                                regexExp = "([^/])";
-                            } else if (Integer.TYPE.equals(paramType) || Integer.class.equals(paramType)
-                                    || Long.TYPE.equals(paramType) || Long.class.equals(paramType)) {
-                                regexExp = "([-+]?\\d+)";
-                            } else if (Double.TYPE.equals(paramType) || Double.class.equals(paramType)
-                                    || Float.TYPE.equals(paramType) || Float.class.equals(paramType)) {
-                                regexExp = "([-+]?\\d+(\\.\\d+))";
-                                index++;
-                            } else if (Boolean.TYPE.equals(paramType) || Boolean.class.equals(paramType)) {
-                                regexExp = "(true|false|y|n|yes|no|1|0)";
-                            }
-                            index++;
-                            urlExpression = urlExpression.replace("{" + key + "}", regexExp);
-                            break;// each parameter can only be attached one @PathVariable
-                        }
-                    }
-                }
-                handler.setUrl(classUrl + url);
-                handler.setUrlExpression("^" + classUrl + urlExpression + "$");
-                handler.setPathVariableMap(pathVariableMap);
-            }
+        Annotation[][] paramAnnotations = handler.getMethod().getParameterAnnotations();
+        if(PATTERN_PATH_VARIABLE.matcher(url).find()) { //包含占位符({}), 开始创建正则表达式
+            buildRegexUrl(handler, classUrl, url, paramAnnotations);
         } else {
             handler.setUrl(classUrl + url);
         }
 
-        buildHandlerParameter(handler);
+        buildHandlerParameter(handler,paramAnnotations);
         return handler;
     }
 
-    private Handler buildHandlerParameter(Handler handler) {
-        Annotation[][] paramAnnotations = handler.getMethod().getParameterAnnotations();
+    /**
+     * 开始创建regexUrl：
+     * @ReqquestMapping("/example/{one}/{two}")
+     * method(@PathVariable('one") Integer, @PatVariable("two") Float)
+     *
+     * 将会:/example/([-+]?\d+)/([-+]?\d+(\.\d+))
+     * */
+    private void buildRegexUrl(Handler handler, String classUrl, String url, Annotation[][] paramAnnotations) {
+        if(!JpUtils.isEmpty(paramAnnotations)) {
+            Map<String, Integer> pathVariableMap = new HashMap<>();
+            Annotation[] annotations = null;
+            Class<?>[] paramTypes = handler.getMethod().getParameterTypes();
+            Class<?> paramType;
+
+            int index = 1; //the regex index in url;
+            String key = null, regexExp = null;
+            String urlExpression = url;
+            for(int i = 0; i < paramAnnotations.length; i++) {
+                annotations = paramAnnotations[i];
+                for(Annotation annotation : annotations) {
+                    if(PathVariable.class.equals(annotation.annotationType())) {
+                        paramType = paramTypes[i];
+                        key = ((PathVariable) annotation).value();
+                        pathVariableMap.put(key, index);
+
+                        if(String.class.equals(paramType)) {
+                            regexExp = "([^/])";
+                        } else if (Integer.TYPE.equals(paramType) || Integer.class.equals(paramType)
+                                || Long.TYPE.equals(paramType) || Long.class.equals(paramType)) {
+                            regexExp = "([-+]?\\d+)";
+                        } else if (Double.TYPE.equals(paramType) || Double.class.equals(paramType)
+                                || Float.TYPE.equals(paramType) || Float.class.equals(paramType)) {
+                            regexExp = "([-+]?\\d+(\\.\\d+))";
+                            index++;
+                        } else if (Boolean.TYPE.equals(paramType) || Boolean.class.equals(paramType)) {
+                            regexExp = "(true|false|y|n|yes|no|1|0)";
+                        }
+                        index++;
+                        urlExpression = urlExpression.replace("{" + key + "}", regexExp);
+                        break;// each parameter can only be attached one @PathVariable
+                    }
+                }
+            }
+            handler.setUrl(classUrl + url);
+            handler.setUrlExpression("^" + classUrl + urlExpression + "$");
+            handler.setPathVariableMap(pathVariableMap);
+        }
+    }
+
+    /**
+     * 反射请求方法的参数，并封装进RequestMethodParameter
+     * */
+    private Handler buildHandlerParameter(Handler handler, Annotation[][] paramAnnotations) {
         if(!JpUtils.isEmpty(paramAnnotations)) {
             Class<?>[] paramTypes = handler.getMethod().getParameterTypes();
             handler.setRequestMethodParameters(new ArrayList<RequestMethodParameter>());
@@ -137,17 +152,14 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                 buildHandlerParameter(handler, paramTypes[i], paramAnnotations[i]);
             }
         }
-
         return handler;
     }
 
     private Handler buildHandlerParameter(Handler handler, Class<?> paramType, Annotation[] annotation) {
-        List<RequestMethodParameter> methodParameters = handler.getRequestMethodParameters();
-
         RequestMethodParameter parameter = new RequestMethodParameter();
         parameter.setType(paramType);
         parameter.setPrimitiveType(JpUtils.isPrimietive(paramType));
-        if(annotation != null && annotation.length > 0) {
+        if(!JpUtils.isEmpty(annotation) && parameter.isPrimitiveType()) {
             Class<?> annotationType = annotation[0].annotationType();
             if(annotationType.equals(RequestParam.class)
                     || annotationType.equals(PathVariable.class)
@@ -158,7 +170,7 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                 parameter.setValueMethod(valueMethod);
             }
         }
-        methodParameters.add(parameter);
+        handler.getRequestMethodParameters().add(parameter);
 
         return handler;
     }

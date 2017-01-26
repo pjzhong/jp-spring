@@ -1,13 +1,13 @@
 package jp.spring.aop;
 
 import jp.spring.aop.support.ProxyChain;
-import jp.spring.aop.support.TargetSource;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
 import java.lang.reflect.Method;
 import java.util.List;
+
 
 /**
  * Created by Administrator on 1/20/2017.
@@ -33,8 +33,7 @@ public class ProxyFactory {
             @Override
             public Object intercept(Object obj, Method method, Object[] args, MethodProxy proxy) throws Throwable {
                 ProxyChain proxyChain = new ProxyChain(target, method, args, proxy, proxyList);
-                proxyChain.doProxyChain();
-                return proxyChain.getMethodResult();
+                return  proxyChain.doProxyChain();
             }
         });
     }
