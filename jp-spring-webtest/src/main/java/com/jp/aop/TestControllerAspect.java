@@ -6,6 +6,8 @@ import jp.spring.aop.annotation.Pointcut;
 import jp.spring.aop.support.TargetSource;
 import jp.spring.ioc.stereotype.Aspect;
 
+import java.lang.annotation.Annotation;
+
 /**
  * Created by Administrator on 1/20/2017.
  */
@@ -21,5 +23,11 @@ public class TestControllerAspect {
     @After
     public void after(TargetSource target) {
         System.out.println(target.getTargetMethod() + " end");
+    }
+
+    public static void main(String[] args) {
+        for(Annotation annotation : TestControllerAspect.class.getAnnotations()) {
+            System.out.println(annotation);
+        }
     }
 }

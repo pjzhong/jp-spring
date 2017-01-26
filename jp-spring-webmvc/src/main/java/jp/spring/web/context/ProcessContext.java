@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by Administrator on 1/11/2017.
+ * 对servlet-API的简单封装
  */
 public class ProcessContext {
 
@@ -27,7 +27,7 @@ public class ProcessContext {
         return  context.get();
     }
 
-    public static void destoryContext() {
+    public static void destroyContext() {
         context.remove();
     }
 
@@ -36,7 +36,6 @@ public class ProcessContext {
     }
 
     public static HttpServletRequest getRequest() {
-
         return (HttpServletRequest) getContext().objectMap.get(REQUEST);
     }
 

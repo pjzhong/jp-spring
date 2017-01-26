@@ -10,8 +10,6 @@ import java.util.regex.Pattern;
  */
 public class UrlPathHelper {
 
-    public final static Pattern PATTERN_PATH_VARIABLE = Pattern.compile("(\\{([^}]+)\\})");
-
     public String getLookupPathForRequest(HttpServletRequest request) {
         String rest = getPathWithinServletMapping(request);
         if(!"".equals(rest)) {

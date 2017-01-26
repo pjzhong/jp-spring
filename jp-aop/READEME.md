@@ -43,7 +43,7 @@ public class ControllerAspect {
   <p>                   
   第二部分.方法名规则： 
   1.\*() ,&nbsp;&nbsp;&nbsp; **任何方法。 ！！！注意， 目前只能根据方法名来进行过滤，但是方法名后面的()还是要加上**
-  2.\*Service，&nbsp;&nbsp;&nbsp; **以Service结尾的方法，都会被拦截。  ！！！注意， 目前只能根据方法名来进行过滤，但是方法名后面的()还是要加上**
+  2.\*Service()，&nbsp;&nbsp;&nbsp; **以Service结尾的方法，都会被拦截。  ！！！注意， 目前只能根据方法名来进行过滤，但是方法名后面的()还是要加上**
   </p>                      
   然后把两部份组合起来: 
          1.com.jp.controller.* + "." + \*() = com.jp.controller.*.*(),  &nbsp;&nbsp;&nbsp;  com.jp.controller包下面的所有类的方法都会被拦截。!!!不包含子目录

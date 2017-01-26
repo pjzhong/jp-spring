@@ -2,11 +2,8 @@ package jp.spring.web.view;
 
 import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.stereotype.Component;
+import jp.spring.ioc.util.FileUtils;
 import jp.spring.web.context.ProcessContext;
-import jp.spring.web.util.FileUtils;
-
-import javax.servlet.ServletException;
-import java.io.IOException;
 
 /**
  * Created by Administrator on 1/13/2017.

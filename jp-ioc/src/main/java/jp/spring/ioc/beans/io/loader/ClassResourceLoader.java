@@ -19,7 +19,8 @@ import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 /**
- * Created by Administrator on 1/8/2017.
+ * 扫描某个目录(包含子目录)一下的类
+ * 并将其封装成为ClassResource返回
  */
 public class ClassResourceLoader implements ResourceLoader {
 
