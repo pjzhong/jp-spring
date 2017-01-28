@@ -103,7 +103,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         return  null;
     }
 
-    public <A> List<A> getBeansForType(Class<A> type) throws Exception {
+    public <A> List<A> getBeansByType(Class<A> type) throws Exception {
         if(beansByType.get(type) != null) {
             return (List<A>)beansByType.get(type);
         }

@@ -56,7 +56,7 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                 handler = new Handler(method, name);
                 urls = method.getAnnotation(RequestMapping.class).value();
                 if(StringUtils.isEmpty(urls)) {//urls为空，取方法名作默认url
-                    handler.setUrl(clazzUrl + "/" + method.getName());
+                    handler = buildHandler(handler, clazzUrl, method.getName());
                     handlers.add(handler);
                 } else {
                     for(String url : urls) {
@@ -64,6 +64,9 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                             if(!StringUtils.isEmpty(url)) {
                                 if(!url.startsWith("/")) {
                                     url = "/" + url;
+                                }
+                                if(url.endsWith("/")) {
+                                    url = url.substring(0, url.length() - 1);
                                 }
                                 handler = buildHandler(handler, clazzUrl, url);
                                 handlers.add(handler);

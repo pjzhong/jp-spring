@@ -51,4 +51,14 @@ public class RequestMethodParameter {
     public void setPrimitiveType(boolean primitiveType) {
         isPrimitiveType = primitiveType;
     }
+
+    @Override
+    public String toString() {
+        return "RequestMethodParameter{" +
+                "type=" + type +
+                ", valueMethod=" + valueMethod +
+                ", isPrimitiveType=" + isPrimitiveType +
+                ", annotation=" + annotation +
+                '}';
+    }
 }

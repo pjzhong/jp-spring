@@ -11,9 +11,14 @@ package jp.spring.ioc.beans.factory;
 public interface BeanPostProcessor {
 
     /**
+     * 此方法会在加载完所有beanDefinition之后执行
      * 对某一类的bean进行特定的初始化，例如controller, aspect
      * */
     void postProcessBeforeInitialization() throws Exception;
 
+    /**
+     * 对类进行特定处理。
+     * 此方法将在bean创建完成并已经已经完成了注入之后在执行
+     * */
     Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
 }
