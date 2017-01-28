@@ -41,7 +41,7 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
 
         Object result;
         Object controller;
-        if(JpUtils.isEmpty(handler.getInterceptors())) {
+        if(JpUtils.isEmpty(handler.getInterceptors())) { //no interceptors
             controller = WebUtil.getWebContext().getBean(handler.getBeanName());
             result = handler.invoker(controller, autowiredParameter(handler));
         } else {
@@ -79,7 +79,6 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
 
     }
 
-
     protected Object[] autowiredParameter(Handler handler) throws Exception {
         if(JpUtils.isEmpty(handler.getRequestMethodParameters())) {
             return null;
@@ -95,6 +94,11 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
         return paras;
     }
 
+    /**
+     * 开始进行参数注入
+     * @param handler
+     * @param  parameter
+     * */
     protected Object autowiredParameter(Handler handler, RequestMethodParameter parameter) throws Exception {
          if(HttpServletRequest.class.isAssignableFrom(parameter.getType())) {
              return ProcessContext.getRequest();
@@ -143,23 +147,20 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
 
     /**
      * Inject POJO
+     * 使用FastJson，进行反序列化
+     * 如果对象没有对应的Getter和Setter，属性将无法注入。
      * @param paramClass
      * */
     private static Object autowiredParameter(Class<?> paramClass)  throws Exception {
         HttpServletRequest request = ProcessContext.getRequest();
         Object dto = null;
-        System.out.println(request.getContentType());
         if(RequestMethod.GET.name().equals(request.getMethod())
                 || request.getContentType().contains( "application/x-www-form-urlencoded")) {
             JSONObject json = new JSONObject();
             format(paramClass, json);
-            System.out.println(json);
-            dto = JSON.toJavaObject(json, paramClass);//使用FastJson，通过键值对的形式进行构造目标对象然后注入...
-            //如果对象没有对应的Getter和Setter，属性将无法注入。
-            //有需要的话请使用反射来赋值....
+            dto = JSON.toJavaObject(json, paramClass);//
         } else if(request.getContentType().startsWith("application/json")) {
             String content = readText(request);
-            System.out.println(content);
             if(!StringUtils.isEmpty(content)) {
                 JSONObject json = JSON.parseObject(content);
                 dto = JSON.toJavaObject(json, paramClass);
@@ -169,7 +170,8 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
     }
 
     /**
-     * This method will be called when inject a pojo
+     * 根据POJO，对数据的格式进行一些设置
+     * @param paramClass(POJO)
      * */
     private static void format(Class<?> paramClass, JSONObject json) {
         json.putAll(ProcessContext.getRequest().getParameterMap());
@@ -182,23 +184,23 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
                 try {
                     field = paramClass.getDeclaredField(entry.getKey());
                     if(null != field) {
-                        if(field.getType().isArray()) {
-                            // pass
-                        } else if(Collection.class.isAssignableFrom(field.getType())) {
+                         if(Collection.class.isAssignableFrom(field.getType())) {
                             entry.setValue(Arrays.asList(values));
                         } else {
                             entry.setValue(values[0]);
                         }
                     }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                   //ignore it
                 }
             }
         }
     }
 
     /**
-     *
+     * read json data from web request
+     * This method will be called when the Context-Type was :application/json
+     * @param request
      * */
     private static String readText(HttpServletRequest request) {
         Reader reader = null;

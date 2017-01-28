@@ -22,7 +22,7 @@ public class TestController {
     @Autowired
     OutputService outputService;
 
-    @RequestMapping(value = "/test/{one}", method = RequestMethod.GET)
+    @RequestMapping(value = "/test{one}/hi", method = RequestMethod.GET)
     public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float number) {
         System.out.println(outputService);
         outputService.output(one);
@@ -33,9 +33,9 @@ public class TestController {
 
     @RequestMapping(value = "/user", method = RequestMethod.POST)
     @ResponseBody
-    public String test(User user) {
+    public User test(User user) {
         System.out.println(user);
-        return "test";
+        return user;
     }
 }
 

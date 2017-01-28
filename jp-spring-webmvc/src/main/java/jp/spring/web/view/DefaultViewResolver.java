@@ -17,11 +17,6 @@ public class DefaultViewResolver implements ViewResolver {
     @Value(value = "page.extension", required = true)
     private String extension = ".jsp";
 
-    @Override
-    public ViewResolver getResolver() {
-        return this;
-    }
-
     public void toPage(String pagePath) throws Exception{
         if(extension.equals(".jsp")) {
             String page = getPage(pagePath);
@@ -36,7 +31,7 @@ public class DefaultViewResolver implements ViewResolver {
     }
 
     private String getPage(String pagePath) {
-        return folder + (pagePath.startsWith("/") ? pagePath.substring(1) : pagePath) + extension;
+        return folder + (pagePath.startsWith("/") ? pagePath.substring(1) : pagePath) + getExtension();
     }
 
     public String getFolder() {
@@ -60,6 +55,9 @@ public class DefaultViewResolver implements ViewResolver {
     }
 
     public void setExtension(String extension) {
+        if(!extension.startsWith(".")) {
+            extension = "." + extension;
+        }
         this.extension = extension;
     }
 }

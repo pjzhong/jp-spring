@@ -8,7 +8,4 @@ public interface ViewResolver {
     String RESOLVER_NAME = ViewResolver.class + ".root";
 
     void toPage(String path) throws Exception;
-
-    ViewResolver getResolver();
-
 }
