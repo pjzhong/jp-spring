@@ -7,5 +7,5 @@ public interface HandlerInvoker {
 
     String DEFAULT_HANDLER_INVOKER = HandlerInvoker.class + ".root";
 
-    void invokeHandler(Handler handler);
+    void invokeHandler(Handler handler) throws Exception;
 }

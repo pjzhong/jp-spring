@@ -3,6 +3,7 @@ package jp.spring.web.handler;
 
 import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.handler.support.RequestMethodParameter;
+import jp.spring.web.interceptor.Interceptor;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -15,6 +16,8 @@ import java.util.regex.Pattern;
  */
 public class Handler {
 
+    private List<Interceptor> interceptors;
+
     private final String beanName;
 
     private final Method method;
@@ -26,6 +29,7 @@ public class Handler {
     private Pattern urlPattern = null;
 
     private String url;
+
     /**
      * key: path variable name, value: path variable regex index in urlPattern
      * */
@@ -47,6 +51,11 @@ public class Handler {
             return m.groupCount() >= index ? StringUtils.decode(m.group(index)) : null;
         }
         return  null;
+    }
+
+    public Object invoker(Object obj, Object[] args) throws Exception {
+        method.setAccessible(true);
+        return method.invoke(obj, args);
     }
 
     /*Getters and setters*/
@@ -93,6 +102,14 @@ public class Handler {
 
     public void setRequestMethodParameters(List<RequestMethodParameter> requestMethodParameters) {
         this.requestMethodParameters = requestMethodParameters;
+    }
+
+    public List<Interceptor> getInterceptors() {
+        return interceptors;
+    }
+
+    public void setInterceptors(List<Interceptor> interceptors) {
+        this.interceptors = interceptors;
     }
 
     @Override

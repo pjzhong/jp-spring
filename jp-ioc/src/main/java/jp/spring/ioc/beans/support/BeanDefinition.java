@@ -21,6 +21,11 @@ public class BeanDefinition {
     public BeanDefinition() {
     }
 
+    public BeanDefinition(Class<?> beanClass, Object bean) {
+        this.beanClass = beanClass;
+        this.bean = bean;
+    }
+
     public void setBean(Object bean) {
         this.bean = bean;
     }

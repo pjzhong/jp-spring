@@ -2,8 +2,6 @@ package jp.spring.ioc.context;
 
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
-import jp.spring.ioc.beans.io.BeanDefinitionReader;
-import jp.spring.ioc.beans.io.loader.ClassResourceLoader;
 import jp.spring.ioc.beans.io.reader.AbstractBeanDefinitionReader;
 import jp.spring.ioc.beans.io.reader.AnnotationBeanDefinitionReader;
 import jp.spring.ioc.beans.support.BeanDefinition;
@@ -49,7 +47,7 @@ public abstract  class AbstractApplicationContext  implements ApplicationContext
     }
 
     protected void registerBeanPostProcessors(AbstractBeanFactory beanFactory) throws Exception {
-        List<BeanPostProcessor> beanPostProcessors = beanFactory.getBeansForType(BeanPostProcessor.class);
+        List<BeanPostProcessor> beanPostProcessors = beanFactory.getBeansByType(BeanPostProcessor.class);
         for(Object beanPostProcessor : beanPostProcessors) {
             beanFactory.addBeanPostProcessor((BeanPostProcessor) beanPostProcessor);
         }

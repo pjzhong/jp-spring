@@ -28,6 +28,9 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
         System.out.println("I am aspectBeanPostProcessor");
     }
 
+    /**
+     * initialize all the aspects provide by user
+     */
     @Override
     public void postProcessBeforeInitialization() throws Exception {
         List<String> beanNames = beanFactory.getBeanNamByAnnotation(Aspect.class);
@@ -44,13 +47,17 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
         }
     }
 
+    /**
+     * starting weaving the target object
+     * @param  bean
+     * */
     @Override
     public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
        if(!filtrate(bean, beanName)) {
            return bean;
        }
 
-        List<BaseAspect> baseAspects = beanFactory.getBeansForType(BaseAspect.class);
+        List<BaseAspect> baseAspects = beanFactory.getBeansByType(BaseAspect.class);
         List<Proxy> proxies = new ArrayList<>();
         for(BaseAspect aspect : baseAspects) {
             if(aspect.getPointcut().match(bean.getClass())) {

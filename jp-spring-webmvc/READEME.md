@@ -1,6 +1,6 @@
 webmvc 模块使用说明
 `======================`
-依赖：jp-ioc(核心模块)
+依赖：jp-ioc(核心模块) //主要负责bean的创建和注入
       fastJson
       com.google.guava
       commons-io
@@ -87,4 +87,3 @@ public class ControllerExample {
 ```
 目前@PathVariable只能作用于Method级别的@RequestMapping, 对类级别无效。
 并且要明确声明变量的名字， 否则无法识别
-
