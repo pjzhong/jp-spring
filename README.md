@@ -122,4 +122,4 @@ resource.folder=/resources
 3.page.extension ——页面的扩展名(目前支持jsp和html)，默认jsp
 4.resource.folder ——静态资源的文件夹，必须配置不然找不到静态资源。如果需要配置多个，请使用";" 进行分割。
 <hr>
-**如果有不足的地方，希望你能不吝赐教。**
+**如有不足，希望你能不吝赐教。**
