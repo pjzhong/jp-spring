@@ -6,6 +6,8 @@ import jp.spring.web.handler.support.RequestMethodParameter;
 import jp.spring.web.interceptor.Interceptor;
 
 import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -58,6 +60,10 @@ public class Handler {
         return method.invoke(obj, args);
     }
 
+    public boolean match(String path) {
+        return urlPattern.matcher(path).find();
+    }
+
     /*Getters and setters*/
     public Method getMethod() {
         return method;
@@ -66,10 +72,6 @@ public class Handler {
     public void setUrlExpression(String urlExpression) {
         this.hasPathVariable = true;
         this.urlPattern = Pattern.compile(urlExpression);
-    }
-
-    public Pattern getUrlPattern() {
-        return urlPattern;
     }
 
     public String getUrl() {
@@ -108,8 +110,11 @@ public class Handler {
         return interceptors;
     }
 
-    public void setInterceptors(List<Interceptor> interceptors) {
-        this.interceptors = interceptors;
+    public void addInterceptors(Collection<Interceptor> interceptors) {
+        if(this.interceptors == null) {
+            this.interceptors = new ArrayList<>();
+        }
+        this.interceptors.addAll(interceptors);
     }
 
     @Override

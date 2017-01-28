@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Created by Administrator on 1/27/2017.
  */
-@Intercept(url = "/example")
+@Intercept(url = "/example/*")
 public class TestInterceptor2 implements Interceptor {
 
     @Override

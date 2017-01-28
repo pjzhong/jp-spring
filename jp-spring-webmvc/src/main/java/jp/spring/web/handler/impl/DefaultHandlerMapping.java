@@ -37,7 +37,7 @@ public class DefaultHandlerMapping implements HandlerMapping {
         Collection<Handler> urlMappings = HANDLER_MAP.get(path);
         if(JpUtils.isEmpty(urlMappings)) {
             for(Handler urlMapping : PATH_VARIABLE_URL_MAP) {
-                if(urlMapping.getUrlPattern().matcher(path).find()) {
+                if(urlMapping.match(path)) {
                     urlMappings = HANDLER_MAP.get(urlMapping.getUrl());
                     break;
                 }
@@ -78,5 +78,9 @@ public class DefaultHandlerMapping implements HandlerMapping {
                 HANDLER_MAP.get(handler.getUrl()).add(handler);
             }
         }
+    }
+
+    public Map<String, List<Handler>> getHandlerMap() {
+        return HANDLER_MAP;
     }
 }

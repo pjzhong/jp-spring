@@ -21,6 +21,8 @@ public interface Interceptor {
 
     /**
      * Intercept the execution of a handler. Called after the handler has handled the Http request
+     * @param request current HTTP request
+     * @param response current HTTP response
      * */
     void afterHandler(HttpServletRequest request, HttpServletResponse response, Object handle);
 }

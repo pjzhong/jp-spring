@@ -24,6 +24,7 @@ import jp.spring.web.view.ViewResolver;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Administrator on 1/25/2017.
@@ -54,33 +55,37 @@ public class WebBeanPostProcessor implements BeanPostProcessor ,BeanFactoryAware
     }
 
     private HandlerMapping buildHandlerMapping(AbstractBeanFactory beanFactory) throws Exception{
-        List<InterceptMatch> interceptMatches = buildInterceptMatch(beanFactory);
         List<String> controllerNames = beanFactory.getBeanNamByAnnotation(Controller.class);
 
         DefaultHandlerMapping handlerMapping = new DefaultHandlerMapping();
         if(!JpUtils.isEmpty(controllerNames)) {
             HandlerMappingBuilder builder = new DefaultHandlerMappingBuilder();
-
             List<Handler> handlers;
             for(String beanName : controllerNames) {
                 handlers = builder.buildHandler(beanName, beanFactory.getType(beanName));
-
-                if(!JpUtils.isEmpty(interceptMatches)) {
-                    for(Handler handler : handlers) {//分配interceptors到目标handler
-                        List<Interceptor> interceptors = new ArrayList<>();
-                        for(InterceptMatch interceptMatch : interceptMatches) {
-                            if(interceptMatch.match(handler.getUrl())) {
-                                interceptors.add(interceptMatch.getInterceptor());
-                            }
-                        }
-                        handler.setInterceptors(interceptors);
-                    }
-                }
-
                 handlerMapping.addHandlers(handlers);
             }
-
         }
+
+        //Assembling interceptors
+        List<InterceptMatch> interceptMatches = buildInterceptMatch(beanFactory);
+        Map<String, List<Handler>> handlerMap = handlerMapping.getHandlerMap();
+        for(String url : handlerMap.keySet()) {
+            List<Interceptor> interceptors = new ArrayList<>();
+            for(InterceptMatch interceptMatch : interceptMatches) {
+                if(interceptMatch.match(url)) {
+                    interceptors.add(interceptMatch.getInterceptor());
+                }
+            }
+
+            if(!JpUtils.isEmpty(interceptors)) {
+                List<Handler> handlers = handlerMap.get(url);
+                for(Handler handler : handlers) {
+                    handler.addInterceptors(interceptors);
+                }
+            }
+        }
+
 
         return  handlerMapping;
     }
@@ -90,11 +95,14 @@ public class WebBeanPostProcessor implements BeanPostProcessor ,BeanFactoryAware
         List<InterceptMatch> interceptors = null;
         if(!JpUtils.isEmpty(interceptorNames)) {
             interceptors = new ArrayList<InterceptMatch>();
-            InterceptMatch handleIntercept;
+            InterceptMatch interceptMatch;
+            Interceptor interceptor ;
+            String expression = null;
             for(String name : interceptorNames) {
-                Interceptor interceptor = (Interceptor) beanFactory.getBean(name);
-                handleIntercept = new InterceptMatch(interceptor.getClass(), interceptor);
-                interceptors.add(handleIntercept);
+                interceptor = (Interceptor) beanFactory.getBean(name);
+                expression = beanFactory.getType(name).getAnnotation(Intercept.class).url();
+                interceptMatch = new InterceptMatch(interceptor, expression);
+                interceptors.add(interceptMatch);
             }
         }
 

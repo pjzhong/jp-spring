@@ -2,7 +2,6 @@ webmvc 模块使用说明
 `======================`
 依赖：jp-ioc(核心模块) //主要负责bean的创建和注入
       fastJson
-      com.google.guava
       commons-io
       commons-fileupload
 <hr>
@@ -87,3 +86,70 @@ public class ControllerExample {
 ```
 目前@PathVariable只能作用于Method级别的@RequestMapping, 对类级别无效。
 并且要明确声明变量的名字， 否则无法识别
+
+<hr>
+**Interceptor**
+目前Interceptor仅支持路径匹配
+
+路径映射:以开“/”开头和“/*”结尾的路径映射，中间可以用“*”表示[a_zA-Z_0-9]的字符
+
+**正确例子：**
+ 1.“/\*” ——匹配所有url
+ 2.“/example/\*” —— 匹配所有以“/example”开头的url
+ 3.“/example/test\*/hi/*” -- 匹配以下：
+    “/example/test123/hi”
+    “/example/testasdfdf/hi”
+    “/example/testf5f5f5f/hi”
+    “/example/test1213/hi”
+    .......
+ 4.“/\*/test/hi/*” ——匹配以下
+     “/123/hi/...”
+     “/asd/hi/....”
+     不匹配
+     “/asdf/123/hi/....”
+     “/123/asdf/hi/.....”
+     
+**错误例子：**
+    1.“example/\*” —— Reject
+    2.“/example”  —— Reject
+    3.“/example/\*.html” —— Reject
+
+**代码演示**
+```java
+@Intercept(url = "/example/test*/*")
+public class TestInterceptor implements Interceptor {
+
+    @Override
+    public boolean beforeHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        System.out.println(request.getRequestURI());
+        return true;
+    }
+
+    @Override
+    public void afterHandler(HttpServletRequest request, HttpServletResponse response, Object handle) {
+        System.out.println("Handler has handled " + request.getRequestURI());
+    }
+}
+
+@Intercept(url = "/example/*")
+public class TestInterceptor2 implements Interceptor {
+
+    @Override
+    public boolean beforeHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+        System.out.println("I am test2 before");
+        return true;
+    }
+
+    @Override
+    public void afterHandler(HttpServletRequest request, HttpServletResponse response, Object handle) {
+        System.out.println("I am test2 after");
+    }
+}
+
+```
+
+接下来要实现文件上传(2016-1-28)
+
+<hr>
+
+**如果不足的地方，希望你能不吝赐教。**

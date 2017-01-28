@@ -65,6 +65,9 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                                 if(!url.startsWith("/")) {
                                     url = "/" + url;
                                 }
+                                if(url.endsWith("/")) {
+                                    url = url.substring(0, url.length() - 1);
+                                }
                                 handler = buildHandler(handler, clazzUrl, url);
                                 handlers.add(handler);
                             }
