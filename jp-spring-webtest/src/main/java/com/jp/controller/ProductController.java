@@ -11,6 +11,9 @@ import jp.spring.web.context.ProcessContext;
 import jp.spring.web.support.MultipartFile;
 import jp.spring.web.support.MultipartFiles;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.util.List;
 
 /**
@@ -36,11 +39,24 @@ public class ProductController {
     }
 
     @RequestMapping(value = "/products/create", method = RequestMethod.POST)
-    public Product create(Product product, MultipartFiles files) {
-        for(MultipartFile file : files) {
-            System.out.println(file.getOriginalFilename());
-        }
+    public Product create(Product product, MultipartFiles files) throws Exception {
         System.out.println(product);
+        if(files != null) {
+            String rootPath = System.getProperty("catalina.home");
+            File dir = new File(rootPath + File.separator + "tempFiles");
+            if(!dir.exists()) {
+                dir.mkdirs();
+            }
+            File serverFile;
+            BufferedOutputStream stream;
+            for(MultipartFile file : files) {
+                serverFile = new File(dir.getAbsolutePath() + File.separator + file.getOriginalFilename());
+                stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+                stream.write(file.getBytes());
+                stream.close();
+                System.out.println("Server File Location=" + serverFile.getAbsolutePath());
+            }
+        }
         return product;
     }
 
