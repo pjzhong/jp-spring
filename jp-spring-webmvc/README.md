@@ -151,7 +151,7 @@ public class TestInterceptor2 implements Interceptor {
 <hr>
 **文件上传功能已实现(2017-1-30)**
 文件上传使用(apache-commons-io, apache-common-fileupload)实现
-只要在方法参数上面提供一个MultipartFiles对象，jp-spring就会上传的文件全部封装到里面去
+只要在方法参数上面提供一个MultipartFiles对象，jp-spring就会将上传的文件全部封装到里面去
 
 代码演示(具体例子在jp-webtest)
 ```java

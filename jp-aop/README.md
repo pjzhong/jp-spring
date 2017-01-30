@@ -53,8 +53,7 @@ public class ControllerAspect {
     1. execution("com.jp.controller.\*.*()")
     2. execution("com.jp.controller...\*Service()")
   放进@Pointcut就可以了。
-    
-  <hr>
+<hr>
 
 **  如果你觉得有什么疑惑，请务必告诉我！！！！！！**
     

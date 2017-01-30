@@ -16,7 +16,7 @@ jp-spring目前有下面5个部分
 - jp-webtest (所有模块在这里都会具体例子)
 
 
-**核心模块ioc， 请点 <a href="https://git.oschina.net/pj_zhong/jp-spring/blob/master/jp-ioc/README.md?dir=0&filepath=jp-ioc%2FREADME.md&oid=3999b5e82cf0cf5f7ff12400bcb392e9d95dd287&sha=6db89758dd2d1e377c27c77858ead1c4f3b777f8">这里</a>**
+**核心模块ioc， 请点 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-ioc?dir=1&filepath=jp-ioc">这里</a>**
 ```java
 @Component("helloService")
 public class HelloService {
