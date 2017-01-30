@@ -109,6 +109,11 @@ public class TestControllerAspect {
 
 <hr/>
 **配置如下**
+jp-webtest
+运行环境：tomcat-7.0以上， jdk1.7以上， mysql5.6.26以上
+数据脚本:jp-webtest/doc
+
+
 在项目根目录下创建一个properties文件，输入下面的内容(jp-webtest里面有具体例子)
 ```java
 package.scan=com.jp
