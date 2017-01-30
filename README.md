@@ -42,7 +42,7 @@ public class HelloService {
 ```
 
 **创建Controller**
-详情请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/blob/master/jp-spring-webmvc/READEME.md?dir=0&filepath=jp-spring-webmvc">这里</a> 
+详情请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-spring-webmvc?dir=1&filepath=jp-spring-webmvc">这里</a> 
 ```java
 @Controller
 public class TestController {
@@ -72,7 +72,7 @@ public class TestController {
 ```
 
 **创建 Aspect**
-具体介绍请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/blob/master/jp-aop/READEME.md?dir=0&filepath=jp-aop">AOP-README</a>
+具体介绍请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-aop?dir=1&filepath=jp-aop">AOP-README</a>
 ```java
 @Aspect
 @Pointcut("execution(com.jp.controller.*.*())")
