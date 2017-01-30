@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 webmvc 模块使用说明
 `======================`
 依赖：jp-ioc(核心模块) //主要负责bean的创建和注入
@@ -178,5 +179,4 @@ MultiPartRequest
 MultiPartFile
 MultipartFiles_
 <hr>
-
 **如有不足，希望你能不吝赐教。**
