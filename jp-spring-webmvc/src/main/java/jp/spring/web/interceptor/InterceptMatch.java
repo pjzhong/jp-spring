@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by Administrator on 1/27/2017.
- * 对 Interceptor 进行封装。方便处理和管理
+ * 对 Interceptor 进行封装。处理拦截表达式，为之后的运行做准备
  */
 public class InterceptMatch {
 

@@ -4,19 +4,18 @@ import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.factory.BeanFactory;
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
+import jp.spring.ioc.beans.io.reader.AbstractBeanDefinitionReader;
 import jp.spring.ioc.beans.io.reader.AnnotationBeanDefinitionReader;
 import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.stereotype.Component;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.ioc.util.JpUtils;
 import jp.spring.web.annotation.Intercept;
-import jp.spring.web.handler.Handler;
-import jp.spring.web.handler.HandlerInvoker;
-import jp.spring.web.handler.HandlerMapping;
-import jp.spring.web.handler.HandlerMappingBuilder;
+import jp.spring.web.handler.*;
 import jp.spring.web.handler.impl.DefaultHandlerInvoker;
 import jp.spring.web.handler.impl.DefaultHandlerMapping;
 import jp.spring.web.handler.impl.DefaultHandlerMappingBuilder;
+import jp.spring.web.handler.impl.DefaultMultipartResolver;
 import jp.spring.web.interceptor.InterceptMatch;
 import jp.spring.web.interceptor.Interceptor;
 import jp.spring.web.view.DefaultViewResolver;
@@ -34,10 +33,6 @@ public class WebBeanPostProcessor implements BeanPostProcessor ,BeanFactoryAware
 
     private AbstractBeanFactory beanFactory;
 
-    public WebBeanPostProcessor() {
-        System.out.println("I am webBeanPostProcessor");
-    }
-
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         if(beanFactory instanceof AbstractBeanFactory) {
@@ -48,10 +43,13 @@ public class WebBeanPostProcessor implements BeanPostProcessor ,BeanFactoryAware
     @Override
     public void postProcessBeforeInitialization() throws Exception {
         HandlerMapping handlerMapping = buildHandlerMapping(beanFactory);
-        //注册 handlerMapping, handlerInvoker和 viewResolver factory 里面去。 ！！！这个手动注册虽然不好, 但在没想到其它方法之前，先这样吧......
+        //目前因为ioc模块的类扫描器性能速度还没优化到最好，因此没开启对jp-spring的全项目扫描。
+        // 这个手动注册虽然不好, 但在没想到其它方法之前，先这样吧......
         beanFactory.registerBeanDefinition(HandlerMapping.DEFAULT_HANDLER_MAPPING, new BeanDefinition(HandlerMapping.class, handlerMapping));
         beanFactory.registerBeanDefinition(HandlerInvoker.DEFAULT_HANDLER_INVOKER, new BeanDefinition(HandlerInvoker.class, new DefaultHandlerInvoker()));
-        beanFactory.registerBeanDefinition(ViewResolver.RESOLVER_NAME,  AnnotationBeanDefinitionReader.getInstance().loadBeanDefinition(DefaultViewResolver.class));
+        AbstractBeanDefinitionReader reader = AnnotationBeanDefinitionReader.getInstance();
+        beanFactory.registerBeanDefinition(ViewResolver.RESOLVER_NAME,  reader.loadBeanDefinition(DefaultViewResolver.class));
+        beanFactory.registerBeanDefinition(MultipartResolver.DEFAULT_MULTI_PART_RESOLVER, reader.loadBeanDefinition(DefaultMultipartResolver.class));
     }
 
     private HandlerMapping buildHandlerMapping(AbstractBeanFactory beanFactory) throws Exception{
@@ -90,6 +88,9 @@ public class WebBeanPostProcessor implements BeanPostProcessor ,BeanFactoryAware
         return  handlerMapping;
     }
 
+    /**
+     * 为了每一个interceptor创建一个匹配器
+     * */
     private List<InterceptMatch> buildInterceptMatch(AbstractBeanFactory beanFactory) throws Exception {
         List<String> interceptorNames = beanFactory.getBeanNamByAnnotation(Intercept.class);
         List<InterceptMatch> interceptors = null;

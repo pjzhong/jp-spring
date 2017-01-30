@@ -20,7 +20,7 @@ public class TestInterceptor implements Interceptor {
     }
 
     @Override
-    public void afterHandler(HttpServletRequest request, HttpServletResponse response, Object handle) {
+    public void afterHandle(HttpServletRequest request, HttpServletResponse response, Object handle) {
         System.out.println("Handler has handled " + request.getRequestURI());
     }
 }

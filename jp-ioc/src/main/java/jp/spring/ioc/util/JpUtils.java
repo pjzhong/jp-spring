@@ -106,7 +106,7 @@ public class JpUtils {
         } catch (Exception e) {
            throw new RuntimeException("Covert failed", e);
         }
-        return null;
+        return value;
     }
 
     public static <A extends Annotation> List<Method> findMethods(Class<?> clazz, Class<A> annotation) {

@@ -2,8 +2,8 @@ package jp.spring.web.handler;
 
 
 import jp.spring.ioc.util.StringUtils;
-import jp.spring.web.handler.support.RequestMethodParameter;
 import jp.spring.web.interceptor.Interceptor;
+import jp.spring.web.support.RequestMethodParameter;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -18,8 +18,6 @@ import java.util.regex.Pattern;
  */
 public class Handler {
 
-    private List<Interceptor> interceptors;
-
     private final String beanName;
 
     private final Method method;
@@ -28,9 +26,13 @@ public class Handler {
 
     private boolean hasPathVariable = false;
 
+    private boolean isResponseBody = false;
+
     private Pattern urlPattern = null;
 
     private String url;
+
+    private List<Interceptor> interceptors = new ArrayList<>();
 
     /**
      * key: path variable name, value: path variable regex index in urlPattern
@@ -65,6 +67,19 @@ public class Handler {
     }
 
     /*Getters and setters*/
+
+    public boolean isHasPathVariable() {
+        return hasPathVariable;
+    }
+
+    public boolean isResponseBody() {
+        return isResponseBody;
+    }
+
+    public void setResponseBody(boolean responseBody) {
+        isResponseBody = responseBody;
+    }
+
     public Method getMethod() {
         return method;
     }
@@ -94,10 +109,6 @@ public class Handler {
         this.pathVariableMap = pathVariableMap;
     }
 
-    public boolean isHasPathVariable() {
-        return hasPathVariable;
-    }
-
     public List<RequestMethodParameter> getRequestMethodParameters() {
         return requestMethodParameters;
     }
@@ -111,9 +122,6 @@ public class Handler {
     }
 
     public void addInterceptors(Collection<Interceptor> interceptors) {
-        if(this.interceptors == null) {
-            this.interceptors = new ArrayList<>();
-        }
         this.interceptors.addAll(interceptors);
     }
 

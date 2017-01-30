@@ -8,8 +8,10 @@ import jp.spring.web.context.DefaultWebApplicationContext;
  */
 public class AppTest
 {
-    public static void main(String[] args) throws Exception {
-        String path = "classpath:spring/test.xml";
-        WebApplicationContext webApplicationContext = new DefaultWebApplicationContext(path);
+    public static void main(String[] args) {
+        String text = "redirect:/path";
+        System.out.println("redirect:".length());
+        System.out.println(text.substring("redirect:".length()));
     }
+
 }
