@@ -2,6 +2,10 @@ package jp.spring.web.support;
 
 import org.apache.commons.fileupload.FileItem;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+
 
 /**
  * Created by Administrator on 1/30/2017.
@@ -14,6 +18,16 @@ public class MultipartFile {
     public MultipartFile(FileItem fileItem) {
         this.fileItem = fileItem;
         this.size = this.fileItem.getSize();
+    }
+
+    public byte[] getBytes() {
+        byte[] bytes = this.fileItem.get();
+        return (bytes != null ? bytes : new byte[0]);
+    }
+
+    public InputStream getInputStream() throws IOException {
+        InputStream inputStream = this.fileItem.getInputStream();
+        return (inputStream != null ? inputStream : new ByteArrayInputStream(new byte[0]));
     }
 
     public FileItem getFileItem() {
