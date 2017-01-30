@@ -2,14 +2,18 @@ package jp.spring.web.handler.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import jp.spring.ioc.context.WebApplicationContext;
 import jp.spring.ioc.util.JpUtils;
 import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.annotation.*;
 import jp.spring.web.context.ProcessContext;
 import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerInvoker;
-import jp.spring.web.handler.support.RequestMethodParameter;
+import jp.spring.web.handler.MultipartResolver;
 import jp.spring.web.interceptor.Interceptor;
+import jp.spring.web.support.MultiPartRequest;
+import jp.spring.web.support.MultipartFiles;
+import jp.spring.web.support.RequestMethodParameter;
 import jp.spring.web.util.WebUtil;
 import jp.spring.web.view.ViewResolver;
 
@@ -32,52 +36,73 @@ import java.util.Map;
  */
 public class DefaultHandlerInvoker implements HandlerInvoker {
 
-    ViewResolver viewResolver = null;
+    private boolean isInitialized = false;
+
+    private ViewResolver viewResolver = null;
+    private MultipartResolver multipartResolver = null;
+    private String REDIRECT = "redirect:";
+
+    public void init() {
+        if(isInitialized) {
+            return;
+        }
+
+        WebApplicationContext applicationContext = WebUtil.getWebContext();
+        try {
+            viewResolver =  (ViewResolver) applicationContext.getBean(ViewResolver.RESOLVER_NAME);
+            multipartResolver = (MultipartResolver) applicationContext.getBean(MultipartResolver.DEFAULT_MULTI_PART_RESOLVER);
+            isInitialized = true;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     @Override
     public void invokeHandler(Handler handler) throws Exception {
+        init();// initialize first
+
         HttpServletRequest request = ProcessContext.getRequest();
         HttpServletResponse response = ProcessContext.getResponse();
 
-        Object result;
-        Object controller;
-        if(JpUtils.isEmpty(handler.getInterceptors())) { //no interceptors
-            controller = WebUtil.getWebContext().getBean(handler.getBeanName());
-            result = handler.invoker(controller, autowiredParameter(handler));
-        } else {
-            boolean flag = false;
-            for(Interceptor interceptor : handler.getInterceptors()) {
-                flag = interceptor.beforeHandle(request, response, handler);
-                if(!flag) {
-                    return;
-                }
-            }
-            controller = WebUtil.getWebContext().getBean(handler.getBeanName());
-            result = handler.invoker(controller, autowiredParameter(handler));
-            for(Interceptor interceptor :  handler.getInterceptors()) {
-                interceptor.afterHandler(request, response, handler);
-            }
+        //Is multiPart request?
+
+        if(multipartResolver.isMultiPart(request)) {
+            request = multipartResolver.resolveMultipart(request);
+            ProcessContext.getContext().set(ProcessContext.REQUEST, request);
         }
 
-        if(JpUtils.isAnnotated(handler.getMethod(), ResponseBody.class) || !(result instanceof String) ) {
+
+        Object result;
+        Object controller;
+        boolean flag = false;
+        for(Interceptor interceptor : handler.getInterceptors()) {
+            flag = interceptor.beforeHandle(request, response, handler);
+            if(!flag) {
+                return;
+            }
+        }
+        controller = WebUtil.getWebContext().getBean(handler.getBeanName());
+        result = handler.invoker(controller, autowiredParameter(handler));
+        for(Interceptor interceptor :  handler.getInterceptors()) {
+            interceptor.afterHandle(request, response, handler);
+        }
+
+
+        if(handler.isResponseBody()) {
             response.setHeader("Context-type", "application/json;charset=UTF-8");
             response.getWriter().write(JSON.toJSONString(result));
-        } else if(result instanceof String ) {
+        } else {
             String pagePath = (String) result;
             if(!StringUtils.isEmpty(pagePath)) {
-                String[] pagePaths = pagePath.split(":");
-                if(pagePaths[0].equals("redirect")) {
-                    response.sendRedirect(pagePaths[1]);
+                if(pagePath.startsWith(REDIRECT)) {
+                    response.sendRedirect(pagePath.substring(REDIRECT.length()));
                 } else {
-                    if(viewResolver == null) {
-                        viewResolver =  (ViewResolver) WebUtil.getWebContext().getBean(ViewResolver.RESOLVER_NAME);
-                    }
                     viewResolver.toPage(pagePath);
                 }
             }
         }
-
     }
+
 
     protected Object[] autowiredParameter(Handler handler) throws Exception {
         if(JpUtils.isEmpty(handler.getRequestMethodParameters())) {
@@ -106,6 +131,10 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
              return ProcessContext.getResponse();
          } else  if(HttpSession.class.isAssignableFrom(parameter.getType())) {
              return ProcessContext.getSession();
+         } else if(MultipartFiles.class.isAssignableFrom(parameter.getType())) {
+             if(ProcessContext.getRequest() instanceof MultiPartRequest) {// return upload file
+                 return ((MultiPartRequest) ProcessContext.getRequest()).getMultipartFiles();
+             }
          }
 
         if(parameter.isPrimitiveType() && parameter.isHasAnnotation()) {
@@ -123,7 +152,11 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
                 String url = ProcessContext.getContext().getString(ProcessContext.REQUEST_URL);
                 value = handler.getPathVariable(url, name);
             } else if(RequestParam.class.equals(annotationType)) {
-                value = ProcessContext.getRequest().getParameter(name);
+                if(parameter.getType().isArray()) {
+                   return ProcessContext.getRequest().getParameterValues(name);
+                } else {
+                    value = ProcessContext.getRequest().getParameter(name);
+                }
             } else if(RequestHeader.class.equals(annotationType)) {
                 value = ProcessContext.getRequest().getHeader(name);
             } else if(CookieValue.class.equals(annotationType)) {
@@ -137,44 +170,46 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
                     }
                 }
             }
-
             Object targetValue = JpUtils.convert(value, parameter.getType());
             return targetValue;
-        } else {
-            return autowiredParameter(parameter.getType());
         }
+
+
+        return autowiredParameter(parameter.getType());
     }
 
     /**
-     * Inject POJO
-     * 使用FastJson，进行反序列化
-     * 如果对象没有对应的Getter和Setter，属性将无法注入。
+     * Inject POJO and handle file upload
+     * use fastJson to deserialization. value can't be inject if the target Object did not
+     * provide the corresponding setter
      * @param paramClass
      * */
-    private static Object autowiredParameter(Class<?> paramClass)  throws Exception {
+    private Object autowiredParameter(Class<?> paramClass)  throws Exception {
         HttpServletRequest request = ProcessContext.getRequest();
-        Object dto = null;
-        if(RequestMethod.GET.name().equals(request.getMethod())
-                || request.getContentType().contains( "application/x-www-form-urlencoded")) {
-            JSONObject json = new JSONObject();
-            format(paramClass, json);
-            dto = JSON.toJavaObject(json, paramClass);//
-        } else if(request.getContentType().startsWith("application/json")) {
+        Object result = null;
+
+        String contentType = request.getContentType();
+        if( (!StringUtils.isEmpty(contentType))
+                && (contentType.startsWith("application/json")) ) {
             String content = readText(request);
             if(!StringUtils.isEmpty(content)) {
                 JSONObject json = JSON.parseObject(content);
-                dto = JSON.toJavaObject(json, paramClass);
+                result = JSON.toJavaObject(json, paramClass);
             }
+        } else {
+            JSONObject json = new JSONObject();
+            format(paramClass, json, request.getParameterMap());
+            result = JSON.toJavaObject(json, paramClass);//
         }
-        return dto;
+        return result;
     }
 
     /**
      * 根据POJO，对数据的格式进行一些设置
      * @param paramClass(POJO)
      * */
-    private static void format(Class<?> paramClass, JSONObject json) {
-        json.putAll(ProcessContext.getRequest().getParameterMap());
+    private static void format(Class<?> paramClass, JSONObject json, Map<String, String[]> parameterMap) {
+        json.putAll(parameterMap);
         String[] values = null;
         Field field;
 
@@ -184,7 +219,9 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
                 try {
                     field = paramClass.getDeclaredField(entry.getKey());
                     if(null != field) {
-                         if(Collection.class.isAssignableFrom(field.getType())) {
+                        if(field.getType().isArray()) {
+                          //Simply skip
+                        } else if(Collection.class.isAssignableFrom(field.getType())) {
                             entry.setValue(Arrays.asList(values));
                         } else {
                             entry.setValue(values[0]);
@@ -199,7 +236,7 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
 
     /**
      * read json data from web request
-     * This method will be called when the Context-Type was :application/json
+     * This method will be called when the Context-Type is :application/json
      * @param request
      * */
     private static String readText(HttpServletRequest request) {

@@ -36,6 +36,16 @@ public class StringUtils {
         return s;
     }
 
+    public static String[] addStringToArray(String[] array, String str) {
+        if(JpUtils.isEmpty(array)) {
+            return new String[] {str};
+        }
+        String[] newArr = new String[array.length + 1];
+        System.arraycopy(array, 0, newArr, 0, array.length);
+        newArr[array.length] = str;
+        return newArr;
+    }
+
     /**
      * 首字母大写
      * */

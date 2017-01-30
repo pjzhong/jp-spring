@@ -36,18 +36,14 @@ public class ProcessContext {
     }
 
     public static HttpServletRequest getRequest() {
-        return (HttpServletRequest) getContext().objectMap.get(REQUEST);
+        return (HttpServletRequest) getContext().get(REQUEST);
     }
 
     public static HttpServletResponse getResponse() {
-        return (HttpServletResponse) getContext().objectMap.get(RESPONSE);
+        return (HttpServletResponse) getContext().get(RESPONSE);
     }
 
     public static HttpSession getSession() {
-        return getRequest().getSession();
-    }
-
-    public static HttpSession getSeesion() {
         return getRequest().getSession();
     }
 
@@ -61,8 +57,9 @@ public class ProcessContext {
     }
 
     public Object get(String key, Object defaultValue) {
-        if (objectMap.containsKey(key))
+        if (objectMap.containsKey(key)) {
             return objectMap.get(key);
+        }
 
         return defaultValue;
     }

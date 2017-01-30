@@ -1,4 +1,4 @@
-package jp.spring.web.handler.support;
+package jp.spring.web.support;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;

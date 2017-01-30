@@ -6,8 +6,7 @@ import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.annotation.*;
 import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerMappingBuilder;
-import jp.spring.web.handler.support.RequestMethodParameter;
-import jp.spring.web.util.UrlPathHelper;
+import jp.spring.web.support.RequestMethodParameter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
@@ -88,6 +87,11 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
             buildRegexUrl(handler, classUrl, url, paramAnnotations);
         } else {
             handler.setUrl(classUrl + url);
+        }
+
+        // return Json or not?
+        if(JpUtils.isAnnotated(handler.getMethod(), ResponseBody.class) || !(handler.getMethod().getReturnType() == String.class) ) {
+            handler.setResponseBody(true);
         }
 
         buildHandlerParameter(handler,paramAnnotations);

@@ -91,7 +91,7 @@ public class ControllerExample {
 **Interceptor**
 目前Interceptor仅支持路径匹配
 
-路径映射:以开“/”开头和“/*”结尾的路径映射，中间可以用“*”表示[a_zA-Z_0-9]的字符
+路径映射:以开“/”开头和“/*”结尾的路径映射，中间可以用“\*”表示[a_zA-Z_0-9]的字符
 
 **正确例子：**
  1.“/\*” ——匹配所有url
@@ -148,8 +148,35 @@ public class TestInterceptor2 implements Interceptor {
 
 ```
 
-接下来要实现文件上传(2016-1-28)
+<hr>
+**文件上传功能已实现(2017-1-30)**
+文件上传使用(apache-commons-io, apache-common-fileupload)实现
+只要在方法参数上面提供一个MultipartFiles对象，jp-spring就会上传的文件全部封装到里面去
 
+代码演示(具体例子在jp-webtest)
+```java
+@Controller
+public class ProductController {
+    @RequestMapping(value = "/products/create", method = RequestMethod.GET)
+    public String create() {
+        return "products_create";
+    }
+
+    @RequestMapping(value = "/products/create", method = RequestMethod.POST)
+    public Product create(Product product, MultipartFiles files) {
+        for(MultipartFile file : files) {
+            System.out.println(file.getOriginalFilename());
+        }
+        System.out.println(product);
+        return product;
+    }
+}
+```
+具体代码请看
+_DefaultMultipartResolver
+MultiPartRequest
+MultiPartFile
+MultipartFiles_
 <hr>
 
 **如果不足的地方，希望你能不吝赐教。**
