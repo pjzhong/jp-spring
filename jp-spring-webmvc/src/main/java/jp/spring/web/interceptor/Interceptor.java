@@ -24,5 +24,5 @@ public interface Interceptor {
      * @param request current HTTP request
      * @param response current HTTP response
      * */
-    void afterHandler(HttpServletRequest request, HttpServletResponse response, Object handle);
+    void afterHandle(HttpServletRequest request, HttpServletResponse response, Object handle);
 }

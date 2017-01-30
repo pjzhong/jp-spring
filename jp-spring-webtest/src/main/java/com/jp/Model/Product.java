@@ -65,4 +65,16 @@ public class Product /*extends BaseBean*/ {
     public void setDescription(String description) {
         this.description = description;
     }
+
+    @Override
+    public String toString() {
+        return "Product{" +
+                "id=" + id +
+                ", productTypeId=" + productTypeId +
+                ", name='" + name + '\'' +
+                ", code='" + code + '\'' +
+                ", price=" + price +
+                ", description='" + description + '\'' +
+                '}';
+    }
 }

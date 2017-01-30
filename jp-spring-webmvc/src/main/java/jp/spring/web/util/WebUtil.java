@@ -2,8 +2,10 @@ package jp.spring.web.util;
 
 import jp.spring.ioc.context.WebApplicationContext;
 import jp.spring.web.context.ProcessContext;
+import org.apache.commons.fileupload.servlet.ServletFileUpload;
 
 import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**

@@ -24,10 +24,6 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
 
     private AbstractBeanFactory beanFactory;
 
-    public AspectBeanPostProcessor() {
-        System.out.println("I am aspectBeanPostProcessor");
-    }
-
     /**
      * initialize all the aspects provide by user
      */

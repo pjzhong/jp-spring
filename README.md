@@ -115,11 +115,13 @@ package.scan=com.jp
 page.folder=/page
 page.extension=.html
 resource.folder=/resources
+upload.size=5
 ```
 
 1.package.scan ——代表需要扫描的包， 自动扫描子目录，如果需要配置多个，请使用 ";" 进行分割。为了方便，我直接从根目录开始扫描
 2.page.folder ——页面的文件，默认从项目根目录开始
 3.page.extension ——页面的扩展名(目前支持jsp和html)，默认jsp
 4.resource.folder ——静态资源的文件夹，必须配置不然找不到静态资源。如果需要配置多个，请使用";" 进行分割。
+5.upload.size ——  单位:MB, 最大上传文件的限制，默认4M
 <hr>
 **如有不足，希望你能不吝赐教。**
