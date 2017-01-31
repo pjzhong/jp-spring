@@ -67,23 +67,24 @@ public class WebBeanPostProcessor implements BeanPostProcessor ,BeanFactoryAware
 
         //Assembling interceptors
         List<InterceptMatch> interceptMatches = buildInterceptMatch(beanFactory);
-        Map<String, List<Handler>> handlerMap = handlerMapping.getHandlerMap();
-        for(String url : handlerMap.keySet()) {
-            List<Interceptor> interceptors = new ArrayList<>();
-            for(InterceptMatch interceptMatch : interceptMatches) {
-                if(interceptMatch.match(url)) {
-                    interceptors.add(interceptMatch.getInterceptor());
+        if(!JpUtils.isEmpty(interceptMatches)) {
+            Map<String, List<Handler>> handlerMap = handlerMapping.getHandlerMap();
+            for(String url : handlerMap.keySet()) {
+                List<Interceptor> interceptors = new ArrayList<>();
+                for(InterceptMatch interceptMatch : interceptMatches) {
+                    if(interceptMatch.match(url)) {
+                        interceptors.add(interceptMatch.getInterceptor());
+                    }
                 }
-            }
 
-            if(!JpUtils.isEmpty(interceptors)) {
-                List<Handler> handlers = handlerMap.get(url);
-                for(Handler handler : handlers) {
-                    handler.addInterceptors(interceptors);
+                if(!JpUtils.isEmpty(interceptors)) {
+                    List<Handler> handlers = handlerMap.get(url);
+                    for(Handler handler : handlers) {
+                        handler.addInterceptors(interceptors);
+                    }
                 }
             }
         }
-
 
         return  handlerMapping;
     }

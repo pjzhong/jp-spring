@@ -10,6 +10,8 @@ import jp.spring.web.handler.HandlerMapping;
 
 import jp.spring.web.util.UrlPathHelper;
 import jp.spring.web.util.WebUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -20,6 +22,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 @WebServlet(loadOnStartup = 1, urlPatterns = "/")
 public class DispatcherServlet extends FrameworkServlet {
+
+    private final static Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
 
     private static WebApplicationContext webApplicationContext;
 
@@ -48,6 +52,7 @@ public class DispatcherServlet extends FrameworkServlet {
             Handler handler = handlerMapping.getHandler(request, path);
             if(handler == null) {
                 response.sendError(response.SC_NOT_FOUND,  " Not Found");
+                logger.error(path + " Not Found");
                 return;
             }
 
@@ -60,7 +65,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
             handlerInvoker.invokeHandler(handler);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Error raised in {}", e);
             WebUtil.sendError(response.SC_INTERNAL_SERVER_ERROR, e.getMessage(), response);
         } finally {
             ProcessContext.destroyContext();

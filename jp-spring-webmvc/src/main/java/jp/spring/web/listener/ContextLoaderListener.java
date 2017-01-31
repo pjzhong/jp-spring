@@ -33,8 +33,9 @@ public class ContextLoaderListener implements ServletContextListener{
             ServletRegistration defaultRegistration = sce.getServletContext().getServletRegistration("default");
             String resourceFolder = ((DefaultWebApplicationContext) webApplicationContext).getProperty("resource.folder");
             if(!StringUtils.isEmpty(resourceFolder)) {
-                for(String path : resourceFolder.split("\\s*;\\s*"))
-                defaultRegistration.addMapping(path + "/*");
+                for(String path : resourceFolder.split("\\s*;\\s*")) {
+                    defaultRegistration.addMapping(path + "/*");
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,21 +1,12 @@
-*.class
+# Maven #
+target/
+*/target/
 
-# BlueJ files
-*.ctxt
+# IDEA #
+.idea/
+*.iml
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
-*.war
-*.ear
-
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-/jp-spring-webtest/target/
-/.idea/
-/jp-spring-webmvc/target/
-/jp-orm/target/
-/jp-ioc/target/
-/jp-aop/target/
+# Eclipse #
+.settings/
+.classpath
+.project
