@@ -13,3 +13,9 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
+/jp-spring-webtest/target/
+/.idea/
+/jp-spring-webmvc/target/
+/jp-orm/target/
+/jp-ioc/target/
+/jp-aop/target/
