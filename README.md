@@ -1,6 +1,6 @@
 ### jp-spring是一个Spring-like框架
 > 一些名称为了方便熟悉直接从Spring那里拿来......
-> 用了那么久Spring，也该动手模仿一下来加深理理解
+> 用了那么久Spring，也该动手模仿一下来深入理解下了
 
 <hr/>
 Inspired by:
