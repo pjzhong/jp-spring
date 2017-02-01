@@ -30,7 +30,7 @@ public class ControllerExample {
      }
 }
 ```
-方法结果处理：
+控制器返回结果处理策略：
  情况1：如果方法标记了@ResponseBody或者没有标记@ResponseBody并且返回值不是String类型的，都会转换成json格式返回客户端
  情况2：没有标记@ResponseBody并且返回值是String类型，那么系统就会认为这个返回值是一个页面路径，并将此路径所代表的页面返回到客户端
 **Class级别的@RequestMapping不是必须的。**
