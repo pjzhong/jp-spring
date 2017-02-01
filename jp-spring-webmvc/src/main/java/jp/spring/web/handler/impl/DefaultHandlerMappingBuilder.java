@@ -25,6 +25,11 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
 
     public DefaultHandlerMappingBuilder() {}
 
+    /**
+     * URL on class level default is '/' and
+     * on method level  is '' (If use did not provide a specified vale).
+     *
+     * */
     @Override
     public List<Handler> buildHandler(String name, Class<?> controller) {
         if(!JpUtils.isAnnotated(controller, Controller.class)) {
@@ -32,7 +37,7 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
         }
 
         String[] urls = null;
-        String clazzUrl = "";
+        String clazzUrl = "/";
 
         //处理Class级别的URL
         if(JpUtils.isAnnotated(controller, RequestMapping.class)) {
@@ -41,8 +46,15 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                 throw new IllegalArgumentException("Incorrect use of @RequestMapping on " + controller);
             } else {
                 clazzUrl = urls[0];
-                if(!StringUtils.isEmpty(clazzUrl) && !clazzUrl.startsWith("/")) {
-                    clazzUrl = "/" + clazzUrl ;
+                if(!StringUtils.isEmpty(clazzUrl)) {//classUrl 永远以 "/"， 结尾不管
+                    if(!clazzUrl.startsWith("/")) {
+                        clazzUrl = "/" + clazzUrl ;
+                    }
+                    if(clazzUrl.endsWith("/")) {
+                        clazzUrl = clazzUrl.substring(0, clazzUrl.length() - 1);
+                    }
+                } else {
+                    clazzUrl = "/";
                 }
             }
         }
@@ -55,21 +67,13 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                 handler = new Handler(method, name);
                 urls = method.getAnnotation(RequestMapping.class).value();
                 if(StringUtils.isEmpty(urls)) {//urls为空，取方法名作默认url
-                    handler = buildHandler(handler, clazzUrl, method.getName());
+                    handler = buildHandler(handler, clazzUrl, null);
                     handlers.add(handler);
                 } else {
                     for(String url : urls) {
                         try {
-                            if(!StringUtils.isEmpty(url)) {
-                                if(!url.startsWith("/")) {
-                                    url = "/" + url;
-                                }
-                                if(url.endsWith("/")) {
-                                    url = url.substring(0, url.length() - 1);
-                                }
-                                handler = buildHandler(handler, clazzUrl, url);
-                                handlers.add(handler);
-                            }
+                            handler = buildHandler(handler, clazzUrl, url);
+                            handlers.add(handler);
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -77,20 +81,33 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                 }
             }
         }
-
         return handlers;
     }
 
-    private Handler buildHandler(Handler handler, String classUrl, String url) {
+    private Handler buildHandler(Handler handler, String classUrl, String methodUrl) {
         Annotation[][] paramAnnotations = handler.getMethod().getParameterAnnotations();
-        if(PATTERN_PATH_VARIABLE.matcher(url).find()) { //包含占位符({}), 开始创建正则表达式
-            buildRegexUrl(handler, classUrl, url, paramAnnotations);
+
+
+        if(!StringUtils.isEmpty(methodUrl)) {
+            if(!methodUrl.startsWith("/")) {
+                methodUrl = "/" + methodUrl;
+            }
+            if(methodUrl.endsWith("/")) {
+                methodUrl = methodUrl.substring(0, methodUrl.length() - 1);
+            }
+
+            if(PATTERN_PATH_VARIABLE.matcher(methodUrl).find()) {
+                buildRegexUrl(handler, classUrl, methodUrl, paramAnnotations);
+            } else {
+                handler.setUrl(classUrl + methodUrl);
+            }
         } else {
-            handler.setUrl(classUrl + url);
+            handler.setUrl(classUrl);
         }
 
         // return Json or not?
-        if(JpUtils.isAnnotated(handler.getMethod(), ResponseBody.class) || !(handler.getMethod().getReturnType() == String.class) ) {
+        if(JpUtils.isAnnotated(handler.getMethod(), ResponseBody.class)
+                || (handler.getMethod().getReturnType() != String.class) ) {
             handler.setResponseBody(true);
         }
 
@@ -103,7 +120,7 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
      * @ReqquestMapping("/example/{one}/{two}")
      * method(@PathVariable('one") Integer, @PatVariable("two") Float)
      *
-     * 将会:/example/([-+]?\d+)/([-+]?\d+(\.\d+))
+     * 将会变成:/example/([-+]?\d+)/([-+]?\d+(\.\d+))
      * */
     private void buildRegexUrl(Handler handler, String classUrl, String url, Annotation[][] paramAnnotations) {
         if(!JpUtils.isEmpty(paramAnnotations)) {

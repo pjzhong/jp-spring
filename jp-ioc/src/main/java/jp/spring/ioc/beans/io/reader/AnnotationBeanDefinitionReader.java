@@ -36,6 +36,10 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
 
     @Override
     public void loadBeanDefinitions(String strLocation) throws Exception {
+        if(StringUtils.isEmpty(strLocation)) {
+            return;
+        }
+
         if(getResourceLoader() instanceof ClassResourceLoader) {
             String[] locations = strLocation.split("\\s*;\\s*");
             for(String location : locations) {

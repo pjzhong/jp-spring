@@ -2,6 +2,7 @@ package com.jp.controller;
 
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.web.annotation.RequestMapping;
+import jp.spring.web.annotation.RequestMethod;
 import jp.spring.web.annotation.ResponseBody;
 
 /**
@@ -14,5 +15,10 @@ public class JpController {
     @ResponseBody
     public String zjp() {
         return "zjp";
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public String index() {
+        return "index";
     }
 }
