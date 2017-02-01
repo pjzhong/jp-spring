@@ -50,6 +50,7 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                     if(!clazzUrl.startsWith("/")) {
                         clazzUrl = "/" + clazzUrl ;
                     }
+
                     if(clazzUrl.endsWith("/")) {
                         clazzUrl = clazzUrl.substring(0, clazzUrl.length() - 1);
                     }
@@ -87,20 +88,20 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
     private Handler buildHandler(Handler handler, String classUrl, String methodUrl) {
         Annotation[][] paramAnnotations = handler.getMethod().getParameterAnnotations();
 
-
         if(!StringUtils.isEmpty(methodUrl)) {
-            if(!methodUrl.startsWith("/")) {
+            if(!methodUrl.startsWith("/") ) {
                 methodUrl = "/" + methodUrl;
             }
             if(methodUrl.endsWith("/")) {
                 methodUrl = methodUrl.substring(0, methodUrl.length() - 1);
             }
-
+            if(classUrl.equals("/")) {//防止 "/" + "/products/******" = "//products/****";
+                classUrl = "";
+            }
             if(PATTERN_PATH_VARIABLE.matcher(methodUrl).find()) {
                 buildRegexUrl(handler, classUrl, methodUrl, paramAnnotations);
-            } else {
-                handler.setUrl(classUrl + methodUrl);
             }
+            handler.setUrl(classUrl + methodUrl);
         } else {
             handler.setUrl(classUrl);
         }
@@ -158,7 +159,6 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
                     }
                 }
             }
-            handler.setUrl(classUrl + url);
             handler.setUrlExpression("^" + classUrl + urlExpression + "$");
             handler.setPathVariableMap(pathVariableMap);
         }
