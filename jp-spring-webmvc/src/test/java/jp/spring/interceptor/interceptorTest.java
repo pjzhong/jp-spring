@@ -13,6 +13,8 @@ public class interceptorTest {
     public void test1() {
         Pattern pattern = Pattern.compile("^([/]?)([\\w/\\*]*)(/\\*){1}$");
 
+        System.out.println(pattern.matcher(null).find());
+
         String test = "/exmaple1231324665465/asdf*sdf/example/test/45/4565456460/456456*/*";
 
         System.out.println(pattern.matcher(test).find());

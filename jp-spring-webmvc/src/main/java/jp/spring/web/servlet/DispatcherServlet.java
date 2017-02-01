@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Created by Administrator on 1/3/2017.
  */
-@WebServlet(loadOnStartup = 1, urlPatterns = "/")
+@WebServlet(loadOnStartup = 1, urlPatterns = "/*")
 public class DispatcherServlet extends FrameworkServlet {
 
     private final static Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
