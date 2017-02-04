@@ -1,6 +1,7 @@
 ### jp-spring是一个轻量型的web框架
 > 这个项目是为了更了解web开发和spring而做出来的
 > 一些名称为了方便熟悉直接从Spring那里拿来......
+> 这个一个学习项目
 
 <hr/>
 Inspired by:
