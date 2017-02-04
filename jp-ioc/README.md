@@ -5,7 +5,7 @@ jp-ioc 模块使用说明
 
 <br>
 <hr>
-先来看看我们都能做些什么先吧
+想让我们看下应该怎么做吧
 ```java
 public class ApplicationContextTest {
     @Test
@@ -61,12 +61,13 @@ public class outputServiceImpl2  implements OutputService {
     }
 }
 ```
-目前@Autowired只支持配置在成员变量上，对于方法无效
+_目前@Autowired只支持配置在成员变量上，对于方法无效_
 <hr>
-**@Value**
+## @Value
 这个标记主要是用来为类注入配置中的值。
 就像 HelloService 的例子中， 成员变量text， ioc会从配置文件需要合适的值并对其注入
-配置文件
+
+配置文件放在项目根路径下
 ```java
 package.scan=jp.spring
 test=123456
@@ -85,7 +86,7 @@ public class HelloService {
 ```
 目前@Value只支持配置在成员变量上
 <hr>
-** beanPostProcessor, 初始化和加工** 
+## beanPostProcessor, 初始化和加工
 (2017-1-25)在开发这个项目中，如何整合各个组件(jp-ioc, jp-web, jp-aop)这个问题一直困扰着我。
 我的想法是尽可能隔离各个组件，让每个组件都只依赖于jp-ioc。 在前期开发的时候，一直没这方面的经验，
 所以只好的在WebApplicationContext里面人工组合了各个组件了(下下签啊)。
@@ -120,3 +121,5 @@ public interface BeanPostProcessor {
 }
 ```
 具体例子可以查看 webmvc和aop模块jp.spring.process包里面的beanPostProcessor实现
+<hr>
+**如有不足，希望你能不吝赐教**

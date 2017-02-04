@@ -4,8 +4,14 @@ webmvc 模块使用说明
       fastJson
       commons-io
       commons-fileupload
+      
+## Requirements
+
+* java 6.0+  
+* tomcat 7.0+     
+      
 <hr>
-首先创建一个Controller吧
+## 首先创建一个Controller吧
 ```java
 @Controller
 public class ControllerExample {
@@ -33,8 +39,7 @@ public class ControllerExample {
 控制器返回结果处理策略：
  情况1：如果方法标记了@ResponseBody或者没有标记@ResponseBody并且返回值不是String类型的，都会转换成json格式返回客户端
  情况2：没有标记@ResponseBody并且返回值是String类型，那么系统就会认为这个返回值是一个页面路径，并将此路径所代表的页面返回到客户端
-**Class级别的@RequestMapping不是必须的。**
-
+_Class级别的@RequestMapping不是必须的。_
 (2017-2-1更新)
 ~~下面这样写是不允许的， @RequestMapping的value 属性不能为空~~
 下面这种写法的话，exampleOne()就会变成首页了
@@ -49,14 +54,14 @@ public class ControllerExample {
 }
 ```
 <hr>
-**获取请求中的参数**
+## 获取请求中的参数
 ```java
 @Controller
 @RequestMapping("/example")
 public class ControllerExample {
       
      @RequestMapping(value = "/one", method = RequestMethod.GET) 
-     public String exmapleOne(@RequestParam("abc") Integer one) {
+     public String exmapleOne(User user，@RequestParam("abc") Integer one) {
         return "one";
      }
      
@@ -66,12 +71,14 @@ public class ControllerExample {
      }
 }
 ```
-如果你想获取请求中的参数可以使用 @RequestParam 来获取， 目前必须在 @RequestParam里面明确说明参数的名字
-不然获取不到。
+POJO也可自动注入(如果是成员变量也是一个对象，目前还不能成功注入)，只要请求的参数中有对应的字段。那么jp-spring为你自动创建一个对应的对象，为将其自动注入。
+你也可以是用@RequestParam来获取其它参数，但@RequestParam只支持其基本类型。
 
-还有 @CookieValue, @RequestHeader可以让从Cookie或者Header里面获取数据，使用方法和@RequestParam一样。
+_目前必须在 @RequestParam里面明确声明参数的名字，不然获取不到。_
+
+还有 @CookieValue, @RequestHeader可以从Cookie或者Header里面获取数据，使用方法和@RequestParam一样。
 <hr>
-**@PatVariable的用法**
+## @PatVariable的用法
 ```java
 @Controller
 @RequestMapping("/example")
@@ -83,11 +90,11 @@ public class ControllerExample {
      }
 }
 ```
-目前@PathVariable只能作用于Method级别的@RequestMapping, 对类级别无效。
+目前@PathVariable只能作用于Method级别的基本类型变量, 对类级别无效。
 并且要明确声明变量的名字， 否则无法识别
 
 <hr>
-**Interceptor**
+## Interceptor
 目前Interceptor仅支持路径匹配
 
 路径映射:以开“/”开头和“/*”结尾的路径映射，中间可以用“\*”表示[a_zA-Z_0-9]的字符
@@ -148,7 +155,7 @@ public class TestInterceptor2 implements Interceptor {
 ```
 
 <hr>
-**文件上传功能已实现(2017-1-30)**
+## 文件上传功能已实现(2017-1-30)
 文件上传使用(apache-commons-io, apache-common-fileupload)实现
 只要在方法参数上面提供一个MultipartFiles对象，jp-spring就会将上传的文件全部封装到里面去
 

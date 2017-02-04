@@ -3,11 +3,10 @@ Aop 模块使用说明
 依赖：jp-ioc(核心模块)和cglib
 
 <hr>
-
 首先编写一个类并为其标上@Aspect和@Pointcut(这两个是必须的)， 然后在@Pointcut里面编写规则(规则介绍请看例子下方)。
-被@Before和@After的方法，参数中只能有TargetSource， TargetSource包含了目标对象的基本信息，包括目标类，实例，被调用的方法和参数
+被@Before和@After标记的方法，参数中只能有TargetSource， TargetSource包含了目标对象的基本信息，包括目标类，实例，被调用的方法还有其参数
 
-@Error标记的方法只能有两个参数，其中一个是目标方法抛出的异常，(具体例子在jp-webtest模块里面)
+@Error标记的方法只能有两个参数。一个是TargetSource, 另一个是目标方法抛出的异常，(具体例子在jp-webtest模块里面)
 ```java
 @Aspect
 @Pointcut("execution(com.jp.controller.*.*())")

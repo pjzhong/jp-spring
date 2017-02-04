@@ -1,6 +1,6 @@
-### jp-spring是一个Spring-like框架
+### jp-spring是一个轻量型的web框架
+> 这个项目是为了更了解web开发和spring而做出来的
 > 一些名称为了方便熟悉直接从Spring那里拿来......
-> 用了那么久Spring，也该动手模仿一下来深入理解下了
 
 <hr/>
 Inspired by:
@@ -8,11 +8,11 @@ Inspired by:
   <a href="https://github.com/menyouping/jw">jw</a>
   <a href="https://git.oschina.net/huangyong/smart-framework">smart-framework</a>
 
-jp-spring目前有下面5个部分
+jp-spring目前有下面4个功能模块， 还有一个是演示例子
 - jp-ioc (负责bean的创建和注入，下面的模块都依赖这个核心。 核心的详解请看<a href="https://github.com/code4craft/tiny-spring"> 这里 </a>)
 - jp-aop (AOP模块， 负责管理和创建Aspect，并对目标类进行织入)
 - jp-orm (ORM模块，现在还没完成)
-- jp-webmvc (MVC模块， 负责映射Request到Controller)
+- jp-webmvc (MVC模块， 负责映射Request和Controller方法参数自动注入)
 - jp-webtest (所有模块在这里都会具体例子)
 
 

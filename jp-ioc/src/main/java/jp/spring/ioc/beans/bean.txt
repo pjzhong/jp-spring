@@ -1,4 +1,4 @@
-beanDefinition保存着要创建的对象基本信息，其Class和一个Instance
+beanDefinition保存着要创建的对象基本信息，其包含目标对象的Class和其实列
 PropertyValue用来来保存需注入到Bean中的Property的名字和值
 PropertyValues其实就是一个对PropertyValue非常简单的封装，这里不祥说。不懂可以去看看
 
@@ -27,6 +27,21 @@ AbstractBeanFactory（抽象类，使用了模板模式来规定创建一个的�
 ........ （子类，实现了bean具体创建过程可能还包含了属性的注入）
 
 *****************************************************************************
-这里还有一个BeanPostProcessor，它的目的就是在bean创建结束之后，进行一些额外的加工
-
-这里作者用来把BeanFactory和Aop结合在一起
+这里还有一个BeanPostProcessor。ioc容器在初始化自身和创建bean时对外暴露的接口，
+主要用于连接其它模块
+****************************************************************************
+ApplicationContext存在的意义就是：
+0.读取配置文件
+1.扫描Class,
+2.从Class中解析BeanDefinition
+3.创建BeanFactory或者用户提供一个
+4.将BeanDefinition注册到BeanFactory里面去
+5.初始化环境(载入beanPostProcess等)....
+6.获取bean
+......
+把这些步骤全部封装到ApplicationContext，然后外部环境只需要跟ApplicationContext打交道就行了
+****************************************************************************
+我在原作者的基础上增加了自动装配的功能。为此我新添加了几个类，在此做一下记录防止以后自己回来都看不懂了。
+   1.InjectField——用来封装被@Autowired标记的成员变量，其会被放在BeanDefinition里面，将在Bean创建的时候调用，
+   2.AnnotationBeanDefinitionReader——专门用户读取被@Component标记的类，并将其解释成合适的BeanDefinition
+并对AutowireCapableBeanFactory进行了一些，让其支持自动装配
