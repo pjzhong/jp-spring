@@ -1,0 +1,18 @@
+2017-2-10
+每一个MODEL会有两个对应的辅助类(Table,Config)
+Table负责保存数据库表字段的的信息
+插入的时候需要确保插入的字段是所对应的数据表所拥有的
+更新和删除时候也需要字段的对应和主键的信息
+这些信息都有Table来提供
+
+Config的主要工作就是提供数据库链接和Dialect(主要用来生成SQL语句)
+
+Dialect主要用来生成SQL语句
+
+---------------------------
+DataSourceProvider 主要用来封装第三方连接池，不过我自己特提供了一个简单的DataSourceProvider
+-------------------------
+还有一个些辅助类
+JavaType 类名到类的映射
+ModelBuilder 用从数据区取来的数据创建多个对应的MODEL
+TableMapping Model-Table的映射，将在ActiveRecord启动时被调用
