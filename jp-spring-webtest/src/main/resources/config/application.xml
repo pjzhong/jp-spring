@@ -2,7 +2,7 @@
 <beans>
     <context:component-scan base-package="com.jp"/>
 
-    <bean id="ViewResolver" class="jp.spring.web.view.DefaultViewResolver">
+    <bean id="ViewResolver" class="jp.spring.web.view.impl.DefaultViewResolver">
         <property name="folder" value="/"/>
         <property name="extension" value=".jsp"/>
     </bean>
