@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * Created by Administrator on 1/3/2017.
  */
-@WebServlet(loadOnStartup = 1, urlPatterns = "/*")
+@WebServlet(loadOnStartup = 1, urlPatterns = "/")
 public class DispatcherServlet extends FrameworkServlet {
 
     private final static Logger logger = LoggerFactory.getLogger(DispatcherServlet.class);
@@ -36,6 +36,7 @@ public class DispatcherServlet extends FrameworkServlet {
     @Override
     public void init() {
         try {
+            ProcessContext.setServletContext(getServletContext());
             webApplicationContext = (WebApplicationContext) getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
             handlerMapping = (HandlerMapping) webApplicationContext.getBean(handlerMapping.DEFAULT_HANDLER_MAPPING);
             handlerInvoker = (HandlerInvoker) webApplicationContext.getBean(HandlerInvoker.DEFAULT_HANDLER_INVOKER);

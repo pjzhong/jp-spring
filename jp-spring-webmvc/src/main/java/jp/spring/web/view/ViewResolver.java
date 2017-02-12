@@ -7,5 +7,7 @@ public interface ViewResolver {
 
     String RESOLVER_NAME = ViewResolver.class + ".root";
 
+    String DEFAULT_ENCODING = "utf-8";
+
     void toPage(String path) throws Exception;
 }
