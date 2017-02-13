@@ -41,13 +41,13 @@ public class HelloService {
 ```
 
 <hr>
-**@Component, 组件**
+## @Component, 组件
 Class只要标记上@Component并被扫描到，就会纳入ioc的管理之中。
 每个@Component都会一个名字，如果用户没有提供就会取——首字母小写的class.getSimpleName() 来作为默认名字
 
 被ioc当作@Component的还有@Controller, @Service, @Aspect, @Bean, @Repository
 <hr>
-**@Autowired, 自动装配**
+## @Autowired, 自动装配
 自动装配的策略， 默认是按类型来装配的。如果存在多个默认选第一个来进行注入。
 如果你想指定实现，使用@Qualifier并提供实现类的id。就像上面的例子那样。
 id为"outService-2"的实现类就会自动注入到第二个 OutputService
@@ -122,4 +122,9 @@ public interface BeanPostProcessor {
 ```
 具体例子可以查看 webmvc和aop模块jp.spring.process包里面的beanPostProcessor实现
 <hr>
+
+**不足之处**
+1.无法处理数组和集合的注入
+2.无法处理泛型
+
 **如有不足，希望你能不吝赐教**

@@ -1,7 +1,7 @@
 ### jp-spring是一个轻量型的web框架
 > 这个项目是为了更了解web开发和spring而做出来的
 > 一些名称为了方便熟悉直接从Spring那里拿来......
-> 这个一个学习项目
+> 学习项目
 
 <hr/>
 Inspired by:
@@ -17,7 +17,7 @@ jp-spring目前有下面4个功能模块， 还有一个是演示例子
 - jp-webtest (所有模块在这里都会具体例子)
 
 
-**核心模块ioc， 请点 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-ioc?dir=1&filepath=jp-ioc">这里</a>**
+# ioc模块， 请点 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-ioc?dir=1&filepath=jp-ioc">这里</a>
 ```java
 @Component("helloService")
 public class HelloService {
@@ -42,7 +42,7 @@ public class HelloService {
 }
 ```
 
-**创建Controller**
+# MVC模块
 详情请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-spring-webmvc?dir=1&filepath=jp-spring-webmvc">这里</a> 
 ```java
 @Controller
@@ -72,7 +72,7 @@ public class TestController {
 }
 ```
 
-**创建 Aspect**
+# AOP模块
 具体介绍请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-aop?dir=1&filepath=jp-aop">AOP-README</a>
 ```java
 @Aspect
@@ -109,9 +109,12 @@ public class TestControllerAspect {
 ```
 
 <hr/>
-**配置如下**
-jp-webtest
-运行环境：tomcat-7.0以上， jdk1.7以上， mysql5.6.26以上
+# webtest
+## 运行环境
+1.servlet3.0 以上
+2.jdk1.7以上
+3.mysql5.6.26以上
+
 数据脚本位置:jp-webtest/doc
 
 在项目根目录下创建一个properties文件，输入下面的内容(jp-webtest里面有具体例子)
@@ -125,7 +128,7 @@ upload.size=5
 
 1.package.scan ——代表需要扫描的包， 自动扫描子目录，如果需要配置多个，请使用 ";" 进行分割。为了方便，我直接从根目录开始扫描
 2.page.folder ——页面的文件，默认从项目根目录开始
-3.page.extension ——页面的扩展名(目前支持jsp和html)，默认jsp
+3.page.extension ——页面的扩展名(目前支持jsp，html和freemarker)，默认jsp
 4.resource.folder ——静态资源的文件夹，必须配置不然找不到静态资源。如果需要配置多个，请使用";" 进行分割。
 5.upload.size ——  单位:MB, 最大上传文件的限制，默认4M
 <hr>

@@ -184,4 +184,7 @@ MultiPartRequest
 MultiPartFile
 MultipartFiles_
 <hr>
+
+**不足之处**
+1.参数注入不完善，对外依赖很强(fastJson)
 **如有不足，希望你能不吝赐教。**
