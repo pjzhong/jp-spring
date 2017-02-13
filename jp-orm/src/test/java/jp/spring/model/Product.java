@@ -1,13 +1,11 @@
 package jp.spring.model;
 
-import jp.spring.orm.base.BaseBean;
-
 import java.beans.Transient;
 
 /**
  * Created by Administrator on 1/17/2017.
  */
-public class Product extends BaseEntity {
+public class Product {
 ;
     private long productTypeId;
     private String name;

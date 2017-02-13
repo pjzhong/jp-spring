@@ -13,16 +13,17 @@ import jp.spring.ioc.stereotype.Aspect;
 @Pointcut("execution(com.jp.controller.*.*())")
 public class ControllerAspect {
 
-    private long begin;
+    private static ThreadLocal<Long> begin = new ThreadLocal<Long>();
 
     @Before
     public void before(TargetSource target) {
-        begin = System.nanoTime();
+        begin.set(System.nanoTime());
     }
 
     @After
     public void after(TargetSource target) {
-        System.out.println("cost:" + (System.nanoTime() - begin));
+        System.out.println(target.getTargetMethod() + " cost:" + (System.nanoTime() - begin.get()));
+        begin.remove();
     }
 
 }

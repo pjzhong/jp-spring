@@ -113,12 +113,19 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
     protected void parseFields(BeanDefinition beanDefinition, Class<?> beanClass) {
         Field[] fields = beanClass.getDeclaredFields();
 
-        for(Field field : fields) {
-            if(JpUtils.isAnnotated(field, Autowired.class)) {
-                beanDefinition.add( parseAutowired(field));
-            } else if(JpUtils.isAnnotated(field, Value.class)) {
-                beanDefinition.add( parseValue(field));
+        if(!JpUtils.isEmpty(fields)) {
+            for(Field field : fields) {
+                if(JpUtils.isAnnotated(field, Autowired.class)) {
+                    beanDefinition.add( parseAutowired(field));
+                } else if(JpUtils.isAnnotated(field, Value.class)) {
+                    beanDefinition.add( parseValue(field));
+                }
             }
+        }
+
+
+        if(beanClass.getSuperclass() != null) {
+            parseFields(beanDefinition, beanClass.getSuperclass());
         }
     }
 

@@ -1,11 +1,9 @@
 package jp.spring.model;
 
-import jp.spring.orm.base.BaseBean;
-
 /**
  * Created by Administrator on 1/17/2017.
  */
-public class BaseEntity extends BaseBean {
+public class BaseEntity{
 
     private int id;
 

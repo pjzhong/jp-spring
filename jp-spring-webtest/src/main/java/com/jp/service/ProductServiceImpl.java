@@ -2,7 +2,7 @@ package com.jp.service;
 
 import com.jp.Model.Product;
 import jp.spring.ioc.stereotype.Service;
-import jp.spring.orm.utils.DataSet;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -16,13 +16,13 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public Product getProduct(int productId) {
-        return DataSet.select(Product.class, " id = ?", productId);
+        return null;
 
     }
 
     @Override
     public List<Product> getProductList() {
-        return DataSet.selectList(Product.class, "");
+        return null;
     }
 
     @Override
@@ -45,6 +45,6 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public boolean deleteProduct(int id) {
-        return DataSet.delete(Product.class, "id = ?",  id);
+        return false;
     }
 }

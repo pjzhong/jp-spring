@@ -1,5 +1,6 @@
 package jp.spring.web.context;
 
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -17,6 +18,7 @@ public class ProcessContext {
     public final static String REQUEST_URL = "requestUrl";
 
     private final static ThreadLocal<ProcessContext> context = new ThreadLocal<ProcessContext>();
+    private static ServletContext servletContext;
 
     private Map<String, Object> objectMap = new HashMap<String, Object>();
 
@@ -29,6 +31,14 @@ public class ProcessContext {
 
     public static void destroyContext() {
         context.remove();
+    }
+
+    public static ServletContext getServletContext() {
+        return servletContext;
+    }
+
+    public static void setServletContext(ServletContext servletContext) {
+        ProcessContext.servletContext = servletContext;
     }
 
     public static ProcessContext getContext() {

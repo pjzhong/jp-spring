@@ -4,6 +4,7 @@ import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.factory.BeanFactory;
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
+import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.beans.io.reader.AbstractBeanDefinitionReader;
 import jp.spring.ioc.beans.io.reader.AnnotationBeanDefinitionReader;
 import jp.spring.ioc.beans.support.BeanDefinition;
@@ -18,8 +19,9 @@ import jp.spring.web.handler.impl.DefaultHandlerMappingBuilder;
 import jp.spring.web.handler.impl.DefaultMultipartResolver;
 import jp.spring.web.interceptor.InterceptMatch;
 import jp.spring.web.interceptor.Interceptor;
-import jp.spring.web.view.DefaultViewResolver;
+import jp.spring.web.view.impl.DefaultViewResolver;
 import jp.spring.web.view.ViewResolver;
+import jp.spring.web.view.impl.FreemarkerResolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +35,9 @@ public class WebBeanPostProcessor implements BeanPostProcessor ,BeanFactoryAware
 
     private AbstractBeanFactory beanFactory;
 
+    @Value("page.extension")
+    private String pageExtension = "";
+
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
         if(beanFactory instanceof AbstractBeanFactory) {
@@ -43,12 +48,18 @@ public class WebBeanPostProcessor implements BeanPostProcessor ,BeanFactoryAware
     @Override
     public void postProcessBeforeInitialization() throws Exception {
         HandlerMapping handlerMapping = buildHandlerMapping(beanFactory);
+
+
         //目前因为ioc模块的类扫描器性能速度还没优化到最好，因此没开启对jp-spring的全项目扫描。
         // 这个手动注册虽然不好, 但在没想到其它方法之前，先这样吧......
         beanFactory.registerBeanDefinition(HandlerMapping.DEFAULT_HANDLER_MAPPING, new BeanDefinition(HandlerMapping.class, handlerMapping));
         beanFactory.registerBeanDefinition(HandlerInvoker.DEFAULT_HANDLER_INVOKER, new BeanDefinition(HandlerInvoker.class, new DefaultHandlerInvoker()));
         AbstractBeanDefinitionReader reader = AnnotationBeanDefinitionReader.getInstance();
-        beanFactory.registerBeanDefinition(ViewResolver.RESOLVER_NAME,  reader.loadBeanDefinition(DefaultViewResolver.class));
+        switch (pageExtension) {
+            case "ftl":
+            case ".ftl":beanFactory.registerBeanDefinition(ViewResolver.RESOLVER_NAME,  reader.loadBeanDefinition(FreemarkerResolver.class));break;
+            default:beanFactory.registerBeanDefinition(ViewResolver.RESOLVER_NAME,  reader.loadBeanDefinition(DefaultViewResolver.class));
+        }
         beanFactory.registerBeanDefinition(MultipartResolver.DEFAULT_MULTI_PART_RESOLVER, reader.loadBeanDefinition(DefaultMultipartResolver.class));
     }
 
