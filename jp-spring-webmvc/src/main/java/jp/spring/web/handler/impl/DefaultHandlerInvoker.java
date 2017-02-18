@@ -138,12 +138,8 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
          }
 
         if(parameter.isPrimitiveType() && parameter.isHasAnnotation()) {
-            String name = null, value = null;
-            //因为UrlMapping都是UrlMappingBuilder创造的，所以确保了有value()这个方法.....
-            Method method =  parameter.getValueMethod();
-            method.setAccessible(true);
-            name = (String) method.invoke(parameter.getAnnotation(), null);
-            if(name.isEmpty()) {
+            String name = parameter.getName(), value = null;
+            if(StringUtils.isEmpty(name)) {
                 return null;
             }
 

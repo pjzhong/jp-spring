@@ -127,10 +127,11 @@ public class Handler {
 
     @Override
     public String toString() {
-        return "Handler{" +
-                "method=" + method +
-                ", beanName='" + beanName + '\'' +
-                ", url='" + url + '\'' +
-                '}';
+        final StringBuilder sb = new StringBuilder("Handler{");
+        sb.append(", url='").append(url).append('\'');
+        sb.append("method=").append(method);
+        sb.append(", beanName='").append(beanName).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

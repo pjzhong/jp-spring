@@ -65,14 +65,15 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
         Handler handler = null;
         for(Method method : methods) {
             if(JpUtils.isAnnotated(method, RequestMapping.class)) {
-                handler = new Handler(method, name);
                 urls = method.getAnnotation(RequestMapping.class).value();
                 if(StringUtils.isEmpty(urls)) {//urls为空，取方法名作默认url
+                    handler = new Handler(method, name);
                     handler = buildHandler(handler, clazzUrl, null);
                     handlers.add(handler);
                 } else {
                     for(String url : urls) {
                         try {
+                            handler = new Handler(method, name);
                             handler = buildHandler(handler, clazzUrl, url);
                             handlers.add(handler);
                         } catch (Exception e) {
@@ -181,21 +182,34 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
 
     private Handler buildHandlerParameter(Handler handler, Class<?> paramType, Annotation[] annotation) {
         RequestMethodParameter parameter = new RequestMethodParameter();
-        parameter.setType(paramType);
-        parameter.setPrimitiveType(JpUtils.isPrimietive(paramType));
-        if(!JpUtils.isEmpty(annotation) && parameter.isPrimitiveType()) {
+        boolean isPrimitiveType = JpUtils.isPrimietive(paramType);
+        Method valueMethod = null;
+        String name = null;
+
+        /**处理Annotation*/
+        if(!JpUtils.isEmpty(annotation) && isPrimitiveType) {
             Class<?> annotationType = annotation[0].annotationType();
             if(annotationType.equals(RequestParam.class)
                     || annotationType.equals(PathVariable.class)
                     || annotationType.equals(RequestHeader.class)
                     || annotationType.equals(CookieValue.class)) {
+                valueMethod = JpUtils.findMethod(annotation[0].getClass(), "value");
+                try {
+                    valueMethod.setAccessible(true);
+                    name = (String) valueMethod.invoke(annotation[0], null);
+                } catch (Exception e) {
+                    //ignore it
+                }
                 parameter.setAnnotation(annotation[0]);
-                Method valueMethod = JpUtils.findMethod(annotation[0].getClass(), "value");
-                parameter.setValueMethod(valueMethod);
             }
         }
-        handler.getRequestMethodParameters().add(parameter);
+        /**设置属性*/
+        parameter.setValueMethod(valueMethod);
+        parameter.setType(paramType);
+        parameter.setPrimitiveType(isPrimitiveType);
+        parameter.setName(name);
 
+        handler.getRequestMethodParameters().add(parameter);
         return handler;
     }
 }

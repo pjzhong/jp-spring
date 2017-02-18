@@ -13,6 +13,7 @@ import java.util.Properties;
 
 /**
  * Created by Administrator on 1/10/2017.
+ * web-mvc模块启动器
  */
 @WebListener
 public class ContextLoaderListener implements ServletContextListener{

@@ -8,6 +8,8 @@ import java.lang.reflect.Method;
  */
 public class RequestMethodParameter {
 
+    private String name = null;
+
     private Class<?> type = null;
 
     private Annotation annotation = null;
@@ -52,13 +54,21 @@ public class RequestMethodParameter {
         isPrimitiveType = primitiveType;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String toString() {
-        return "RequestMethodParameter{" +
-                "type=" + type +
-                ", valueMethod=" + valueMethod +
-                ", isPrimitiveType=" + isPrimitiveType +
-                ", annotation=" + annotation +
-                '}';
+        final StringBuilder sb = new StringBuilder("RequestMethodParameter{");
+        sb.append("name='").append(name).append('\'');
+        sb.append(", type=").append(type);
+        sb.append(", annotation=").append(annotation);
+        sb.append('}');
+        return sb.toString();
     }
 }
