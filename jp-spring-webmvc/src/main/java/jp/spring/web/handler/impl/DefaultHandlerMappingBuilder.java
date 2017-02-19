@@ -6,10 +6,12 @@ import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.annotation.*;
 import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerMappingBuilder;
-import jp.spring.web.support.RequestMethodParameter;
+import jp.spring.web.support.MethodParameter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.regex.Pattern;
 
 /**
  * Created by Administrator on 1/10/2017.
+ * 负责在mvc模块启动的时候，创建handler并交给HandlerMapping来负责映射
  */
 public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
 
@@ -170,46 +173,48 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
      * */
     private Handler buildHandlerParameter(Handler handler, Annotation[][] paramAnnotations) {
         if(!JpUtils.isEmpty(paramAnnotations)) {
-            Class<?>[] paramTypes = handler.getMethod().getParameterTypes();
-            handler.setRequestMethodParameters(new ArrayList<RequestMethodParameter>());
+            int length = handler.getMethod().getParameters().length;
+            handler.setMethodParameters(new ArrayList<MethodParameter>());
 
-            for(int i = 0; i < paramAnnotations.length; i++) {
-                buildHandlerParameter(handler, paramTypes[i], paramAnnotations[i]);
+            for(int i = 0; i < length; i++) {
+                buildHandlerParameter(handler, i);
             }
         }
         return handler;
     }
 
-    private Handler buildHandlerParameter(Handler handler, Class<?> paramType, Annotation[] annotation) {
-        RequestMethodParameter parameter = new RequestMethodParameter();
-        boolean isPrimitiveType = JpUtils.isPrimietive(paramType);
-        Method valueMethod = null;
-        String name = null;
+    private Handler buildHandlerParameter(Handler handler, int index) {
+        Method method = handler.getMethod();
+        MethodParameter parameter = new MethodParameter();
 
-        /**处理Annotation*/
-        if(!JpUtils.isEmpty(annotation) && isPrimitiveType) {
-            Class<?> annotationType = annotation[0].annotationType();
-            if(annotationType.equals(RequestParam.class)
-                    || annotationType.equals(PathVariable.class)
-                    || annotationType.equals(RequestHeader.class)
-                    || annotationType.equals(CookieValue.class)) {
-                valueMethod = JpUtils.findMethod(annotation[0].getClass(), "value");
-                try {
+        Class<?> parameterType = method.getParameterTypes()[index];
+        Type type = method.getGenericParameterTypes()[index];
+
+        /**设置属性*/
+        parameter.setMethod(handler.getMethod());
+        parameter.setParameterIndex(index);
+        parameter.setParameterType(parameterType);
+        parameter.setType(type);
+        parameter.setPrimitiveType(JpUtils.isSimpleType(parameterType));
+
+        /**处理Annotation
+         * 目前只允许参数只能有一个标记，多了会无效
+         * */
+        Annotation[] annotation = method.getParameterAnnotations()[index];
+        if (!JpUtils.isEmpty(annotation) && parameter.isPrimitiveType()) {
+            Method valueMethod = JpUtils.findMethod(annotation[0].getClass(), "value");
+            String name = null;
+            try {
+                if (valueMethod != null) {
                     valueMethod.setAccessible(true);
                     name = (String) valueMethod.invoke(annotation[0], null);
-                } catch (Exception e) {
-                    //ignore it
+                    parameter.setName(name);
+                    parameter.setAnnotation(annotation[0]);
                 }
-                parameter.setAnnotation(annotation[0]);
-            }
+            } catch (Exception e) {/*ignore it*/}
         }
-        /**设置属性*/
-        parameter.setValueMethod(valueMethod);
-        parameter.setType(paramType);
-        parameter.setPrimitiveType(isPrimitiveType);
-        parameter.setName(name);
 
-        handler.getRequestMethodParameters().add(parameter);
+        handler.getMethodParameters().add(parameter);
         return handler;
     }
 }

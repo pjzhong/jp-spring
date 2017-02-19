@@ -17,7 +17,6 @@ import java.util.Map;
  */
 @Component
 public class FreemarkerResolver extends AbstractViewResolver {
-
     private static final String contentType = "text/html; charset=" + DEFAULT_ENCODING;
     private static final Configuration config = new Configuration();
     private static boolean isInitialized = false;
@@ -25,15 +24,9 @@ public class FreemarkerResolver extends AbstractViewResolver {
     @Override
     public void toPage(String path) throws Exception {
         init();
+        Map<String, Object> root = prepareData();
 
         ProcessContext.getResponse().setContentType(contentType);
-        Enumeration<String> attrs = ProcessContext.getRequest().getAttributeNames();
-        Map<String, Object> root = new HashMap<String, Object>();
-        while(attrs.hasMoreElements()) {
-            String attrName = attrs.nextElement();
-            root.put(attrName, ProcessContext.getRequest().getAttribute(attrName));
-        }
-
         Writer writer = null;
         try {
             Template template = config.getTemplate(getPagePath(path));
@@ -48,6 +41,28 @@ public class FreemarkerResolver extends AbstractViewResolver {
         }
     }
 
+    private Map<String, Object> prepareData() {
+        Map<String, Object> root = new HashMap<String, Object>();
+        Enumeration<String> attrs = ProcessContext.getServletContext().getAttributeNames();
+        while(attrs.hasMoreElements()) {
+            String attrName = attrs.nextElement();
+            root.put(attrName, ProcessContext.getServletContext().getAttribute(attrName));
+        }
+
+        attrs = ProcessContext.getRequest().getAttributeNames();
+        while(attrs.hasMoreElements()) {
+            String attrName = attrs.nextElement();
+            root.put(attrName, ProcessContext.getRequest().getAttribute(attrName));
+        }
+
+        attrs = ProcessContext.getSession().getAttributeNames();
+        while(attrs.hasMoreElements()) {
+            String attrName = attrs.nextElement();
+            root.put(attrName, ProcessContext.getSession().getAttribute(attrName));
+        }
+
+        return root;
+    }
 
     public void init() {
         if(isInitialized) { return; }

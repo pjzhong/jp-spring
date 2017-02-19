@@ -24,10 +24,10 @@ public class TestController {
 
     @RequestMapping(value = "/test{one}/hi", method = RequestMethod.GET)
     public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float number) {
-/*        System.out.println(outputService);
+        System.out.println(outputService);
         outputService.output(one);
         outputService.output(user);
-        outputService.output(number);*/
+        outputService.output(number);
         return "test";
     }
 

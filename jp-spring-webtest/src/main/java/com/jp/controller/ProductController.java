@@ -33,7 +33,7 @@ public class ProductController {
         return productList;
     }
 
-    @RequestMapping(value = "/products/create", method = RequestMethod.GET)
+    @RequestMapping(value = {"/products/create", "/products/create2"}, method = RequestMethod.GET)
     public String create() {
         return "products_create";
     }

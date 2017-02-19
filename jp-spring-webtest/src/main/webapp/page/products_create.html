@@ -7,7 +7,7 @@
     <script>
         $(function() {
             $('#product_create_form').ajaxForm({
-                type: 'post',
+                parameterType: 'post',
                 url: '/products/create?name=pj_zhong',
                 dataType: 'json',
                 beforeSubmit: function() {
@@ -31,17 +31,17 @@
         </div>
         <div class="css-form-row">
             <label for="name">Product name:</label>
-            <input type="text" id="name" name="name" class="ext-required">
+            <input parameterType="text" id="name" name="name" class="ext-required">
             <span class="css-color-red">*</span>
         </div>
         <div class="css-form-row">
             <label for="code">Product Code;:</label>
-            <input type="text" id="code" name="code" class="ext-required">
+            <input parameterType="text" id="code" name="code" class="ext-required">
             <span class="css-color-red">*</span>
         </div>
         <div class="css-form-row">
             <label for="price">Product price:</label>
-            <input type="text" id="price" name="price" class="ext-required">
+            <input parameterType="text" id="price" name="price" class="ext-required">
             <span class="css-color-red">*</span>
         </div>
         <div class="css-form-row">
@@ -50,10 +50,10 @@
         </div>
         <div class="css-form-row">
             <label for="picture">Picture::</label>
-            <input type="file" id="picture" name="picture">
+            <input parameterType="file" id="picture" name="picture">
         </div>
         <div class="css-form-footer">
-            <button type="submit">save</button>
+            <button parameterType="submit">save</button>
         </div>
     </form>
 </div>

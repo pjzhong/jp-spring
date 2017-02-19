@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
 <head>
+
     <script type="text/javascript" src="/resources/jquery-3.1.0.min.js"></script>
-    <script type="text/javascript" src="/resources/jquery.form.min.js"></script>
+ <script type="text/javascript" src="/resources/jquery.form.min.js"></script>
+<#--  -->
 
     <script>
         $(function() {
+            console.info("asdfasdf");
             $('#product_create_form').ajaxForm({
                 type: 'post',
                 url: '/products/create?name=pj_zhong',
@@ -25,7 +28,7 @@
 </head>
 <body>
 <div id="content">
-    <form id="product_create_form" enctype="multipart/form-data" class="css-form" action="/products/create">
+    <form id="product_create_form" enctype="multipart/form-data" class="css-form" action="/products/create" method="post">
         <div class="css-form-header">
             <h3>Create Product</h3>
         </div>

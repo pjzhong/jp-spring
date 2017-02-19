@@ -8,7 +8,7 @@ import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerInvoker;
 import jp.spring.web.handler.HandlerMapping;
 
-import jp.spring.web.util.UrlPathHelper;
+import jp.spring.web.handler.MultipartResolver;
 import jp.spring.web.util.WebUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,7 @@ public class DispatcherServlet extends FrameworkServlet {
 
     private static HandlerInvoker handlerInvoker;
 
-    private UrlPathHelper urlPathHelper = new UrlPathHelper();
+    private static MultipartResolver multipartResolver = null;
 
     @Override
     public void init() {
@@ -40,6 +40,7 @@ public class DispatcherServlet extends FrameworkServlet {
             webApplicationContext = (WebApplicationContext) getServletContext().getAttribute(WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
             handlerMapping = (HandlerMapping) webApplicationContext.getBean(handlerMapping.DEFAULT_HANDLER_MAPPING);
             handlerInvoker = (HandlerInvoker) webApplicationContext.getBean(HandlerInvoker.DEFAULT_HANDLER_INVOKER);
+            multipartResolver = (MultipartResolver) webApplicationContext.getBean(MultipartResolver.DEFAULT_MULTI_PART_RESOLVER);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(0);
@@ -49,7 +50,7 @@ public class DispatcherServlet extends FrameworkServlet {
     @Override
     protected void doService(HttpServletRequest request, HttpServletResponse response) {
         try {
-            String path = urlPathHelper.getLookupPathForRequest(request);
+            String path = WebUtil.getLookupPathForRequest(request);
             Handler handler = handlerMapping.getHandler(request, path);
             if(handler == null) {
                 response.sendError(response.SC_NOT_FOUND,  " Not Found");
@@ -57,12 +58,18 @@ public class DispatcherServlet extends FrameworkServlet {
                 return;
             }
 
+            //Is multiPart request?
+            if(multipartResolver.isMultiPart(request)) {
+                request = multipartResolver.resolveMultipart(request);
+            }
+
             //Build context
             ProcessContext
                     .buildContext()
                     .set(ProcessContext.REQUEST, request)
                     .set(ProcessContext.RESPONSE, response)
-                    .set(ProcessContext.REQUEST_URL, path);
+                    .set(ProcessContext.REQUEST_URL, path)
+                    .set(ProcessContext.PARAMETER_MAP, WebUtil.getRequestParamMap(request));
 
             handlerInvoker.invokeHandler(handler);
         } catch (Exception e) {
