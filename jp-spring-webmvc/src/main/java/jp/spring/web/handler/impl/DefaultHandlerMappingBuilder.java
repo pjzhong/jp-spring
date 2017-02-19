@@ -11,11 +11,9 @@ import jp.spring.web.support.MethodParameter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
@@ -188,20 +186,22 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
         MethodParameter parameter = new MethodParameter();
 
         Class<?> parameterType = method.getParameterTypes()[index];
-        Type type = method.getGenericParameterTypes()[index];
-
         /**设置属性*/
         parameter.setMethod(handler.getMethod());
         parameter.setParameterIndex(index);
         parameter.setParameterType(parameterType);
-        parameter.setType(type);
         parameter.setPrimitiveType(JpUtils.isSimpleType(parameterType));
+        if(Collection.class.isAssignableFrom(parameterType)) {
+            ParameterizedType type = (ParameterizedType) method.getGenericParameterTypes()[index];
+            Class<?> actualType = (Class<?>) type.getActualTypeArguments()[0];
+            parameter.setGenericType(actualType);
+        }
 
         /**处理Annotation
          * 目前只允许参数只能有一个标记，多了会无效
          * */
         Annotation[] annotation = method.getParameterAnnotations()[index];
-        if (!JpUtils.isEmpty(annotation) && parameter.isPrimitiveType()) {
+        if (!JpUtils.isEmpty(annotation)) {
             Method valueMethod = JpUtils.findMethod(annotation[0].getClass(), "value");
             String name = null;
             try {

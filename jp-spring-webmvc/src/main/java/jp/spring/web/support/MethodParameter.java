@@ -21,7 +21,7 @@ public class MethodParameter {
     private Class<?> parameterType = null;
 
     /**Generic Type*/
-    private Type type = null;
+    private Class<?> genericType = null;
 
     private int parameterIndex;
 
@@ -40,12 +40,12 @@ public class MethodParameter {
         this.parameterType = parameterType;
     }
 
-    public Type getType() {
-        return type;
+    public Class<?> getGenericType() {
+        return genericType;
     }
 
-    public void setType(Type type) {
-        this.type = type;
+    public void setGenericType(Class<?> genericType) {
+        this.genericType = genericType;
     }
 
     public Annotation getAnnotation() {

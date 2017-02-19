@@ -5,15 +5,24 @@ import com.alibaba.fastjson.JSONObject;
 import org.junit.Test;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 
 /**
  * Created by Administrator on 2/18/2017.
  */
 public class ParamTest {
+
+    @Test
+    public void genericTest() throws Exception {
+        List<Integer> list = new ArrayList<Integer>();
+
+        Type type = list.getClass().getGenericSuperclass();
+        if(type instanceof ParameterizedType) {
+           Class<?> clzz = list.getClass();;
+        }
+    }
 
     @Test
     public void test() {

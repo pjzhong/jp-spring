@@ -47,9 +47,9 @@ public class TypeConvertUtils {
      *
      *  @param value the value of this collection or Array
      *  @param collectionType the Type of this collection or Array
-     *  @param parameterType the type of value in this collection
+     *  @param genericType the type of value in this collection
      */
-    public static <T> T convertToCollection(Object value, Class<T> collectionType, Type parameterType) throws IllegalArgumentException {
+    public static <T> T convertToCollection(Object value, Class<T> collectionType, Class<?> genericType) throws IllegalArgumentException {
         Class<?> clazz = null;
         Object convertedValue = null;
 
@@ -74,8 +74,7 @@ public class TypeConvertUtils {
                 Array.set(convertedValue, 0, convertToBasic(value, clazz));
             }
         } else if(Collection.class.isAssignableFrom(collectionType)) { // is Collection
-            ParameterizedType type = (ParameterizedType)parameterType;
-            clazz = (Class<?>) type.getActualTypeArguments()[0];
+            clazz = genericType;
             //create collection
             if(LinkedList.class.isAssignableFrom(collectionType)) {
                 convertedValue = new LinkedList();

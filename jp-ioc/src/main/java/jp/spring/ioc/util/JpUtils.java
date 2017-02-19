@@ -3,6 +3,7 @@ package jp.spring.ioc.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Type;
 import java.net.URI;
 import java.net.URL;
 import java.util.*;
@@ -55,7 +56,10 @@ public class JpUtils {
     }
 
     public static boolean isSimpleType(Class<?> clazz) {
-        return clazz.isPrimitive() || clazz.isEnum() ||
+        if(clazz == null) {
+            return false;
+        }
+        return  clazz.isPrimitive() || clazz.isEnum() ||
                 CharSequence.class.isAssignableFrom(clazz) ||
                 Number.class.isAssignableFrom(clazz) ||
                 Date.class.isAssignableFrom(clazz) ||
@@ -65,6 +69,10 @@ public class JpUtils {
 
     public static <A> boolean isSimpleTypeArray(Class<A> clazz) {
         return isSimpleType(clazz) || (clazz.isArray() && isSimpleType(clazz.getComponentType()));
+    }
+
+    public static <A> boolean isSimpleTypeCollection(Collection<A> collection) {
+       return false;
     }
 
     public static Object convert(String value, Class<?> targetClass) {

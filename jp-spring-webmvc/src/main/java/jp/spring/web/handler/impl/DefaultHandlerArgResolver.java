@@ -58,7 +58,9 @@ public class DefaultHandlerArgResolver implements HandlerArgResolver {
                 if(paras[i] != UN_RESOLVE) { continue; }
             }
 
-            if(parameter.isPrimitiveType() || JpUtils.isSimpleTypeArray(parameter.getParameterType())) {
+            if(parameter.isPrimitiveType()
+                    || JpUtils.isSimpleTypeArray(parameter.getParameterType())
+                    || JpUtils.isSimpleType(parameter.getGenericType())) {
                 paras[i] = resolveParameter(handler, pathVariableMatcher, methodParameters.get(i));
             } else {
                 paras[i] = resolvePOJOParam(parameter);
@@ -169,7 +171,7 @@ public class DefaultHandlerArgResolver implements HandlerArgResolver {
                 }
                 newValue = TypeConvertUtils.convertToBasic(value, paramType);
             } else{ //collection or array
-                newValue = TypeConvertUtils.convertToCollection(value, paramType, parameter.getType());
+                newValue = TypeConvertUtils.convertToCollection(value, paramType, parameter.getGenericType());
             }
         }
         return newValue;
