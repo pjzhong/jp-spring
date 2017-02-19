@@ -23,6 +23,7 @@ import java.util.Map;
 
 /**
  * Created by Administrator on 1/30/2017.
+ * 负责处理文件上传的情况
  */
 @Component
 public class DefaultMultipartResolver implements MultipartResolver {

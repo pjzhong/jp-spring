@@ -61,7 +61,6 @@ public class ExecutionAspectProxy extends BaseAspect implements Proxy {
             }
         } catch (Throwable e) {
             invoke(interceptor, errorMethod, e, proxyChain.getTarget());
-            throw e;
         }
     }
 

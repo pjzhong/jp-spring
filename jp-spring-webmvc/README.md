@@ -54,27 +54,30 @@ public class ControllerExample {
 }
 ```
 <hr>
-## 获取请求中的参数
+## @RequestParam() 获取请求中的参数 
 ```java
 @Controller
 @RequestMapping("/example")
-public class ControllerExample {
-      
-     @RequestMapping(value = "/one", method = RequestMethod.GET) 
-     public String exmapleOne(User user，@RequestParam("abc") Integer one) {
-        return "one";
-     }
-     
-     @RequestMapping(value = "/two", method = RequestMethod.POST) 
-     public String exmapleTwo() {
-         return "two";
-     }
-}
-```
-POJO也可自动注入(如果是成员变量也是一个对象，目前还不能成功注入)，只要请求的参数中有对应的字段。那么jp-spring为你自动创建一个对应的对象，为将其自动注入。
-你也可以是用@RequestParam来获取其它参数，但@RequestParam只支持其基本类型。
+public class TestController {
 
-_目前必须在 @RequestParam里面明确声明参数的名字，不然获取不到。_
+    @Autowired
+    OutputService outputService;
+
+    @RequestMapping(value = "/test{one}/hi", method = RequestMethod.GET)
+    public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float[] number) {
+        System.out.println(outputService);
+        outputService.output(one);
+        outputService.output(user);
+        outputService.output(number);
+        return "test";
+    }
+}
+
+```
+目前@RequestParam 暂时只支持基本类型:int, Integer ,float, Float.....(Array or Collection is OK), 
+但必须在 @RequestParam里面明确声明参数的名字，不然获取不到。
+
+POJO也可自动注入(如果是多层对象可能会出错)。只要请求的参数中有对应的字段。那么jp-spring为你自动创建一个对应的对象，为将其自动注入。
 
 还有 @CookieValue, @RequestHeader可以从Cookie或者Header里面获取数据，使用方法和@RequestParam一样。
 <hr>
@@ -186,5 +189,5 @@ MultipartFiles_
 <hr>
 
 **不足之处**
-1.参数注入不完善，对外依赖很强(fastJson)
+1.参数注入不完善，对外依赖很强(fastJson)并且对数据的处理方式也不完善，导致经常注入失败
 **如有不足，希望你能不吝赐教。**

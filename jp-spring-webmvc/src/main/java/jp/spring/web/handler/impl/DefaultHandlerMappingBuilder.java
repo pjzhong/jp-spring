@@ -6,18 +6,19 @@ import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.annotation.*;
 import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerMappingBuilder;
-import jp.spring.web.support.RequestMethodParameter;
+import jp.spring.web.support.MethodParameter;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Parameter;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.util.*;
 import java.util.regex.Pattern;
 
 /**
  * Created by Administrator on 1/10/2017.
+ * 负责在mvc模块启动的时候，创建handler并交给HandlerMapping来负责映射
  */
 public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
 
@@ -65,14 +66,15 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
         Handler handler = null;
         for(Method method : methods) {
             if(JpUtils.isAnnotated(method, RequestMapping.class)) {
-                handler = new Handler(method, name);
                 urls = method.getAnnotation(RequestMapping.class).value();
                 if(StringUtils.isEmpty(urls)) {//urls为空，取方法名作默认url
+                    handler = new Handler(method, name);
                     handler = buildHandler(handler, clazzUrl, null);
                     handlers.add(handler);
                 } else {
                     for(String url : urls) {
                         try {
+                            handler = new Handler(method, name);
                             handler = buildHandler(handler, clazzUrl, url);
                             handlers.add(handler);
                         } catch (Exception e) {
@@ -169,33 +171,50 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
      * */
     private Handler buildHandlerParameter(Handler handler, Annotation[][] paramAnnotations) {
         if(!JpUtils.isEmpty(paramAnnotations)) {
-            Class<?>[] paramTypes = handler.getMethod().getParameterTypes();
-            handler.setRequestMethodParameters(new ArrayList<RequestMethodParameter>());
+            int length = handler.getMethod().getParameters().length;
+            handler.setMethodParameters(new ArrayList<MethodParameter>());
 
-            for(int i = 0; i < paramAnnotations.length; i++) {
-                buildHandlerParameter(handler, paramTypes[i], paramAnnotations[i]);
+            for(int i = 0; i < length; i++) {
+                buildHandlerParameter(handler, i);
             }
         }
         return handler;
     }
 
-    private Handler buildHandlerParameter(Handler handler, Class<?> paramType, Annotation[] annotation) {
-        RequestMethodParameter parameter = new RequestMethodParameter();
-        parameter.setType(paramType);
-        parameter.setPrimitiveType(JpUtils.isPrimietive(paramType));
-        if(!JpUtils.isEmpty(annotation) && parameter.isPrimitiveType()) {
-            Class<?> annotationType = annotation[0].annotationType();
-            if(annotationType.equals(RequestParam.class)
-                    || annotationType.equals(PathVariable.class)
-                    || annotationType.equals(RequestHeader.class)
-                    || annotationType.equals(CookieValue.class)) {
-                parameter.setAnnotation(annotation[0]);
-                Method valueMethod = JpUtils.findMethod(annotation[0].getClass(), "value");
-                parameter.setValueMethod(valueMethod);
-            }
-        }
-        handler.getRequestMethodParameters().add(parameter);
+    private Handler buildHandlerParameter(Handler handler, int index) {
+        Method method = handler.getMethod();
+        MethodParameter parameter = new MethodParameter();
 
+        Class<?> parameterType = method.getParameterTypes()[index];
+        /**设置属性*/
+        parameter.setMethod(handler.getMethod());
+        parameter.setParameterIndex(index);
+        parameter.setParameterType(parameterType);
+        parameter.setPrimitiveType(JpUtils.isSimpleType(parameterType));
+        if(Collection.class.isAssignableFrom(parameterType)) {
+            ParameterizedType type = (ParameterizedType) method.getGenericParameterTypes()[index];
+            Class<?> actualType = (Class<?>) type.getActualTypeArguments()[0];
+            parameter.setGenericType(actualType);
+        }
+
+        /**处理Annotation
+         * 目前只允许参数只能有一个标记，多了会无效
+         * */
+        Annotation[] annotation = method.getParameterAnnotations()[index];
+        if (!JpUtils.isEmpty(annotation)) {
+            Method valueMethod = JpUtils.findMethod(annotation[0].getClass(), "value");
+            String name = null;
+            try {
+                if (valueMethod != null) {
+                    valueMethod.setAccessible(true);
+                    name = (String) valueMethod.invoke(annotation[0], null);
+                    parameter.setName(name);
+                    parameter.setAnnotation(annotation[0]);
+                }
+            } catch (Exception e) {/*ignore it*/}
+        }
+
+        handler.getMethodParameters().add(parameter);
         return handler;
     }
 }

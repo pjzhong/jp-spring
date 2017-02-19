@@ -9,6 +9,8 @@ import jp.spring.process.WebTest;
 import jp.spring.web.annotation.*;
 
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -23,11 +25,11 @@ public class TestController {
     OutputService outputService;
 
     @RequestMapping(value = "/test{one}/hi", method = RequestMethod.GET)
-    public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float number) {
-/*        System.out.println(outputService);
+    public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float[] number) {
+        System.out.println(outputService);
         outputService.output(one);
         outputService.output(user);
-        outputService.output(number);*/
+        outputService.output(number);
         return "test";
     }
 

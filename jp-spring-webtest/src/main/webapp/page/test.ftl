@@ -12,7 +12,7 @@
 
             /*  $.ajax({
                   url:"/example/user",
-                  type:"POST",
+                  parameterType:"POST",
                   data:queryJson,
                   success:function(data) {
                       console.info(data);

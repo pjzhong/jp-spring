@@ -4,8 +4,7 @@ import jp.spring.ioc.util.JpUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by Administrator on 1/30/2017.
@@ -21,7 +20,7 @@ public class MultiPartRequest extends HttpServletRequestWrapper {
 
     @Override
     public String getParameter(String name) {
-        String[] values = getMultipartParameterMap().get(name);
+        String[] values = (String[]) getMultipartParameterMap().get(name);
         if(!JpUtils.isEmpty(values)) {
             return values[0];
         }
@@ -39,19 +38,11 @@ public class MultiPartRequest extends HttpServletRequestWrapper {
         return super.getParameterValues(name);
     }
 
-    @Override
-    public Map<String, String[]> getParameterMap() {
-        Map<String, String[]> paramMap = new HashMap<String, String[]>();
-        paramMap.putAll(super.getParameterMap());
-        paramMap.putAll(getMultipartParameterMap());
-        return paramMap;
-    }
-
     public Map<String, String[]> getMultipartParameterMap() {
         return multipartParameterMap;
     }
 
-    public void setMultipartParameterMap(Map<String, String[]> multipartParameterMap) {
+    public void setMultipartParameterMap(Map<String,String[]> multipartParameterMap) {
         this.multipartParameterMap = multipartParameterMap;
     }
 

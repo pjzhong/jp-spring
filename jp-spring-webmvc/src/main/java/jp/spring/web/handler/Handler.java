@@ -1,9 +1,7 @@
 package jp.spring.web.handler;
 
-
-import jp.spring.ioc.util.StringUtils;
 import jp.spring.web.interceptor.Interceptor;
-import jp.spring.web.support.RequestMethodParameter;
+import jp.spring.web.support.MethodParameter;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -17,12 +15,11 @@ import java.util.regex.Pattern;
  * 一个HttpRequest的具体处理者
  */
 public class Handler {
-
     private final String beanName;
 
     private final Method method;
 
-    private List<RequestMethodParameter> requestMethodParameters;
+    private List<MethodParameter> methodParameters;
 
     private boolean hasPathVariable = false;
 
@@ -44,8 +41,8 @@ public class Handler {
         this.beanName = beanName;
     }
 
-    public String getPathVariable(String readUrl, String pathVariableName) {
-        if(!hasPathVariable) {
+    public Matcher getPathVariableMatcher(String readUrl) {
+/*        if(!hasPathVariable) {
             return null;
         }
 
@@ -53,8 +50,9 @@ public class Handler {
         if(m.find()) {
             int index = pathVariableMap.get(pathVariableName);
             return m.groupCount() >= index ? StringUtils.decode(m.group(index)) : null;
-        }
-        return  null;
+        }*/
+        Matcher matcher = urlPattern.matcher(readUrl);
+        return matcher.find() ? matcher : null;
     }
 
     public Object invoker(Object obj, Object[] args) throws Exception {
@@ -67,8 +65,7 @@ public class Handler {
     }
 
     /*Getters and setters*/
-
-    public boolean isHasPathVariable() {
+    public boolean hasPathVariable() {
         return hasPathVariable;
     }
 
@@ -101,7 +98,7 @@ public class Handler {
         return beanName;
     }
 
-    public Map<String, Integer> getPathVariableMap() {
+    public Map<String, Integer> getPathVariableIndexMap() {
         return pathVariableMap;
     }
 
@@ -109,12 +106,12 @@ public class Handler {
         this.pathVariableMap = pathVariableMap;
     }
 
-    public List<RequestMethodParameter> getRequestMethodParameters() {
-        return requestMethodParameters;
+    public List<MethodParameter> getMethodParameters() {
+        return methodParameters;
     }
 
-    public void setRequestMethodParameters(List<RequestMethodParameter> requestMethodParameters) {
-        this.requestMethodParameters = requestMethodParameters;
+    public void setMethodParameters(List<MethodParameter> methodParameters) {
+        this.methodParameters = methodParameters;
     }
 
     public List<Interceptor> getInterceptors() {
@@ -127,10 +124,11 @@ public class Handler {
 
     @Override
     public String toString() {
-        return "Handler{" +
-                "method=" + method +
-                ", beanName='" + beanName + '\'' +
-                ", url='" + url + '\'' +
-                '}';
+        final StringBuilder sb = new StringBuilder("Handler{");
+        sb.append(", url='").append(url).append('\'');
+        sb.append("method=").append(method);
+        sb.append(", beanName='").append(beanName).append('\'');
+        sb.append('}');
+        return sb.toString();
     }
 }

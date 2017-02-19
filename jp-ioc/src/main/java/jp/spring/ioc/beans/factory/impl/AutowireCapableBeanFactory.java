@@ -76,7 +76,7 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
             Object value = propertyValue.getValue();
             if(value == null) { // value的来源：用户在XML文件里声明，或者放在在properties文件里面
                 String strValue =  getProperties().getProperty(propertyValue.getName());
-                if(JpUtils.isPrimietive(propertyValue.getField().getType())) {
+                if(JpUtils.isSimpleType(propertyValue.getField().getType())) {
                     value = JpUtils.convert(strValue, propertyValue.getField().getType());
                 }
             }

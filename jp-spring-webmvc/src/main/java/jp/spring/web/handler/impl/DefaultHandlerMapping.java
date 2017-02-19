@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Created by Administrator on 1/10/2017.
+ * 负责映射每个HttpRequest到指定的Handler
  */
 public class DefaultHandlerMapping implements HandlerMapping {
 
@@ -67,7 +68,7 @@ public class DefaultHandlerMapping implements HandlerMapping {
 
         for(Handler handler : handlers) {
             if(null != handler) {
-                if(handler.isHasPathVariable()) {
+                if(handler.hasPathVariable()) {
                     PATH_VARIABLE_URL_MAP.add(handler);
                 }
 

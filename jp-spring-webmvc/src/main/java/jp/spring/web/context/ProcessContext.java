@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -16,6 +17,7 @@ public class ProcessContext {
     public final static String RESPONSE = "response";
     public final static String SESSION = "session";
     public final static String REQUEST_URL = "requestUrl";
+    public final static String PARAMETER_MAP = "parameterMap";
 
     private final static ThreadLocal<ProcessContext> context = new ThreadLocal<ProcessContext>();
     private static ServletContext servletContext;
