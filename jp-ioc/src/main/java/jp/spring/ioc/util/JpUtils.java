@@ -3,10 +3,9 @@ package jp.spring.ioc.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
 
 /**
  * Created by Administrator on 12/15/2016.
@@ -55,18 +54,17 @@ public class JpUtils {
         return field.getAnnotation(annotate) != null;
     }
 
-    public static <A> boolean isPrimietive(Class<A> clazz) {
-        if(clazz.isPrimitive()) {
-            return true;
-        }
+    public static boolean isSimpleType(Class<?> clazz) {
+        return clazz.isPrimitive() || clazz.isEnum() ||
+                CharSequence.class.isAssignableFrom(clazz) ||
+                Number.class.isAssignableFrom(clazz) ||
+                Date.class.isAssignableFrom(clazz) ||
+                clazz.equals(URI.class) || clazz.equals(URL.class) ||
+                clazz.equals(Locale.class) || clazz.equals(Class.class);
+    }
 
-        if(clazz == Integer.class || clazz == Long.class
-                || clazz == Float.class || clazz == Double.class
-                || clazz == Character.class || clazz == String.class) {
-            return true;
-        }
-
-        return false;
+    public static <A> boolean isSimpleTypeArray(Class<A> clazz) {
+        return isSimpleType(clazz) || (clazz.isArray() && isSimpleType(clazz.getComponentType()));
     }
 
     public static Object convert(String value, Class<?> targetClass) {
