@@ -68,8 +68,7 @@ public class DispatcherServlet extends FrameworkServlet {
                     .buildContext()
                     .set(ProcessContext.REQUEST, request)
                     .set(ProcessContext.RESPONSE, response)
-                    .set(ProcessContext.REQUEST_URL, path)
-                    .set(ProcessContext.PARAMETER_MAP, WebUtil.getRequestParamMap(request));
+                    .set(ProcessContext.REQUEST_URL, path);
 
             handlerInvoker.invokeHandler(handler);
         } catch (Exception e) {

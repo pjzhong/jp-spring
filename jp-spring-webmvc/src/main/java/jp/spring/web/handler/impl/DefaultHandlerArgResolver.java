@@ -15,6 +15,7 @@ import jp.spring.web.handler.HandlerArgResolver;
 import jp.spring.web.support.MethodParameter;
 import jp.spring.web.support.MultiPartRequest;
 import jp.spring.web.support.MultipartFiles;
+import jp.spring.web.util.WebUtil;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -44,12 +45,17 @@ public class DefaultHandlerArgResolver implements HandlerArgResolver {
         List<MethodParameter> methodParameters = handler.getMethodParameters();
         Object[] paras = new Object[methodParameters.size()];
 
+        //has pathVariable?
         Matcher pathVariableMatcher = null;
         if(handler.hasPathVariable()) {
             String url = (String) ProcessContext.getContext().get(ProcessContext.REQUEST_URL);
             pathVariableMatcher = handler.getPathVariableMatcher(url);
         }
         MethodParameter parameter = null;
+
+        //prepare the data may need and put it into ProcessContext
+        Map<String, String[]> parameterMap = WebUtil.getRequestParamMap(ProcessContext.getRequest());
+        ProcessContext.getContext().set(ProcessContext.PARAMETER_MAP, parameterMap);
         for(int i = 0; i < methodParameters.size(); i++) {
             parameter = methodParameters.get(i);
             //没有任何标记，那先处理标准类型
