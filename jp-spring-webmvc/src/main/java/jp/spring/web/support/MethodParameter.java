@@ -101,10 +101,15 @@ public class MethodParameter {
     public Map<String, Class<?>> getFieldMap() {
         if(JpUtils.isEmpty(fieldMap) && (!JpUtils.isSimpleTypeArray(parameterType)) ) {
             fieldMap = new HashMap<String, Class<?>>();
-            Field[] fields = parameterType.getDeclaredFields();
-            for(int i = 0; i < fields.length; i++) {
-                fieldMap.put(fields[i].getName(), fields[i].getType());
+            Class<?> clazz = parameterType;
+            while(clazz != null) {
+                Field[] fields = clazz.getDeclaredFields();
+                for(int i = 0; i < fields.length; i++) {
+                    fieldMap.put(fields[i].getName(), fields[i].getType());
+                }
+                clazz = clazz.getSuperclass();//获取父类的
             }
+
         }
 
         return fieldMap;

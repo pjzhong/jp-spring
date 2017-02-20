@@ -84,7 +84,10 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
             String pagePath = (String) result;
             if(!StringUtils.isEmpty(pagePath)) {
                 if(pagePath.startsWith(REDIRECT)) {
-                    response.sendRedirect(pagePath.substring(REDIRECT.length()));
+                    String url = pagePath.substring(REDIRECT.length());
+                    url = url.startsWith("/") ? url : "/" + url;
+                    url = request.getContextPath() + url;
+                    response.sendRedirect(url);
                 } else {
                     viewResolver.toPage(pagePath);
                 }

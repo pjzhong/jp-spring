@@ -52,7 +52,13 @@ public class WebUtil {
         if(StringUtils.isEmpty(pathInfo)) {
             pathInfo = "";
         }
-        return servletPath + pathInfo;
+
+
+        String result = servletPath + pathInfo;
+        if(StringUtils.isEmpty(result)) {
+            result = "/";
+        }
+        return result;
     }
 
     public static WebApplicationContext getWebContext() {

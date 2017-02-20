@@ -17,7 +17,6 @@ public class TypeConvertUtils {
 
         Object convertedValue = value;
         String strValue = String.valueOf(value);
-        System.out.println(strValue);
         if(String.class.isAssignableFrom(requiredType)){
             convertedValue = strValue;
         } else if(Integer.TYPE.equals(requiredType) || Integer.class.equals(requiredType)) {

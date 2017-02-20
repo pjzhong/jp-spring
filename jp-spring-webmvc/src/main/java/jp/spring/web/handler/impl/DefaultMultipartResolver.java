@@ -27,10 +27,9 @@ import java.util.Map;
  */
 @Component
 public class DefaultMultipartResolver implements MultipartResolver {
-    private static int DEFAULT_UPLOAD_SIZE = 4 * 1024 * 1024; //4M
 
     @Value("upload.size")
-    private Integer uploadSize = DEFAULT_UPLOAD_SIZE;
+    private Integer uploadSize = 4 * 1024 * 1024; //4M;
     private boolean isInitialized = false;
     private ServletFileUpload fileUpload;
 
@@ -41,7 +40,6 @@ public class DefaultMultipartResolver implements MultipartResolver {
         File repository = (File) servletContext.getAttribute("javax.servlet.context.tempdir");
         fileUpload = new ServletFileUpload(new DiskFileItemFactory(DiskFileItemFactory.DEFAULT_SIZE_THRESHOLD, repository));
         fileUpload.setFileSizeMax(uploadSize);
-        System.out.println(uploadSize);
         isInitialized = true;
     }
 
