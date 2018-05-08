@@ -19,9 +19,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class DefaultHandlerMapping implements HandlerMapping {
 
-    private static final Map<String, List<Handler>> HANDLER_MAP = new ConcurrentHashMap<>();
+    private final Map<String, List<Handler>> HANDLER_MAP = new ConcurrentHashMap<>();
 
-    private static final List<Handler> PATH_VARIABLE_URL_MAP = new ArrayList<Handler>();
+    private final List<Handler> PATH_VARIABLE_URL_MAP = new ArrayList<Handler>();
 
     @Override
     public Handler getHandler(HttpServletRequest request, String path) {

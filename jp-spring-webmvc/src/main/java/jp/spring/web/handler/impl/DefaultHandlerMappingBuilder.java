@@ -91,14 +91,14 @@ public class DefaultHandlerMappingBuilder implements HandlerMappingBuilder {
         Annotation[][] paramAnnotations = handler.getMethod().getParameterAnnotations();
 
         if(!StringUtils.isEmpty(methodUrl)) {
-            if(!methodUrl.startsWith("/") ) {
-                methodUrl = "/" + methodUrl;
+            if(methodUrl.startsWith("/") ) {
+                methodUrl = methodUrl.substring(1, methodUrl.length());
             }
             if(methodUrl.endsWith("/")) {
                 methodUrl = methodUrl.substring(0, methodUrl.length() - 1);
             }
-            if(classUrl.equals("/")) {//防止 "/" + "/products/******" = "//products/****";
-                classUrl = "";
+            if(!classUrl.endsWith("/")) {
+                classUrl = classUrl + "/";
             }
             if(PATTERN_PATH_VARIABLE.matcher(methodUrl).find()) {
                 buildRegexUrl(handler, classUrl, methodUrl, paramAnnotations);

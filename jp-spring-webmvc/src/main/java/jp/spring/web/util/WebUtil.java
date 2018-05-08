@@ -53,6 +53,10 @@ public class WebUtil {
             pathInfo = "";
         }
 
+        int paramStringIdx = servletPath.indexOf("?");
+        if(paramStringIdx != -1) {
+            servletPath = servletPath.substring(0, paramStringIdx);
+        }
 
         String result = servletPath + pathInfo;
         if(StringUtils.isEmpty(result)) {

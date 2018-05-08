@@ -54,7 +54,7 @@ public class DispatcherServlet extends FrameworkServlet {
             Handler handler = handlerMapping.getHandler(request, path);
             if(handler == null) {
                 response.sendError(response.SC_NOT_FOUND,  " Not Found");
-                logger.error(path + " Not Found");
+                logger.error(path + " Not Found. Request From:" + request.getRemoteAddr());
                 return;
             }
 
