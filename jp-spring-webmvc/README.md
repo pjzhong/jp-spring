@@ -124,9 +124,9 @@ public class ControllerExample {
      "/123/asdf/hi/....."
      
 **错误例子：**
-    *“example/\*” —— Reject
-    *“/example”  —— Reject
-    *“/example/\*.html” —— Reject
+  *  "example/\* " —— Reject
+  *  "/example "  —— Reject
+  * “ "/example/\*.html " —— Reject
 
 **代码演示**
 
