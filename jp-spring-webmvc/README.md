@@ -108,25 +108,25 @@ public class ControllerExample {
 路径映射:以开“/”开头和“/*”结尾的路径映射，中间可以用“\*”表示[a_zA-Z_0-9]的字符
 
 **正确例子：**
- 1.“/\*” ——匹配所有url
- 2.“/example/\*” —— 匹配所有以“/example”开头的url
- 3.“/example/test\*/hi/*” -- 匹配以下：
-    “/example/test123/hi”
-    “/example/testasdfdf/hi”
-    “/example/testf5f5f5f/hi”
-    “/example/test1213/hi”
-    .......
- 4.“/\*/test/hi/*” ——匹配以下
-     “/123/hi/...”
-     “/asd/hi/....”
+ * "/\*" ——匹配所有url
+ * "/example/\*" —— 匹配所有以"/example"开头的url
+ * "/example/test\*/hi/*" -- 匹配以下：<br/>
+     "/example/test123/hi"<br/>
+    "/example/testasdfdf/hi"<br/>
+    "/example/testf5f5f5f/hi"<br/>
+    "/example/test1213/hi"<br/>
+    .......<br/>
+ * "/\*/test/hi/*" ——匹配以下
+     "/123/hi/..."
+     "/asd/hi/...."
      不匹配
-     “/asdf/123/hi/....”
-     “/123/asdf/hi/.....”
+     "/asdf/123/hi/...."
+     "/123/asdf/hi/....."
      
 **错误例子：**
-    1.“example/\*” —— Reject
-    2.“/example”  —— Reject
-    3.“/example/\*.html” —— Reject
+    *“example/\*” —— Reject
+    *“/example”  —— Reject
+    *“/example/\*.html” —— Reject
 
 **代码演示**
 
