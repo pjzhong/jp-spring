@@ -7,6 +7,7 @@ Aop 模块使用说明
 被@Before和@After标记的方法，参数中只能有TargetSource， TargetSource包含了目标对象的基本信息，包括目标类，实例，被调用的方法还有其参数
 
 @Error标记的方法只能有两个参数。一个是TargetSource, 另一个是目标方法抛出的异常，(具体例子在jp-webtest模块里面)
+
 ```java
 @Aspect
 @Pointcut("execution(com.jp.controller.*.*())")

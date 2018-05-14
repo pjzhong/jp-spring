@@ -12,14 +12,17 @@ webmvc 模块使用说明
       
 <hr>
 ## 首先创建一个Controller吧
+
 ```java
 @Controller
 public class ControllerExample {
 
 }
 ```
+
 这样就可以了，一个非常最简单的控制器，虽然什么方法都没有。
 但这样没什么用吧，那我们加个方法并告诉Controller需要处理哪些请求
+
 ```java
 @Controller
 @RequestMapping("/example") //Class级别只支持配置一个路径
@@ -43,6 +46,7 @@ _Class级别的@RequestMapping不是必须的。_
 (2017-2-1更新)
 ~~下面这样写是不允许的， @RequestMapping的value 属性不能为空~~
 下面这种写法的话，exampleOne()就会变成首页了
+
 ```java
 @Controller
 public class ControllerExample {
@@ -54,7 +58,8 @@ public class ControllerExample {
 }
 ```
 <hr>
-## @RequestParam() 获取请求中的参数 
+## @RequestParam() 获取请求中的参数
+
 ```java
 @Controller
 @RequestMapping("/example")
@@ -72,7 +77,6 @@ public class TestController {
         return "test";
     }
 }
-
 ```
 目前@RequestParam 暂时只支持基本类型:int, Integer ,float, Float.....(Array or Collection is OK), 
 但必须在 @RequestParam里面明确声明参数的名字，不然获取不到。
@@ -82,6 +86,7 @@ POJO也可自动注入(如果是多层对象可能会出错)。只要请求的�
 还有 @CookieValue, @RequestHeader可以从Cookie或者Header里面获取数据，使用方法和@RequestParam一样。
 <hr>
 ## @PatVariable的用法
+
 ```java
 @Controller
 @RequestMapping("/example")
@@ -124,6 +129,7 @@ public class ControllerExample {
     3.“/example/\*.html” —— Reject
 
 **代码演示**
+
 ```java
 @Intercept(url = "/example/test*/*")
 public class TestInterceptor implements Interceptor {
@@ -163,6 +169,7 @@ public class TestInterceptor2 implements Interceptor {
 只要在方法参数上面提供一个MultipartFiles对象，jp-spring就会将上传的文件全部封装到里面去
 
 代码演示(具体例子在jp-webtest)
+
 ```java
 @Controller
 public class ProductController {
