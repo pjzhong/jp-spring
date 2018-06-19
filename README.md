@@ -108,17 +108,18 @@ public class TestControllerAspect {
 }
 ```
 
-<hr/>
+
 # webtest
-## 运行环境
-1.servlet3.0 以上
-2.jdk1.7以上
-3.mysql5.6.26以上
+### 运行环境
+  - servlet3.0 以上
+  - jdk1.7以上
+  - mysql5.6.26以上
 
 数据脚本位置:jp-webtest/doc
 
 在项目根目录下创建一个properties文件，输入下面的内容(jp-webtest里面有具体例子)
-```java
+
+```
 package.scan=com.jp
 page.folder=/page
 page.extension=.html
@@ -131,7 +132,7 @@ upload.size=5
 - page.extension ——页面的扩展名(目前支持jsp，html和freemarker)，默认jsp
 - resource.folder ——静态资源的文件夹，必须配置不然找不到静态资源。如果需要配置多个，请使用";" 进行分割。
 - upload.size ——  单位:MB, 最大上传文件的限制，默认4M
-<hr>
+
 
 ##### 使用jp-spring开发的博客系统, 具体点击<a href="https://git.oschina.net/pj_zhong/jp_blog/tree/develop/">这里</a>。(内含演示地址)
 **如有不足，希望你能不吝赐教。**
