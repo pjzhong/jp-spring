@@ -20,7 +20,7 @@ public class FileUtils {
     private FileUtils(){}
 
     public static List<File> findFiles(String path , final String fileExtension) {
-        List<File> files = null;
+        List<File> files = Collections.EMPTY_LIST;
 
         try {
             //from the root directory
