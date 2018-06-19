@@ -1,8 +1,8 @@
 ### jp-ioc 模块使用说明
 
 依赖：暂无
-原型和加超详细的讲解，请点<a href="https://github.com/code4craft/tiny-spring">这里</a>
-想让我们看下应该怎么做吧
+原型和加超详细的讲解，[点这里](https://github.com/code4craft/tiny-spring)。
+先我们看下应该怎么做吧
 
 ```java
 public class ApplicationContextTest {
@@ -69,7 +69,7 @@ _目前@Autowired只支持配置在成员变量上，对于方法无效_
 
 配置文件放在项目根路径下
 
-```java
+```
 package.scan=jp.spring
 test=123456
 jdbc.driver=com.mysql.jdbc.Driver
