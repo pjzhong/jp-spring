@@ -1,16 +1,15 @@
-webmvc 模块使用说明
-`======================`
+### webmvc 模块使用说明
 依赖：jp-ioc(核心模块) //主要负责bean的创建和注入
-      fastJson
-      commons-io
-      commons-fileupload
+   - fastJson
+   - commons-io
+   - commons-fileupload
       
 ## Requirements
 
 * java 6.0+  
 * tomcat 7.0+     
       
-<hr>
+
 ## 首先创建一个Controller吧
 
 ```java
@@ -40,9 +39,8 @@ public class ControllerExample {
 }
 ```
 控制器返回结果处理策略：
- 情况1：如果方法标记了@ResponseBody或者没有标记@ResponseBody并且返回值不是String类型的，都会转换成json格式返回客户端
- 情况2：没有标记@ResponseBody并且返回值是String类型，那么系统就会认为这个返回值是一个页面路径，并将此路径所代表的页面返回到客户端
-_Class级别的@RequestMapping不是必须的。_
+   - 情况1：如果方法标记了@ResponseBody或者没有标记@ResponseBody并且返回值不是String类型的，都会转换成json格式返回客户端
+   - 情况2：没有标记@ResponseBody并且返回值是String类型，那么系统就会认为这个返回值是一个页面路径，并将此路径所代表的页面返回到客户端
 (2017-2-1更新)
 ~~下面这样写是不允许的， @RequestMapping的value 属性不能为空~~
 下面这种写法的话，exampleOne()就会变成首页了
@@ -57,7 +55,7 @@ public class ControllerExample {
      } 
 }
 ```
-<hr>
+
 ## @RequestParam() 获取请求中的参数
 
 ```java
@@ -84,7 +82,7 @@ public class TestController {
 POJO也可自动注入(如果是多层对象可能会出错)。只要请求的参数中有对应的字段。那么jp-spring为你自动创建一个对应的对象，为将其自动注入。
 
 还有 @CookieValue, @RequestHeader可以从Cookie或者Header里面获取数据，使用方法和@RequestParam一样。
-<hr>
+
 ## @PatVariable的用法
 
 ```java
@@ -101,27 +99,27 @@ public class ControllerExample {
 目前@PathVariable只能作用于Method级别的基本类型变量, 对类级别无效。
 并且要明确声明变量的名字， 否则无法识别
 
-<hr>
+
 ## Interceptor
 目前Interceptor仅支持路径匹配
 
 路径映射:以开“/”开头和“/*”结尾的路径映射，中间可以用“\*”表示[a_zA-Z_0-9]的字符
 
-**正确例子：**
- * "/\*" ——匹配所有url
- * "/example/\*" —— 匹配所有以"/example"开头的url
- * "/example/test\*/hi/*" -- 匹配以下：<br/>
-     "/example/test123/hi"<br/>
-    "/example/testasdfdf/hi"<br/>
-    "/example/testf5f5f5f/hi"<br/>
-    "/example/test1213/hi"<br/>
-    .......<br/>
- * "/\*/test/hi/*" ——匹配以下
-     "/123/hi/..."
-     "/asd/hi/...."
-     不匹配
-     "/asdf/123/hi/...."
-     "/123/asdf/hi/....."
+* 正确例子：
+   * "/\*" ——匹配所有url
+   * "/example/\*" —— 匹配所有以"/example"开头的url
+   * "/example/test\*/hi/*" -- 匹配以下：
+     * "/example/test123/hi"
+     * "/example/testasdfdf/hi"
+     * "/example/testf5f5f5f/hi"
+     * "/example/test1213/hi"
+ * "/\*/test/hi/*"
+     * 匹配以下
+       * "/123/hi/..."
+       * "/asd/hi/...."
+     * 不匹配
+        * "/asdf/123/hi/...."
+        * "/123/asdf/hi/....."
      
 **错误例子：**
   *  "example/\* " —— Reject
@@ -163,7 +161,6 @@ public class TestInterceptor2 implements Interceptor {
 
 ```
 
-<hr>
 ## 文件上传功能已实现(2017-1-30)
 文件上传使用(apache-commons-io, apache-common-fileupload)实现
 只要在方法参数上面提供一个MultipartFiles对象，jp-spring就会将上传的文件全部封装到里面去
@@ -188,13 +185,7 @@ public class ProductController {
     }
 }
 ```
-具体代码请看
-_DefaultMultipartResolver
-MultiPartRequest
-MultiPartFile
-MultipartFiles_
-<hr>
 
-**不足之处**
+### 不足之处
 1.参数注入不完善，对外依赖很强(fastJson)并且对数据的处理方式也不完善，导致经常注入失败
 **如有不足，希望你能不吝赐教。**

@@ -1,10 +1,7 @@
-jp-ioc 模块使用说明
-`======================`
+### jp-ioc 模块使用说明
+
 依赖：暂无
 原型和加超详细的讲解，请点<a href="https://github.com/code4craft/tiny-spring">这里</a>
-
-<br>
-<hr/>
 想让我们看下应该怎么做吧
 
 ```java
@@ -41,13 +38,13 @@ public class HelloService {
 }
 ```
 
-<hr/>
 ## @Component, 组件
 Class只要标记上@Component并被扫描到，就会纳入ioc的管理之中。
 每个@Component都会一个名字，如果用户没有提供就会取——首字母小写的class.getSimpleName() 来作为默认名字
 
 被ioc当作@Component的还有@Controller, @Service, @Aspect, @Bean, @Repository
-<hr/>
+
+
 ## @Autowired, 自动装配
 自动装配的策略， 默认是按类型来装配的。如果存在多个默认选第一个来进行注入。
 如果你想指定实现，使用@Qualifier并提供实现类的id。就像上面的例子那样。
@@ -65,12 +62,13 @@ public class outputServiceImpl2  implements OutputService {
 ```
 
 _目前@Autowired只支持配置在成员变量上，对于方法无效_
-<hr>
+
 ## @Value
 这个标记主要是用来为类注入配置中的值。
 就像 HelloService 的例子中， 成员变量text， ioc会从配置文件需要合适的值并对其注入
 
 配置文件放在项目根路径下
+
 ```java
 package.scan=jp.spring
 test=123456
@@ -78,6 +76,7 @@ jdbc.driver=com.mysql.jdbc.Driver
 ```
 
 @Value默认注入失败也不会报错的, 如果想提示注入失败可以这样写
+
 ```java
 @Component("helloService")
 public class HelloService {
@@ -88,7 +87,7 @@ public class HelloService {
 }
 ```
 目前@Value只支持配置在成员变量上
-<hr>
+
 ## beanPostProcessor, 初始化和加工
 (2017-1-25)在开发这个项目中，如何整合各个组件(jp-ioc, jp-web, jp-aop)这个问题一直困扰着我。
 我的想法是尽可能隔离各个组件，让每个组件都只依赖于jp-ioc。 在前期开发的时候，一直没这方面的经验，
@@ -124,9 +123,9 @@ public interface BeanPostProcessor {
 }
 ```
 具体例子可以查看 webmvc和aop模块jp.spring.process包里面的beanPostProcessor实现
-<hr>
 
-**不足之处**
+
+## 不足之处
 1.无法处理数组和集合的注入
 2.无法处理泛型
 
