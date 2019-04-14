@@ -10,17 +10,13 @@
     <packaging>war</packaging>
     <name>jp.spring.webtest Maven Webapp</name>
     <url>http://maven.apache.org</url>
+
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>jp.spring</groupId>
-            <artifactId>jp-webmvc</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -30,16 +26,8 @@
 
         <dependency>
             <groupId>jp.spring</groupId>
-            <artifactId>jp-aop</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <artifactId>core</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>jp.spring</groupId>
-            <artifactId>jp-orm</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-
 
         <dependency>
             <groupId>org.freemarker</groupId>
@@ -49,6 +37,6 @@
 
     </dependencies>
     <build>
-        <finalName>jp.spring.webtest</finalName>
+        <finalName>webtest</finalName>
     </build>
 </project>
