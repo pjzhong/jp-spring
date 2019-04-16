@@ -1,7 +1,7 @@
 package com.jp.interceptors;
 
-import jp.spring.web.annotation.Intercept;
-import jp.spring.web.interceptor.Interceptor;
+import jp.spring.mvc.annotation.Intercept;
+import jp.spring.mvc.interceptor.Interceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

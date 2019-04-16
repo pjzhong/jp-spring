@@ -1,9 +1,9 @@
 package com.jp.controller;
 
 import jp.spring.ioc.stereotype.Controller;
-import jp.spring.web.annotation.RequestMapping;
-import jp.spring.web.annotation.RequestMethod;
-import jp.spring.web.annotation.ResponseBody;
+import jp.spring.mvc.annotation.RequestMapping;
+import jp.spring.mvc.annotation.RequestMethod;
+import jp.spring.mvc.annotation.ResponseBody;
 
 /**
  * Created by Administrator on 1/27/2017.

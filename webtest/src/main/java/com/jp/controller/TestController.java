@@ -4,11 +4,11 @@ import com.jp.Model.User;
 import com.jp.service.OutputService;
 import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.stereotype.Controller;
-import jp.spring.web.annotation.PathVariable;
-import jp.spring.web.annotation.RequestMapping;
-import jp.spring.web.annotation.RequestMethod;
-import jp.spring.web.annotation.RequestParam;
-import jp.spring.web.annotation.ResponseBody;
+import jp.spring.mvc.annotation.PathVariable;
+import jp.spring.mvc.annotation.RequestMapping;
+import jp.spring.mvc.annotation.RequestMethod;
+import jp.spring.mvc.annotation.RequestParam;
+import jp.spring.mvc.annotation.ResponseBody;
 
 
 /**

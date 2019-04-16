@@ -4,12 +4,11 @@ import com.jp.Model.Product;
 import com.jp.service.ProductService;
 import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.stereotype.Controller;
-import jp.spring.web.annotation.RequestMapping;
-import jp.spring.web.annotation.RequestMethod;
-import jp.spring.web.annotation.ResponseBody;
-import jp.spring.web.context.ProcessContext;
-import jp.spring.web.support.MultipartFile;
-import jp.spring.web.support.MultipartFiles;
+import jp.spring.mvc.annotation.RequestMapping;
+import jp.spring.mvc.annotation.RequestMethod;
+import jp.spring.mvc.annotation.ResponseBody;
+import jp.spring.mvc.support.MultipartFile;
+import jp.spring.mvc.support.MultipartFiles;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
