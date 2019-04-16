@@ -1,12 +1,45 @@
-# Maven #
-target/
-*/target/
+# JAVA #
+*.class
+*.jar
 
 # IDEA #
-.idea/
+.idea
 *.iml
+.metadata
+.settings/
+.loadpath
+.externalToolBuilders/
+*.launch
+.cache*
 
 # Eclipse #
-.settings/
+.settings
 .classpath
 .project
+.externalToolBuilders
+
+# SVN #
+.svn
+
+# image #
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Maven #
+target/
+
+# html #
+*.eot
+*.ttf
+*.woff
+
+# js #
+*.min.js
+
+# css #
+*.min.css
+
+# Log #
+*.log
