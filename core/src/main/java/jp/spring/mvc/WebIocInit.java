@@ -1,4 +1,4 @@
-package jp.spring.mvc.dispatcher.servlet;
+package jp.spring.mvc;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRegistration;
