@@ -1,6 +1,5 @@
-package jp.spring.ioc.http;
+package jp.spring.http;
 
-import jp.spring.http.NettyHttpService;
 import org.junit.Test;
 
 public class HttpBuilderTest {
