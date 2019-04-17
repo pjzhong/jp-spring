@@ -1,4 +1,4 @@
-package jp.spring.http;
+package jp.spring.mvc.handler;
 
 import java.util.ArrayList;
 import java.util.Collections;

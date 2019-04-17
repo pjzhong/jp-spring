@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import jp.spring.mvc.handler.Pair;
+import jp.spring.mvc.handler.PathRouter;
 import org.junit.Assert;
 import org.junit.Test;
 

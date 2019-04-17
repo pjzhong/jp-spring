@@ -1,133 +1,94 @@
 package jp.spring.mvc.handler;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import jp.spring.mvc.interceptor.Interceptor;
 import jp.spring.mvc.support.MethodParameter;
 
 /**
- * 一个HttpRequest的具体处理者
+ * HttpResourceModel contains information needed to handle Http call for a given path. Used as a
+ * destination in {@code PathRouter} to route URI paths to right Http end points.
  */
 public class Handler {
-    private final String beanName;
 
-    private final Method method;
+  private final String beanName;
+  private final Method method;
+  private String url;
+  private Set<Annotation> annotations;
+  private List<MethodParameter> methodParameters;
+  private List<Interceptor> interceptors = Collections.emptyList();
 
-    private List<MethodParameter> methodParameters;
+  public Handler(Method method, String beanName) {
+    this.method = method;
+    this.beanName = beanName;
+  }
 
-    private boolean hasPathVariable = false;
+  public Object invoker(Object obj, Object[] args) throws Exception {
+    method.setAccessible(true);
+    return method.invoke(obj, args);
+  }
 
-    private boolean isResponseBody = false;
+  @Deprecated
+  public boolean match(String path) {
+    return false;
+  }
 
-    private Pattern urlPattern = null;
+  @Deprecated
+  public boolean hasPathVariable() {
+    return false;
+  }
 
-    private String url;
+  @Deprecated
+  public boolean isResponseBody() {
+    return false;
+  }
 
-    private List<Interceptor> interceptors = new ArrayList<>();
+  @Deprecated
+  public Matcher getPathVariableMatcher(String s) {
+    return null;
+  }
 
-    /**
-     * key: path variable name, value: path variable regex index in urlPattern
-     * */
-    private Map<String, Integer> pathVariableMap = null;
+  public Method getMethod() {
+    return method;
+  }
 
-    public Handler(Method method, String beanName) {
-        this.method = method;
-        this.beanName = beanName;
-    }
+  public String getUrl() {
+    return url;
+  }
 
-    public Matcher getPathVariableMatcher(String readUrl) {
-/*        if(!hasPathVariable) {
-            return null;
-        }
+  public String getBeanName() {
+    return beanName;
+  }
 
-        Matcher m = urlPattern.matcher(readUrl);
-        if(m.find()) {
-            int index = pathVariableMap.get(pathVariableName);
-            return m.groupCount() >= index ? StringUtils.decode(m.group(index)) : null;
-        }*/
-        Matcher matcher = urlPattern.matcher(readUrl);
-        return matcher.find() ? matcher : null;
-    }
+  public Map<String, Integer> getPathVariableIndexMap() {
+    return Collections.emptyMap();
+  }
 
-    public Object invoker(Object obj, Object[] args) throws Exception {
-        method.setAccessible(true);
-        return method.invoke(obj, args);
-    }
+  public List<MethodParameter> getMethodParameters() {
+    return methodParameters;
+  }
 
-    public boolean match(String path) {
-        return urlPattern.matcher(path).find();
-    }
+  public List<Interceptor> getInterceptors() {
+    return interceptors;
+  }
 
-    /*Getters and setters*/
-    public boolean hasPathVariable() {
-        return hasPathVariable;
-    }
+  public void addInterceptors(Collection<Interceptor> interceptors) {
+    this.interceptors.addAll(interceptors);
+  }
 
-    public boolean isResponseBody() {
-        return isResponseBody;
-    }
-
-    public void setResponseBody(boolean responseBody) {
-        isResponseBody = responseBody;
-    }
-
-    public Method getMethod() {
-        return method;
-    }
-
-    public void setUrlExpression(String urlExpression) {
-        this.hasPathVariable = true;
-        this.urlPattern = Pattern.compile(urlExpression);
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getBeanName() {
-        return beanName;
-    }
-
-    public Map<String, Integer> getPathVariableIndexMap() {
-        return pathVariableMap;
-    }
-
-    public void setPathVariableMap(Map<String, Integer> pathVariableMap) {
-        this.pathVariableMap = pathVariableMap;
-    }
-
-    public List<MethodParameter> getMethodParameters() {
-        return methodParameters;
-    }
-
-    public void setMethodParameters(List<MethodParameter> methodParameters) {
-        this.methodParameters = methodParameters;
-    }
-
-    public List<Interceptor> getInterceptors() {
-        return interceptors;
-    }
-
-    public void addInterceptors(Collection<Interceptor> interceptors) {
-        this.interceptors.addAll(interceptors);
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("Handler{");
-        sb.append(", url='").append(url).append('\'');
-        sb.append("method=").append(method);
-        sb.append(", beanName='").append(beanName).append('\'');
-        sb.append('}');
-        return sb.toString();
-    }
+  @Override
+  public String toString() {
+    final StringBuilder sb = new StringBuilder("Handler{");
+    sb.append(", url='").append(url).append('\'');
+    sb.append("method=").append(method);
+    sb.append(", beanName='").append(beanName).append('\'');
+    sb.append('}');
+    return sb.toString();
+  }
 }

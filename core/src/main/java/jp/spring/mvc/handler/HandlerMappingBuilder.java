@@ -9,5 +9,5 @@ import java.util.List;
  */
 public interface HandlerMappingBuilder {
 
-    public List<Handler> buildHandler(String name, Class<?> controller);
+    List<Handler> buildHandler(String name, Class<?> controller);
 }

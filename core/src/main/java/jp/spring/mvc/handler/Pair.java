@@ -14,7 +14,7 @@
  * the License.
  */
 
-package jp.spring.http;
+package jp.spring.mvc.handler;
 
 import java.util.Objects;
 

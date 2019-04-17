@@ -12,8 +12,6 @@ import jp.spring.ioc.util.JpUtils;
  */
 public class MethodParameter {
 
-    private Method method;
-
     private String name = null;
 
     private Class<?> parameterType = null;
@@ -74,20 +72,8 @@ public class MethodParameter {
         this.name = name;
     }
 
-    public int getParameterIndex() {
-        return parameterIndex;
-    }
-
     public void setParameterIndex(int parameterIndex) {
         this.parameterIndex = parameterIndex;
-    }
-
-    public Method getMethod() {
-        return method;
-    }
-
-    public void setMethod(Method method) {
-        this.method = method;
     }
 
     /**
@@ -98,7 +84,7 @@ public class MethodParameter {
      * */
     public Map<String, Class<?>> getFieldMap() {
         if(JpUtils.isEmpty(fieldMap) && (!JpUtils.isSimpleTypeArray(parameterType)) ) {
-            fieldMap = new HashMap<String, Class<?>>();
+            fieldMap = new HashMap<>();
             Class<?> clazz = parameterType;
             while(clazz != null) {
                 Field[] fields = clazz.getDeclaredFields();
