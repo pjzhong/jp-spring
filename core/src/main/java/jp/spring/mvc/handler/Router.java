@@ -12,11 +12,11 @@ import java.util.regex.Pattern;
  * @link https://github.com/cdapio/netty-http/blob/develop/src/main/java/io/cdap/http/internal/RequestRouter.java
  * @since 2019年04月17日 17:51:31
  **/
-public class PathRouter<T> {
+public class Router<T> {
 
   //GROUP_PATTERN is used for named wild card pattern in paths which is specified within braces.
   //Example: {id}
-  private static final Pattern GROUP_PATTERN = Pattern.compile("\\{(.*?)\\}");
+  public static final Pattern GROUP_PATTERN = Pattern.compile("\\{(.*?)\\}");
 
   // non-greedy wild card match.
   private static final Pattern WILD_CARD_PATTERN = Pattern.compile("\\*\\*");
@@ -24,11 +24,11 @@ public class PathRouter<T> {
   private final int maxPathParts;
   private List<Pair<Pattern, Pair<T, List<String>>>> patternRouteList;
 
-  public static <T> PathRouter<T> create(int maxParts) {
-    return new PathRouter<>(maxParts);
+  public static <T> Router<T> create(int maxParts) {
+    return new Router<>(maxParts);
   }
 
-  private PathRouter(int maxPathParts) {
+  private Router(int maxPathParts) {
     this.maxPathParts = maxPathParts;
     this.patternRouteList = new ArrayList<>();
   }

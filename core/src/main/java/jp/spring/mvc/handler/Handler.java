@@ -2,34 +2,40 @@ package jp.spring.mvc.handler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
+import jp.spring.mvc.annotation.RequestMethod;
 import jp.spring.mvc.interceptor.Interceptor;
 import jp.spring.mvc.support.MethodParameter;
 
 /**
  * HttpResourceModel contains information needed to handle Http call for a given path. Used as a
- * destination in {@code PathRouter} to route URI paths to right Http end points.
+ * destination in {@code Router} to route URI paths to right Http end points.
  */
 public class Handler {
 
   private final String beanName;
   private final Method method;
-  private String url;
-  private Set<Annotation> annotations;
-  private List<MethodParameter> methodParameters;
+  private final String url;
+  private final Set<RequestMethod> httpMethods;
+  private Set<Annotation> annotations = Collections.emptySet();
+  private List<MethodParameter> methodParameters = Collections.emptyList();
   private List<Interceptor> interceptors = Collections.emptyList();
 
-  public Handler(Method method, String beanName) {
+  public Handler(String url, RequestMethod[] httpMethods, Method method, String beanName) {
+    this.url = url;
     this.method = method;
     this.beanName = beanName;
+    this.httpMethods = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(httpMethods)));
   }
 
-  public Object invoker(Object obj, Object[] args) throws Exception {
+  public Object invoke(Object obj, Object[] args) throws Exception {
     method.setAccessible(true);
     return method.invoke(obj, args);
   }
@@ -76,6 +82,10 @@ public class Handler {
 
   public List<Interceptor> getInterceptors() {
     return interceptors;
+  }
+
+  public Set<RequestMethod> getHttpMethods() {
+    return httpMethods;
   }
 
   public void addInterceptors(Collection<Interceptor> interceptors) {

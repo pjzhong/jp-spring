@@ -3,7 +3,6 @@ package jp.spring.http;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelInitializer;
-import io.netty.channel.DefaultEventLoopGroup;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.group.ChannelGroup;
 import io.netty.channel.group.DefaultChannelGroup;
@@ -13,11 +12,12 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.http.HttpContentCompressor;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.codec.http.HttpServerKeepAliveHandler;
-import io.netty.util.concurrent.EventExecutorGroup;
 import io.netty.util.concurrent.ImmediateEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
+import jp.spring.mvc.context.WebApplicationContext;
+import jp.spring.mvc.handler.HandlerMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,11 +29,13 @@ public final class NettyHttpService {
   private int bossThreadSize;
   private int workerThreadSize;
   private int execThreadSize;
+  private int chunkLimit;
 
   private InetSocketAddress bindAddress;
   private ServerBootstrap bootstrap;
   private ChannelGroup channels;
-  private EventExecutorGroup eventExecutorGroup;
+  private WebApplicationContext context;
+  private HandlerMapping handlerMapping;
 
   private NettyHttpService(String name) {
     this.name = name;
@@ -47,14 +49,16 @@ public final class NettyHttpService {
     try {
       LOG.info("Starting HTTP Service {} at address {}", name, bindAddress);
       channels = new DefaultChannelGroup(ImmediateEventExecutor.INSTANCE);
-      eventExecutorGroup = new DefaultEventLoopGroup(execThreadSize);
       bootstrap = createBootstrap(channels);
       Channel serverChannel = bootstrap.bind(bindAddress).sync().channel();
       channels.add(serverChannel);
 
       bindAddress = (InetSocketAddress) serverChannel.localAddress();
-      //Shutdown hook
-      Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
+
+      // Init ApplicationContext
+      context = new WebApplicationContext("/");
+      handlerMapping = HandlerMapping.build(context.getBeanFactory());
+
       LOG.info("Started HTTP Service {} at address {}", name, bindAddress);
     } catch (Throwable t) {
       stop();
@@ -65,7 +69,7 @@ public final class NettyHttpService {
   public synchronized void stop() {
     channels.close().awaitUninterruptibly();
     bootstrap.config().group().shutdownGracefully().awaitUninterruptibly();
-    eventExecutorGroup.shutdownGracefully().awaitUninterruptibly();
+    bootstrap.config().childGroup().shutdownGracefully().awaitUninterruptibly();
     LOG.info("{} shutdown success", name);
   }
 
@@ -85,8 +89,9 @@ public final class NettyHttpService {
             ch.pipeline()
                 .addLast("codec", new HttpServerCodec())
                 .addLast("compressor", new HttpContentCompressor())
-                .addLast("keepAlive", new HttpServerKeepAliveHandler());
-            //TODO ROUTER AND HANDLER
+                .addLast("keepAlive", new HttpServerKeepAliveHandler())
+                .addLast("router", new RequestRouter(handlerMapping, chunkLimit))
+                .addLast("dispatcher", new HttpDispatcher(context.getBeanFactory()));
           }
         });
     return bootstrap;
@@ -114,6 +119,7 @@ public final class NettyHttpService {
     private static final int DEFAULT_CONNECTION_BACKLOG = 1000;
     private static final int DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE = 60;
     private static final long DEFAULT_EXEC_HANDLER_THREAD_KEEP_ALIVE_TIME_SECS = 60L;
+    private static final int DEFAULT_HTTP_CHUNK_LIMIT = 150 * 1024 * 1024;
 
 
     private final String name;
@@ -122,6 +128,7 @@ public final class NettyHttpService {
     private int workerThreadSize;
     private int execThreadSize;
     private int port;
+    private int chunkLimit;
 
     // Protected constructor to prevent instantiating Builder instance directly.
     protected Builder(String serviceName) {
@@ -130,6 +137,7 @@ public final class NettyHttpService {
       workerThreadSize = DEFAULT_WORKER_THREAD_POOL_SIZE;
       execThreadSize = DEFAULT_EXEC_HANDLER_THREAD_POOL_SIZE;
       port = DEFAULT_PORT;
+      chunkLimit = DEFAULT_HTTP_CHUNK_LIMIT;
     }
 
     public Builder setHost(String host) {
@@ -166,7 +174,7 @@ public final class NettyHttpService {
       httpService.bossThreadSize = bossThreadSize;
       httpService.workerThreadSize = workerThreadSize;
       httpService.execThreadSize = execThreadSize;
-
+      httpService.chunkLimit = chunkLimit;
       return httpService;
     }
   }
