@@ -12,6 +12,7 @@ import java.util.Map;
 import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.mvc.annotation.RequestMapping;
+import jp.spring.mvc.annotation.RequestMethod;
 
 @Controller
 public class HelloWorld {
@@ -19,7 +20,7 @@ public class HelloWorld {
   @Autowired
   private OutputService output;
 
-  @RequestMapping(value = "/hello/{someone}")
+  @RequestMapping(value = "/hello/{someone}", method = {RequestMethod.GET, RequestMethod.POST})
   public DefaultFullHttpResponse hello(Map<String, String> params) {
     DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
         HttpResponseStatus.OK);
@@ -30,7 +31,9 @@ public class HelloWorld {
         .append("<!DOCTYPE html>\r\n")
         .append("<html><head><meta charset='utf-8' /><title>")
         .append(build)
-        .append("</title></head><body>\r\n")
+        .append("</title>")
+        .append(" <script src=\"https://cdn.bootcss.com/jquery/1.10.0/jquery.min.js\"></script>")
+        .append("</head><body>\r\n")
         .append("<h1>").append(build).append("</h1>")
         .append("</body></html>\r\n");
 

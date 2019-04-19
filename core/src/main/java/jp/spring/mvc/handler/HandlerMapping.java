@@ -41,7 +41,7 @@ public class HandlerMapping {
    * @since 2019年04月18日 14:02:24
    */
   public Pair<Handler, Map<String, String>> getHandler(HttpRequest request) {
-    String path = URI.create(request.uri()).normalize().toString();
+    String path = URI.create(request.uri()).normalize().getPath();
     List<Pair<Handler, Map<String, String>>> routable = router.getDestinations(path);
     return getMatched(routable, RequestMethod.of(request.method()), path);
   }
