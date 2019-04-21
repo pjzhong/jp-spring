@@ -9,17 +9,12 @@ import jp.spring.ioc.beans.io.loader.ClassResourceLoader;
 import jp.spring.ioc.beans.io.resources.ClassResource;
 import jp.spring.ioc.beans.support.*;
 import jp.spring.ioc.stereotype.Component;
-import jp.spring.ioc.stereotype.Controller;
-import jp.spring.ioc.stereotype.Repository;
-import jp.spring.ioc.stereotype.Service;
-import jp.spring.ioc.util.JpUtils;
+import jp.spring.ioc.util.IocUtil;
 import jp.spring.ioc.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Created by Administrator on 1/8/2017.
@@ -68,7 +63,7 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
 
     protected BeanDefinition parseClass(Class<?> beanClass) {
         BeanDefinition definition = null;
-        if(JpUtils.isAnnotated(beanClass, Component.class)) {
+        if(IocUtil.isAnnotated(beanClass, Component.class)) {
             definition = new BeanDefinition();
             definition.setBeanClass(beanClass);
 
@@ -90,9 +85,9 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
         String name = null;
         for(Annotation annotation : annotations) {
             Class<? extends Annotation> type = annotation.annotationType();
-            if(JpUtils.isAnnotated(type, Component.class)) {
+            if(IocUtil.isAnnotated(type, Component.class)) {
                 try {
-                    Method  method = JpUtils.findMethod(type, "value");
+                    Method  method = IocUtil.findMethod(type, "value");
                     if(method != null) {
                         method.setAccessible(true);
                         name = (String) method.invoke(annotation, null);
@@ -113,11 +108,11 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
     protected void parseFields(BeanDefinition beanDefinition, Class<?> beanClass) {
         Field[] fields = beanClass.getDeclaredFields();
 
-        if(!JpUtils.isEmpty(fields)) {
+        if(!IocUtil.isEmpty(fields)) {
             for(Field field : fields) {
-                if(JpUtils.isAnnotated(field, Autowired.class)) {
+                if(IocUtil.isAnnotated(field, Autowired.class)) {
                     beanDefinition.add( parseAutowired(field));
-                } else if(JpUtils.isAnnotated(field, Value.class)) {
+                } else if(IocUtil.isAnnotated(field, Value.class)) {
                     beanDefinition.add( parseValue(field));
                 }
             }
@@ -133,7 +128,7 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
         InjectField injectField;
 
         String id = null;
-        if(JpUtils.isAnnotated(field, Qualifier.class)) {//用户有提供id，没有就让id的属性为空
+        if(IocUtil.isAnnotated(field, Qualifier.class)) {//用户有提供id，没有就让id的属性为空
           id = field.getAnnotation(Qualifier.class).value();
         }
         boolean isRequired = field.getAnnotation(Autowired.class).required();

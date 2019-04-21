@@ -41,7 +41,7 @@ public class FileUtils {
                             return file.getName().endsWith(fileExtension);
                         }
                     });
-                    if(!JpUtils.isEmpty(targetFiles)) {
+                    if(!IocUtil.isEmpty(targetFiles)) {
                         files.addAll(Arrays.asList(targetFiles));
                     }
                 }

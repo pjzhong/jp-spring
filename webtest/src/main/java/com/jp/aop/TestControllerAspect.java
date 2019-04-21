@@ -24,10 +24,4 @@ public class TestControllerAspect {
     public void after(TargetSource target) {
         System.out.println(target.getTargetMethod() + " end");
     }
-
-    public static void main(String[] args) {
-        for(Annotation annotation : TestControllerAspect.class.getAnnotations()) {
-            System.out.println(annotation);
-        }
-    }
 }

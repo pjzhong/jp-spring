@@ -15,7 +15,7 @@ import io.netty.util.ReferenceCountUtil;
 import java.util.Map;
 import jp.spring.mvc.handler.Handler;
 import jp.spring.mvc.handler.HandlerMapping;
-import jp.spring.mvc.handler.Pair;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -13,7 +13,7 @@ import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.stereotype.Aspect;
 import jp.spring.ioc.stereotype.Component;
-import jp.spring.ioc.util.JpUtils;
+import jp.spring.ioc.util.IocUtil;
 
 /**
  * Created by Administrator on 1/19/2017.
@@ -62,7 +62,7 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
             }
         }
 
-        if(!JpUtils.isEmpty(proxies)) {
+        if(!IocUtil.isEmpty(proxies)) {
             bean = ProxyFactory.getInstance().createProxy(bean, proxies);
         }
 
@@ -81,7 +81,7 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
      * are not the target of this processor
      * */
     private boolean filtrate(Object bean, String beanName) {
-        if(JpUtils.isAnnotated(bean.getClass(), Aspect.class)
+        if(IocUtil.isAnnotated(bean.getClass(), Aspect.class)
                 || bean instanceof BeanPostProcessor
                 || bean instanceof BaseAspect
                 || bean instanceof Proxy) {

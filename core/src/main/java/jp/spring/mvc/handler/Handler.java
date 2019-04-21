@@ -2,17 +2,21 @@ package jp.spring.mvc.handler;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
+import jp.spring.mvc.annotation.CookieValue;
+import jp.spring.mvc.annotation.PathVariable;
+import jp.spring.mvc.annotation.RequestHeader;
 import jp.spring.mvc.annotation.RequestMethod;
+import jp.spring.mvc.annotation.RequestParam;
 import jp.spring.mvc.interceptor.Interceptor;
-import jp.spring.mvc.support.MethodParameter;
 
 /**
  * HttpResourceModel contains information needed to handle Http call for a given path. Used as a
@@ -20,12 +24,19 @@ import jp.spring.mvc.support.MethodParameter;
  */
 public class Handler {
 
+  private static Set<Class<? extends Annotation>> required = Collections
+      .unmodifiableSet(new HashSet<>(Arrays.asList(
+          RequestParam.class,
+          RequestHeader.class,
+          CookieValue.class,
+          PathVariable.class)));
+
   private final String beanName;
   private final Method method;
   private final String url;
   private final Set<RequestMethod> httpMethods;
   private Set<Annotation> annotations = Collections.emptySet();
-  private List<MethodParameter> methodParameters = Collections.emptyList();
+  private List<MethodParameter> parameters = null;
   private List<Interceptor> interceptors = Collections.emptyList();
 
   public Handler(String url, RequestMethod[] httpMethods, Method method, String beanName) {
@@ -38,16 +49,6 @@ public class Handler {
   public Object invoke(Object obj, Object[] args) throws Exception {
     method.setAccessible(true);
     return method.invoke(obj, args);
-  }
-
-  @Deprecated
-  public boolean match(String path) {
-    return false;
-  }
-
-  @Deprecated
-  public boolean hasPathVariable() {
-    return false;
   }
 
   @Deprecated
@@ -72,12 +73,14 @@ public class Handler {
     return beanName;
   }
 
-  public Map<String, Integer> getPathVariableIndexMap() {
-    return Collections.emptyMap();
-  }
+  public List<MethodParameter> getParameters() {
+    if (parameters == null) {
+      synchronized (this) {
+        parameters = buildParameter(this);
+      }
+    }
 
-  public List<MethodParameter> getMethodParameters() {
-    return methodParameters;
+    return parameters;
   }
 
   public List<Interceptor> getInterceptors() {
@@ -90,6 +93,46 @@ public class Handler {
 
   public void addInterceptors(Collection<Interceptor> interceptors) {
     this.interceptors.addAll(interceptors);
+  }
+
+  private static List<MethodParameter> buildParameter(Handler handler) {
+    Method method = handler.getMethod();
+    Parameter[] parameters = method.getParameters();
+    if (parameters.length <= 0) {
+      return Collections.emptyList();
+    }
+
+    List<MethodParameter> result = new ArrayList<>();
+    for (Parameter p : parameters) {
+      Annotation[] annotations = p.getAnnotations();
+      if (annotations.length <= 0) {
+        throw new IllegalArgumentException(
+            String.format("%s-%s missing Annotation%n", method.getName(), method.getName())
+        );
+      }
+
+      int count = 0;
+      for (Annotation a : annotations) {
+        if (required.contains(a.annotationType())) {
+          count++;
+        }
+      }
+
+      // validate annotations
+      if (count <= 0) {
+        throw new IllegalArgumentException(
+            String.format("%s-%s missing required Annotation%n", method.getName(), p.getName())
+        );
+      } else if (1 < count) {
+        throw new IllegalArgumentException(
+            String
+                .format("%s-%s too much  required Annotation%n", method.getName(), p.getName())
+        );
+      }
+
+      result.add(new MethodParameter(p.getType(), annotations));
+    }
+    return Collections.unmodifiableList(result);
   }
 
   @Override

@@ -1,8 +1,6 @@
 package jp.spring.ioc.util;
 
 import java.lang.reflect.Array;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.util.*;
 
 /**
@@ -68,7 +66,7 @@ public class TypeConvertUtils {
                 for(int i = 0; i < length; i++) {
                     Array.set(convertedValue, i, convertToBasic(iterator.next(), clazz));
                 }
-            } else if (JpUtils.isSimpleType(value.getClass())) {
+            } else if (IocUtil.isSimpleType(value.getClass())) {
                 convertedValue = Array.newInstance(clazz, 1);
                 Array.set(convertedValue, 0, convertToBasic(value, clazz));
             }
@@ -96,7 +94,7 @@ public class TypeConvertUtils {
                 while(iterator.hasNext()) {
                     convertCollection.add(convertToBasic(iterator.next(), clazz));
                 }
-            }  else if(JpUtils.isSimpleType(value.getClass())){
+            }  else if(IocUtil.isSimpleType(value.getClass())){
                 convertCollection.add(convertToBasic(value,clazz));
             }
         }

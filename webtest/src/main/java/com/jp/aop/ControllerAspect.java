@@ -17,12 +17,12 @@ public class ControllerAspect {
 
     @Before
     public void before(TargetSource target) {
-        begin.set(System.nanoTime());
+        begin.set(System.currentTimeMillis());
     }
 
     @After
     public void after(TargetSource target) {
-        System.out.println(target.getTargetMethod() + " cost:" + (System.nanoTime() - begin.get()));
+        System.out.println(target.getTargetMethod() + " cost:" + (System.currentTimeMillis() - begin.get()));
         begin.remove();
     }
 

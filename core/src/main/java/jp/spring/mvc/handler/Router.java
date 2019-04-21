@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @link https://github.com/cdapio/netty-http/blob/develop/src/main/java/io/cdap/http/internal/RequestRouter.java
@@ -89,8 +90,8 @@ public class Router<T> {
 
     List<Pair<T, Map<String, String>>> result = new ArrayList<>();
     patternRouteList.forEach(pattern -> {
-      Matcher matcher = pattern.getFirst().matcher(cleanPath);
-      List<String> groupName = pattern.getSecond().getSecond();
+      Matcher matcher = pattern.getLeft().matcher(cleanPath);
+      List<String> groupName = pattern.getRight().getRight();
       if (matcher.matches()) {
         Map<String, String> nameValues =
             groupName.isEmpty() ? Collections.emptyMap() : new HashMap<>();
@@ -99,7 +100,7 @@ public class Router<T> {
           nameValues.put(name, matcher.group(matchIdx));
           matchIdx++;
         }
-        result.add(Pair.of(pattern.getSecond().getFirst(), nameValues));
+        result.add(Pair.of(pattern.getRight().getLeft(), nameValues));
       }
     });
 

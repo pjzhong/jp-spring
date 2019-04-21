@@ -10,7 +10,7 @@ import jp.spring.ioc.beans.factory.BeanFactory;
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.stereotype.Component;
-import jp.spring.ioc.util.JpUtils;
+import jp.spring.ioc.util.IocUtil;
 import jp.spring.mvc.annotation.Intercept;
 import jp.spring.mvc.handler.Handler;
 import jp.spring.mvc.interceptor.InterceptMatch;
@@ -70,7 +70,7 @@ public class WebBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware
       throws Exception {
     List<String> interceptorNames = beanFactory.getBeanNamByAnnotation(Intercept.class);
     List<InterceptMatch> interceptors = Collections.emptyList();
-    if (!JpUtils.isEmpty(interceptorNames)) {
+    if (!IocUtil.isEmpty(interceptorNames)) {
       interceptors = new ArrayList<>();
       InterceptMatch interceptMatch;
       Interceptor interceptor;

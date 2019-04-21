@@ -7,11 +7,11 @@ import jp.spring.ioc.util.StringUtils;
 import jp.spring.mvc.context.ProcessContext;
 import jp.spring.mvc.context.WebApplicationContext;
 import jp.spring.mvc.handler.Handler;
-import jp.spring.mvc.handler.HandlerArgResolver;
 import jp.spring.mvc.handler.HandlerInvoker;
 import jp.spring.mvc.interceptor.Interceptor;
 import jp.spring.mvc.util.WebUtil;
 import jp.spring.mvc.view.ViewResolver;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Created by Administrator on 1/23/2017.
@@ -22,7 +22,6 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
 
   private ViewResolver viewResolver = null;
 
-  private HandlerArgResolver argResolver;
 
   private String REDIRECT = "redirect:";
 
@@ -34,7 +33,6 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
     WebApplicationContext applicationContext = WebUtil.getWebContext();
     try {
       viewResolver = (ViewResolver) applicationContext.getBean(ViewResolver.RESOLVER_NAME);
-      argResolver = new DefaultHandlerArgResolver();
       isInitialized = true;
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -58,7 +56,7 @@ public class DefaultHandlerInvoker implements HandlerInvoker {
       }
     }
     controller = WebUtil.getWebContext().getBean(handler.getBeanName());
-    Object[] args = argResolver.resolve(handler);
+    Object[] args = ArrayUtils.EMPTY_OBJECT_ARRAY;
     result = handler.invoke(controller, args);
     for (Interceptor interceptor : handler.getInterceptors()) { //run the filters
       interceptor.afterHandle(request, response, handler);

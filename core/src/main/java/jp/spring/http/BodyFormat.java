@@ -1,5 +1,7 @@
 package jp.spring.http;
 
+import org.apache.commons.lang3.StringUtils;
+
 public enum BodyFormat {
   NONE("none"),
   TEXT_LAIN("text/plain"),
@@ -14,5 +16,17 @@ public enum BodyFormat {
 
   public String getName() {
     return name;
+  }
+
+  public static BodyFormat parse(String contentType) {
+    if (StringUtils.isNotBlank(contentType)) {
+      for (BodyFormat f : BodyFormat.values()) {
+        if (contentType.startsWith(f.getName())) {
+          return f;
+        }
+      }
+    }
+
+    return NONE;
   }
 }

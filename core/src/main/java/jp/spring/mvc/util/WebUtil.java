@@ -9,7 +9,6 @@ import javax.servlet.http.HttpServletResponse;
 import jp.spring.ioc.util.StringUtils;
 import jp.spring.mvc.context.ProcessContext;
 import jp.spring.mvc.context.WebApplicationContext;
-import jp.spring.mvc.support.MultiPartRequest;
 
 /**
  * Created by Administrator on 1/23/2017.
@@ -34,9 +33,6 @@ public class WebUtil {
       }
     }
 
-    if (request instanceof MultiPartRequest) {
-      paramMap.putAll(((MultiPartRequest) request).getMultipartParameterMap());
-    }
     return paramMap;
   }
 

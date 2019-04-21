@@ -10,6 +10,7 @@ import java.util.NoSuchElementException;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.mvc.annotation.RequestMethod;
+import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +65,7 @@ public class HandlerMapping {
 
     long maxScore = 0;
     for (Pair<Handler, Map<String, String>> p : routers) {
-      Handler handler = p.getFirst();
+      Handler handler = p.getLeft();
       if (handler.getHttpMethods().contains(method)) {
         long score = calcMatchScore(reqIterator, splitAndOmitEmpty(handler.getUrl(), '/'));
         if (maxScore < score) {
@@ -79,7 +80,7 @@ public class HandlerMapping {
 
     if (1 < result.size()) {
       StringBuilder sb = new StringBuilder();
-      result.forEach(s -> sb.append(s.getFirst().getUrl()).append(','));
+      result.forEach(s -> sb.append(s.getLeft().getUrl()).append(','));
       throw new IllegalStateException(
           String.format("Multiple matched handlers found for request uri %s: %s",
               requestUri, sb.toString()));

@@ -1,111 +1,43 @@
-package jp.spring.mvc.support;
+package jp.spring.mvc.handler;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Map;
-import jp.spring.ioc.util.JpUtils;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
- * 封装请求方法的参数的封住
+ * Controller 参数信息封装
  */
 public class MethodParameter {
 
-    private String name = null;
+  private Class<?> type;
+  private Map<Class<? extends Annotation>, Annotation> annotations;
 
-    private Class<?> parameterType = null;
+  public MethodParameter(Class<?> type,
+      Annotation[] annotation) {
+    this.type = type;
+    this.annotations = ObjectUtils.isEmpty(annotation) ? Collections.emptyMap()
+        : Collections.unmodifiableMap(Arrays.stream(annotation).collect(
+            Collectors.toMap(Annotation::annotationType, a -> a)));
 
-    /**Generic Type*/
-    private Class<?> genericType = null;
+  }
 
-    private int parameterIndex;
+  public Class<?> getType() {
+    return type;
+  }
 
-    private Annotation annotation = null;
+  public Map<Class<? extends Annotation>, Annotation> getAnnotations() {
+    return annotations;
+  }
 
-    private boolean isPrimitiveType = false;
+  public boolean hasAnnotation(Class<? extends Annotation> clazz) {
+    return annotations.containsKey(clazz);
+  }
 
-    private Map<String, Class<?>> fieldMap;
-
-    /** Getters and setters **/
-    public Class<?> getParameterType() {
-        return parameterType;
-    }
-
-    public void setParameterType(Class<?> parameterType) {
-        this.parameterType = parameterType;
-    }
-
-    public Class<?> getGenericType() {
-        return genericType;
-    }
-
-    public void setGenericType(Class<?> genericType) {
-        this.genericType = genericType;
-    }
-
-    public Annotation getAnnotation() {
-        return annotation;
-    }
-
-    public void setAnnotation(Annotation annotation) {
-        this.annotation = annotation;
-    }
-
-    public boolean hasAnnotation() {
-        return annotation != null;
-    }
-
-    public boolean isPrimitiveType() {
-        return isPrimitiveType;
-    }
-
-    public void setPrimitiveType(boolean primitiveType) {
-        isPrimitiveType = primitiveType;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setParameterIndex(int parameterIndex) {
-        this.parameterIndex = parameterIndex;
-    }
-
-    /**
-     * return a field map
-     * field name is key;
-     * field type is value;
-     * invoke this method this object is a POJO
-     * */
-    public Map<String, Class<?>> getFieldMap() {
-        if(JpUtils.isEmpty(fieldMap) && (!JpUtils.isSimpleTypeArray(parameterType)) ) {
-            fieldMap = new HashMap<>();
-            Class<?> clazz = parameterType;
-            while(clazz != null) {
-                Field[] fields = clazz.getDeclaredFields();
-                for(int i = 0; i < fields.length; i++) {
-                    fieldMap.put(fields[i].getName(), fields[i].getType());
-                }
-                clazz = clazz.getSuperclass();//获取父类的
-            }
-
-        }
-
-        return fieldMap;
-    }
-
-    @Override
-    public String toString() {
-        final StringBuilder sb = new StringBuilder("MethodParameter{");
-        sb.append("name='").append(name).append('\'');
-        sb.append(", parameterType=").append(parameterType);
-        sb.append(", annotation=").append(annotation);
-        sb.append('}');
-        return sb.toString();
-    }
+  @SuppressWarnings("unchecked")
+  public <A extends Annotation> A getAnnotation(Class<? extends A> clazz) {
+    return (A) annotations.get(clazz);
+  }
 }
