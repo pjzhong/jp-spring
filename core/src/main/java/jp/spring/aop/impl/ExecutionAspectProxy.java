@@ -10,7 +10,7 @@ import jp.spring.aop.annotation.After;
 import jp.spring.aop.annotation.Before;
 import jp.spring.aop.annotation.Error;
 import jp.spring.aop.support.ProxyChain;
-import jp.spring.ioc.util.IocUtil;
+import jp.spring.ioc.util.TypeUtil;
 
 /**
  * Created by Administrator on 1/19/2017.
@@ -32,18 +32,18 @@ public class ExecutionAspectProxy extends BaseAspect implements Proxy {
         pointcut = new ExecutionPointcut(expression);
 
         interceptor = aspectObject;
-        List<Method> methods = IocUtil.findMethods(aspectClass, Before.class);
-        if(!IocUtil.isEmpty(methods)) {
+        List<Method> methods = TypeUtil.findMethods(aspectClass, Before.class);
+        if(!TypeUtil.isEmpty(methods)) {
             beforeMethod = methods.get(0);
         }
 
-        methods = IocUtil.findMethods(aspectClass, After.class);
-        if(!IocUtil.isEmpty(methods)) {
+        methods = TypeUtil.findMethods(aspectClass, After.class);
+        if(!TypeUtil.isEmpty(methods)) {
             afterMethod = methods.get(0);
         }
 
-        methods = IocUtil.findMethods(aspectClass, Error.class);
-        if(!IocUtil.isEmpty(methods)) {
+        methods = TypeUtil.findMethods(aspectClass, Error.class);
+        if(!TypeUtil.isEmpty(methods)) {
             errorMethod = methods.get(0);
         }
     }

@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import jp.spring.ioc.stereotype.Controller;
-import jp.spring.ioc.util.IocUtil;
+import jp.spring.ioc.util.TypeUtil;
 import jp.spring.ioc.util.StringUtils;
 import jp.spring.mvc.annotation.RequestMapping;
 import jp.spring.mvc.annotation.RequestMethod;
@@ -14,13 +14,13 @@ import jp.spring.mvc.annotation.RequestMethod;
 class HandlerBuilder {
 
   List<Handler> buildHandler(String name, Class<?> controller) {
-    if (!IocUtil.isAnnotated(controller, Controller.class)) {
+    if (!TypeUtil.isAnnotated(controller, Controller.class)) {
       return Collections.emptyList();
     }
 
     String[] clazzUrl = getBase(controller);
     List<Handler> handlers = new ArrayList<>();
-    Arrays.stream(controller.getMethods()).filter(m -> IocUtil.isAnnotated(m, RequestMapping.class))
+    Arrays.stream(controller.getMethods()).filter(m -> TypeUtil.isAnnotated(m, RequestMapping.class))
         .forEach(m -> {
           String[] urls = getPath(m);
           RequestMethod[] httpMethods = getHttpMethods(m);
@@ -44,10 +44,10 @@ class HandlerBuilder {
   private String[] getBase(Class<?> controller) {
     String[] clazzUrl = null;
     //处理Class级别的URL
-    if (IocUtil.isAnnotated(controller, RequestMapping.class)) {
+    if (TypeUtil.isAnnotated(controller, RequestMapping.class)) {
       clazzUrl = controller.getAnnotation(RequestMapping.class).value();
     }
-    if (IocUtil.isEmpty(clazzUrl)) {
+    if (TypeUtil.isEmpty(clazzUrl)) {
       clazzUrl = new String[]{""};
     }
 

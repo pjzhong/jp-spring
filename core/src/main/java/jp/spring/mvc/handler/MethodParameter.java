@@ -14,14 +14,15 @@ public class MethodParameter {
 
   private Class<?> type;
   private Map<Class<? extends Annotation>, Annotation> annotations;
+  private Converter<Object> converter;
 
   public MethodParameter(Class<?> type,
-      Annotation[] annotation) {
+      Annotation[] annotation, Converter<Object> converter) {
     this.type = type;
+    this.converter = converter;
     this.annotations = ObjectUtils.isEmpty(annotation) ? Collections.emptyMap()
         : Collections.unmodifiableMap(Arrays.stream(annotation).collect(
             Collectors.toMap(Annotation::annotationType, a -> a)));
-
   }
 
   public Class<?> getType() {
@@ -39,5 +40,9 @@ public class MethodParameter {
   @SuppressWarnings("unchecked")
   public <A extends Annotation> A getAnnotation(Class<? extends A> clazz) {
     return (A) annotations.get(clazz);
+  }
+
+  public Converter<Object> getConverter() {
+    return converter;
   }
 }

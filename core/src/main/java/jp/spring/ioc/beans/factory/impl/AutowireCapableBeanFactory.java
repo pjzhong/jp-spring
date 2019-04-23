@@ -3,7 +3,7 @@ package jp.spring.ioc.beans.factory.impl;
 import jp.spring.ioc.BeansException;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.support.*;
-import jp.spring.ioc.util.IocUtil;
+import jp.spring.ioc.util.TypeUtil;
 import jp.spring.ioc.util.StringUtils;
 
 import java.lang.reflect.Field;
@@ -30,7 +30,7 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
 
     protected void resolveDependency(Object bean, BeanDefinition beanDefinition)  throws Exception{
         List<InjectField> fields = beanDefinition.getInjectFields();
-        if(IocUtil.isEmpty(fields)) {
+        if(TypeUtil.isEmpty(fields)) {
             return;
         }
 
@@ -43,7 +43,7 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
 
             if(StringUtils.isEmpty(injectField.getId())) {
                 Map<String, Object> matchingBeans = findAutowireCandidates(injectField.getId(), injectField.getAutowiredType());
-                if(!IocUtil.isEmpty(matchingBeans)) {
+                if(!TypeUtil.isEmpty(matchingBeans)) {
                     value = matchingBeans.entrySet().iterator().next().getValue();
                 }
             } else {
@@ -76,8 +76,8 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
             Object value = propertyValue.getValue();
             if(value == null) { // value的来源：用户在XML文件里声明，或者放在在properties文件里面
                 String strValue =  getProperties().getProperty(propertyValue.getName());
-                if( (strValue != null) && IocUtil.isSimpleType(propertyValue.getField().getType())) {
-                    value = IocUtil.convert(strValue, propertyValue.getField().getType());
+                if( (strValue != null) && TypeUtil.isSimpleType(propertyValue.getField().getType())) {
+                    value = TypeUtil.convert(strValue, propertyValue.getField().getType());
                 }
             }
 

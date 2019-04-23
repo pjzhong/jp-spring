@@ -11,11 +11,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
+import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.CookieValue;
 import jp.spring.mvc.annotation.PathVariable;
 import jp.spring.mvc.annotation.RequestHeader;
 import jp.spring.mvc.annotation.RequestMethod;
 import jp.spring.mvc.annotation.RequestParam;
+import jp.spring.mvc.handler.impl.CookieConverter;
+import jp.spring.mvc.handler.impl.HeaderConverter;
+import jp.spring.mvc.handler.impl.NullConverter;
+import jp.spring.mvc.handler.impl.PathVariableConverter;
+import jp.spring.mvc.handler.impl.RequestParamConverter;
 import jp.spring.mvc.interceptor.Interceptor;
 
 /**
@@ -112,8 +118,10 @@ public class Handler {
       }
 
       int count = 0;
+      Annotation anno = null;
       for (Annotation a : annotations) {
         if (required.contains(a.annotationType())) {
+          anno = a;
           count++;
         }
       }
@@ -130,9 +138,27 @@ public class Handler {
         );
       }
 
-      result.add(new MethodParameter(p.getType(), annotations));
+      Converter<Object> converter =
+          TypeUtil.isSimpleType(p.getType()) ? createConverter(anno, p) : NullConverter.NULL;
+      result.add(new MethodParameter(p.getType(), annotations, converter));
     }
     return Collections.unmodifiableList(result);
+  }
+
+  private static Converter<Object> createConverter(Annotation a, Parameter p) {
+    // create convert
+    Class<? extends Annotation> aType = a.annotationType();
+    if (PathVariable.class.isAssignableFrom(aType)) {
+      return PathVariableConverter.of((PathVariable) a, p.getType());
+    } else if (RequestParam.class.isAssignableFrom(aType)) {
+      return RequestParamConverter.of((RequestParam) a, p.getType());
+    } else if (RequestHeader.class.isAssignableFrom(aType)) {
+      return HeaderConverter.of((RequestHeader) a, p.getType());
+    } else if (CookieValue.class.isAssignableFrom(aType)) {
+      return CookieConverter.of((CookieValue) a, p.getType());
+    } else {
+      return NullConverter.NULL;
+    }
   }
 
   @Override

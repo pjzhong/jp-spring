@@ -8,9 +8,8 @@ import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.factory.BeanFactory;
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
-import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.stereotype.Component;
-import jp.spring.ioc.util.IocUtil;
+import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.Intercept;
 import jp.spring.mvc.handler.Handler;
 import jp.spring.mvc.interceptor.InterceptMatch;
@@ -23,11 +22,6 @@ import jp.spring.mvc.interceptor.Interceptor;
 public class WebBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware {
 
   private AbstractBeanFactory beanFactory;
-  // Limit the number of parts of the path
-  private static final int DEFAULT_MAX_PARTS = 25;
-
-  @Value("page.extension")
-  private String pageExtension = "";
 
   @Override
   public void setBeanFactory(BeanFactory beanFactory) {
@@ -70,7 +64,7 @@ public class WebBeanPostProcessor implements BeanPostProcessor, BeanFactoryAware
       throws Exception {
     List<String> interceptorNames = beanFactory.getBeanNamByAnnotation(Intercept.class);
     List<InterceptMatch> interceptors = Collections.emptyList();
-    if (!IocUtil.isEmpty(interceptorNames)) {
+    if (!TypeUtil.isEmpty(interceptorNames)) {
       interceptors = new ArrayList<>();
       InterceptMatch interceptMatch;
       Interceptor interceptor;

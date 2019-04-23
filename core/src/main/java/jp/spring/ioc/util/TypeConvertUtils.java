@@ -66,7 +66,7 @@ public class TypeConvertUtils {
                 for(int i = 0; i < length; i++) {
                     Array.set(convertedValue, i, convertToBasic(iterator.next(), clazz));
                 }
-            } else if (IocUtil.isSimpleType(value.getClass())) {
+            } else if (TypeUtil.isSimpleType(value.getClass())) {
                 convertedValue = Array.newInstance(clazz, 1);
                 Array.set(convertedValue, 0, convertToBasic(value, clazz));
             }
@@ -94,7 +94,7 @@ public class TypeConvertUtils {
                 while(iterator.hasNext()) {
                     convertCollection.add(convertToBasic(iterator.next(), clazz));
                 }
-            }  else if(IocUtil.isSimpleType(value.getClass())){
+            }  else if(TypeUtil.isSimpleType(value.getClass())){
                 convertCollection.add(convertToBasic(value,clazz));
             }
         }

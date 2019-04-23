@@ -3,18 +3,22 @@ package jp.spring.ioc.util;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 
-public class IocUtil {
+public class TypeUtil {
 
   private static final Map<Class<?>, Object> PRIMITIVE_DEFAULT;
+  private static final Set<Class<?>> SIMPLE_TYPE;
   private static final Map<Class<?>, Function<String, Object>> DEFAULT_PRIMITIVE_PARSER;
 
   static {
@@ -28,6 +32,20 @@ public class IocUtil {
     defaults.put(Float.TYPE, 0f);
     defaults.put(Double.TYPE, 0d);
     PRIMITIVE_DEFAULT = Collections.unmodifiableMap(defaults);
+
+    Set<Class<?>> wrapper = new HashSet<>(
+        Arrays.asList(
+            Boolean.class,
+            Byte.class,
+            Short.class,
+            Character.class,
+            Integer.class,
+            Long.class,
+            Double.class,
+            String.class
+        )
+    );
+    SIMPLE_TYPE = Collections.unmodifiableSet(wrapper);
 
     Map<Class<?>, Function<String, Object>> primitive_parser = new HashMap<>();
     Function<String, Object> booleanParse = s -> s.equals("1") || s.equals("true");
@@ -87,12 +105,9 @@ public class IocUtil {
   }
 
   public static boolean isSimpleType(Class<?> clazz) {
-    return clazz.isPrimitive();
+    return clazz.isPrimitive() || SIMPLE_TYPE.contains(clazz);
   }
 
-  public static <A> boolean isSimpleTypeArray(Class<A> clazz) {
-    return isSimpleType(clazz) || (clazz.isArray() && isSimpleType(clazz.getComponentType()));
-  }
 
   /**
    * convert a String to primitive or wrapper value
@@ -105,10 +120,10 @@ public class IocUtil {
         return value;
       } else if (targetClass.isPrimitive()) {//primitive
         Function<String, Object> parse = DEFAULT_PRIMITIVE_PARSER.get(targetClass);
-        return StringUtils.isEmpty(value) ? PRIMITIVE_DEFAULT.get(targetClass) : parse.apply(value);
+        return StringUtils.isBlank(value) ? PRIMITIVE_DEFAULT.get(targetClass) : parse.apply(value);
       } else {//Wrapper value
         Function<String, Object> parse = DEFAULT_PRIMITIVE_PARSER.get(targetClass);
-        return StringUtils.isEmpty(value) || parse == null ? null : parse.apply(value);
+        return StringUtils.isBlank(value) || parse == null ? null : parse.apply(value);
       }
     } catch (Exception e) {
       throw new RuntimeException("Covert failed", e);
@@ -118,12 +133,12 @@ public class IocUtil {
   public static <A extends Annotation> List<Method> findMethods(Class<?> clazz,
       Class<A> annotation) {
     Method[] methods = clazz.getDeclaredMethods();
-    if (IocUtil.isEmpty(methods)) {
+    if (TypeUtil.isEmpty(methods)) {
       return null;
     }
     List<Method> list = new LinkedList<>();
     for (Method method : methods) {
-      if (IocUtil.isAnnotated(method, annotation)) {
+      if (TypeUtil.isAnnotated(method, annotation)) {
         list.add(method);
       }
     }

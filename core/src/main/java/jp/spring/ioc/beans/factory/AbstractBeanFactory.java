@@ -11,7 +11,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.support.BeanDefinition;
-import jp.spring.ioc.util.IocUtil;
+import jp.spring.ioc.util.TypeUtil;
 
 /**
  * Created by Administrator on 12/25/2016. 简单的规定了如何获取和注册Bean, 至于如何创造Bean，则留给子类去实现
@@ -117,7 +117,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
         beans.add((A) getBean(beanDefinitionName));
       }
     }
-    if (!IocUtil.isEmpty(beans)) {
+    if (!TypeUtil.isEmpty(beans)) {
       beansByType.put(type, beans);
     }
     return beans;
@@ -141,7 +141,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
       }
     }
 
-    if (!IocUtil.isEmpty(result)) {
+    if (!TypeUtil.isEmpty(result)) {
       beanNamesByType.put(targetType, result.toArray(new String[result.size()]));
     }
     return result;
@@ -156,12 +156,12 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     BeanDefinition beanDefinition;
     for (String beanName : beanDefinitionIds) {
       beanDefinition = beanNameDefinitionMap.get(beanName);
-      if (IocUtil.isAnnotated(beanDefinition.getBeanClass(), annotation)) {
+      if (TypeUtil.isAnnotated(beanDefinition.getBeanClass(), annotation)) {
         result.add(beanName);
       }
     }
 
-    if (!IocUtil.isEmpty(result)) {
+    if (!TypeUtil.isEmpty(result)) {
       beanNamesByAnnotation.put(annotation, Collections.unmodifiableList(result));
     }
     return result;

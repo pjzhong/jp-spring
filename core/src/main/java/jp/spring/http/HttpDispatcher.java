@@ -7,7 +7,7 @@ import io.netty.util.AttributeKey;
 import java.util.Map;
 import jp.spring.ioc.beans.factory.BeanFactory;
 import jp.spring.mvc.handler.Handler;
-import jp.spring.mvc.handler.impl.HandlerArgResolver;
+import jp.spring.mvc.handler.HandlerArgResolver;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -18,11 +18,11 @@ public class HttpDispatcher extends SimpleChannelInboundHandler<FullHttpRequest>
 
   private BeanFactory beanFactory;
 
-  public HttpDispatcher(BeanFactory beanFactory) {
+  HttpDispatcher(BeanFactory beanFactory) {
     this.beanFactory = beanFactory;
   }
 
-  public static final AttributeKey<Pair<Handler, Map<String, String>>> METHOD_INFO_KEY = AttributeKey
+  static final AttributeKey<Pair<Handler, Map<String, String>>> METHOD_INFO_KEY = AttributeKey
       .newInstance("methodInfo");
 
   @Override

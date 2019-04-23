@@ -79,4 +79,15 @@ public class RequestRouter extends ChannelInboundHandlerAdapter {
     ctx.channel().attr(HttpDispatcher.METHOD_INFO_KEY).set(handles);
     return handles;
   }
+
+  @Override
+  public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+    //Simply log this error and close the connection
+    LOG.error(cause.getMessage(), cause);
+    HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+        HttpResponseStatus.INTERNAL_SERVER_ERROR);
+    HttpUtil.setContentLength(response, 0);
+    HttpUtil.setKeepAlive(response, false);
+    ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
+  }
 }

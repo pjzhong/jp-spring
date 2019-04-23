@@ -1,10 +1,13 @@
 package jp.spring.http;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import jp.spring.mvc.handler.Router;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
@@ -89,5 +92,27 @@ public class RequestRouterTest {
     Assert.assertEquals(Collections.singletonMap("id", "2"), routes.get(1).getRight());
 
   }
+
+  @Test
+  public void test() throws NoSuchMethodException {
+    Set<Class<?>> wrapper = new HashSet<>(
+        Arrays.asList(
+            Boolean.class,
+            Byte.class,
+            Short.class,
+            Character.class,
+            Integer.class,
+            Long.class,
+            Double.class
+        )
+    );
+
+    Method m = this.getClass().getMethod("a", Integer.class);
+    for(Parameter p : m.getParameters()) {
+      System.out.println(wrapper.contains(p.getType()));
+    }
+  }
+
+  public void a(Integer i) {}
 
 }

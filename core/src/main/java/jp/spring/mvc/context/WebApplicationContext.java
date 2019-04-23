@@ -8,15 +8,6 @@ import jp.spring.ioc.context.impl.ClassPathPropertiesApplicationContext;
  */
 public class WebApplicationContext extends ClassPathPropertiesApplicationContext {
 
-  /**
-   * Context attribute to bind root WebApplicationContext to on successful startup.
-   * <p>Note: If the startup of the root context fails, this attribute can contain
-   * an exception or error as value. Use WebApplicationContextUtils for convenient lookup of the
-   * root WebApplicationContext.
-   */
-  public static String ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE =
-      WebApplicationContext.class.getName() + ".ROOT";
-
   public WebApplicationContext(String location) throws Exception {
     super(location);
   }
