@@ -3,6 +3,7 @@ package jp.spring.mvc.handler;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -11,7 +12,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
-import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.CookieValue;
 import jp.spring.mvc.annotation.PathVariable;
 import jp.spring.mvc.annotation.RequestHeader;
@@ -108,9 +108,15 @@ public class Handler {
       return Collections.emptyList();
     }
 
+    Type[] parameterTypes = method.getGenericParameterTypes();
+    Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+
     List<MethodParameter> result = new ArrayList<>();
-    for (Parameter p : parameters) {
-      Annotation[] annotations = p.getAnnotations();
+    for (int i = 0; i < parameterTypes.length; i++) {
+      Annotation[] annotations = parameterAnnotations[i];
+      Type type = parameterTypes[i];
+      Parameter p = parameters[i];
+
       if (annotations.length <= 0) {
         throw new IllegalArgumentException(
             String.format("%s-%s missing Annotation%n", method.getName(), method.getName())
@@ -138,24 +144,23 @@ public class Handler {
         );
       }
 
-      Converter<Object> converter =
-          TypeUtil.isSimpleType(p.getType()) ? createConverter(anno, p) : NullConverter.NULL;
+      Converter<Object> converter = createConverter(anno, type);
       result.add(new MethodParameter(p.getType(), annotations, converter));
     }
     return Collections.unmodifiableList(result);
   }
 
-  private static Converter<Object> createConverter(Annotation a, Parameter p) {
+  private static Converter<Object> createConverter(Annotation a, Type type) {
     // create convert
     Class<? extends Annotation> aType = a.annotationType();
     if (PathVariable.class.isAssignableFrom(aType)) {
-      return PathVariableConverter.of((PathVariable) a, p.getType());
+      return PathVariableConverter.of((PathVariable) a, (Class<?>) type);
     } else if (RequestParam.class.isAssignableFrom(aType)) {
-      return RequestParamConverter.of((RequestParam) a, p.getType());
+      return RequestParamConverter.of((RequestParam) a, type);
     } else if (RequestHeader.class.isAssignableFrom(aType)) {
-      return HeaderConverter.of((RequestHeader) a, p.getType());
+      return HeaderConverter.of((RequestHeader) a, (Class<?>) type);
     } else if (CookieValue.class.isAssignableFrom(aType)) {
-      return CookieConverter.of((CookieValue) a, p.getType());
+      return CookieConverter.of((CookieValue) a, (Class<?>) type);
     } else {
       return NullConverter.NULL;
     }

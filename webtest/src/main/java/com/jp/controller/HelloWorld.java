@@ -10,6 +10,8 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.util.CharsetUtil;
+import java.util.Arrays;
+import java.util.LinkedList;
 import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.mvc.annotation.CookieValue;
@@ -91,6 +93,32 @@ public class HelloWorld {
         .append(a)
         .append("</title></head><body>\r\n")
         .append("<h1>Nothing</h1>")
+        .append("</body></html>\r\n");
+
+    ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
+    response.content().writeBytes(buffer);
+    buffer.release();
+    return response;
+  }
+
+  @RequestMapping(value = {"/array/{someone}"}, method = {RequestMethod.GET,
+      RequestMethod.POST})
+  public DefaultFullHttpResponse array(@PathVariable("someone") String who,
+      @RequestParam("age") double[] age, @RequestParam("name") LinkedList<String> name) {
+    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+        HttpResponseStatus.OK);
+    response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=UTF-8");
+
+    final String build = String.format("Hello, %s", who);
+    StringBuilder buf = new StringBuilder()
+        .append("<!DOCTYPE html>\r\n")
+        .append("<html><head><meta charset='utf-8' /><title>")
+        .append("</title>")
+        .append(" <script src=\"https://cdn.bootcss.com/jquery/1.10.0/jquery.min.js\"></script>")
+        .append("</head><body>\r\n")
+        .append("<h1>").append(Arrays.toString(age)).append("</h1>")
+        .append("<h1>").append(name).append("</h1>")
+        .append("<h1>").append(build).append("</h1>")
         .append("</body></html>\r\n");
 
     ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
