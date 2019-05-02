@@ -1,53 +1,44 @@
 package jp.spring.mvc.interceptor;
 
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import jp.spring.ioc.util.StringUtils;
+import jp.spring.ioc.beans.factory.BeanFactory;
+import jp.spring.mvc.handler.Router;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created by Administrator on 1/27/2017.
- * 对 Interceptor 进行封装。处理拦截表达式，为之后的运行做准备
+ * Created by Administrator on 1/27/2017. 对 Interceptor 进行封装。处理拦截表达式，为之后的运行做准备
  */
 public class InterceptMatch {
 
-    private static Matcher RULE = Pattern.compile("^([/]?)([\\w/\\*]*)(/\\*){1}$").matcher("");
+  private Pattern pattern;
 
-    private Matcher pattern;
+  private String name;
 
-    private Interceptor interceptor;
+  public InterceptMatch(String name, String expression) {
+    this.name = name;
+    init(expression);
+  }
 
-    public InterceptMatch() {}
-
-    public InterceptMatch(Interceptor interceptor) {
-      this.interceptor = interceptor;
+  private void init(String expression) {
+    if (StringUtils.isBlank(expression)) {
+      throw new IllegalArgumentException("Illegal Intercept Expression");
     }
 
-    public InterceptMatch(Interceptor interceptor, String expression) {
-        this(interceptor);
-        setExpression(expression);
-    }
+    expression = Router.CLEAN_PATH.matcher(expression).replaceAll("/");
+    expression = Router.WILD_CARD_PATTERN.matcher(expression).replaceAll(".*?");
+    pattern = Pattern.compile(expression);
+  }
 
-    public void setExpression(String expression) {
-        if(StringUtils.isEmpty(expression) || !RULE.reset(expression).find()) {
-           throw new IllegalArgumentException("Illegal Intercept Expression");
-        }
+  public String getName() {
+    return name;
+  }
 
-        int index = expression.lastIndexOf("/");
-        String prefix = expression.substring(0, index).replace("*", "[\\w\\{\\}]]*");
-        String suffix = expression.substring(index).replace("/*", "[\\w/\\.]*");
-        pattern = Pattern.compile(prefix + suffix).matcher("");
-    }
+  public Interceptor getInterceptor(BeanFactory beanFactory) {
+    return (Interceptor) beanFactory.getBean(name);
+  }
 
-    public Interceptor getInterceptor() {
-        return interceptor;
-    }
-
-    public void setInterceptor(Interceptor interceptor) {
-        this.interceptor = interceptor;
-    }
-
-    public boolean match(String str) {
-        return pattern != null ? pattern.reset(str).find() : false;
-    }
+  public boolean match(String str) {
+    return pattern.matcher(str).find();
+  }
 }

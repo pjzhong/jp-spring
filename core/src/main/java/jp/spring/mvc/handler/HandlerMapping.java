@@ -3,13 +3,17 @@ package jp.spring.mvc.handler;
 import io.netty.handler.codec.http.HttpRequest;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.stereotype.Controller;
+import jp.spring.ioc.util.TypeUtil;
+import jp.spring.mvc.annotation.Intercept;
 import jp.spring.mvc.annotation.RequestMethod;
+import jp.spring.mvc.interceptor.InterceptMatch;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -160,9 +164,10 @@ public class HandlerMapping {
     Router<Handler> router = Router.create(DEFAULT_MAX_PARTS);
 
     HandlerBuilder builder = new HandlerBuilder();
+    List<InterceptMatch> intercepts = buildInterceptMatch(beanFactory);
     for (String beanName : controllerNames) {
       Class<?> type = beanFactory.getType(beanName);
-      List<Handler> handlers = builder.buildHandler(beanName, beanFactory.getType(beanName));
+      List<Handler> handlers = builder.buildHandler(beanName, beanFactory, intercepts);
       handlers.forEach(h -> {
         router.add(h.getUrl(), h);
         LOG.info("Mapping {} {} TO {}.{}", h.getUrl(), h.getHttpMethods(), type.getName(),
@@ -171,5 +176,24 @@ public class HandlerMapping {
     }
 
     return router;
+  }
+
+  /**
+   * 为了每一个interceptor创建一个匹配器
+   */
+  private static List<InterceptMatch> buildInterceptMatch(AbstractBeanFactory beanFactory) {
+    List<String> interceptorNames = beanFactory.getBeanNamByAnnotation(Intercept.class);
+    List<InterceptMatch> interceptors = Collections.emptyList();
+    if (!TypeUtil.isEmpty(interceptorNames)) {
+      interceptors = new ArrayList<>();
+      InterceptMatch interceptMatch;
+      for (String name : interceptorNames) {
+        String expression = beanFactory.getType(name).getAnnotation(Intercept.class).url();
+        interceptMatch = new InterceptMatch(name, expression);
+        interceptors.add(interceptMatch);
+      }
+    }
+
+    return interceptors;
   }
 }

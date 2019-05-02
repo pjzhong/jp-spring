@@ -47,7 +47,7 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
      * @param  bean
      * */
     @Override
-    public Object postProcessAfterInitialization(Object bean, String beanName) throws Exception {
+    public Object postProcessAfterInitialization(Object bean, String beanName) {
        if(!filtrate(bean, beanName)) {
            return bean;
        }

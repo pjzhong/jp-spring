@@ -8,12 +8,10 @@ import java.lang.reflect.Parameter;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.regex.Matcher;
 import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.CookieValue;
 import jp.spring.mvc.annotation.PathVariable;
@@ -27,7 +25,7 @@ import jp.spring.mvc.handler.impl.PathVariableFiller;
 import jp.spring.mvc.handler.impl.RequestFiller;
 import jp.spring.mvc.handler.impl.RequestParamFiller;
 import jp.spring.mvc.handler.impl.ResponseFiller;
-import jp.spring.mvc.interceptor.Interceptor;
+import jp.spring.mvc.interceptor.InterceptMatch;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
 /**
@@ -49,28 +47,20 @@ public class Handler {
   private final Set<RequestMethod> httpMethods;
   private Set<Annotation> annotations = Collections.emptySet();
   private List<MethodParameter> parameters = null;
-  private List<Interceptor> interceptors = Collections.emptyList();
+  private List<InterceptMatch> interceptors = Collections.emptyList();
 
-  public Handler(String url, RequestMethod[] httpMethods, Method method, String beanName) {
+  public Handler(String url, RequestMethod[] httpMethods, Method method, String beanName,
+      List<InterceptMatch> interceptors) {
     this.url = url;
     this.method = method;
     this.beanName = beanName;
+    this.interceptors = interceptors;
     this.httpMethods = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(httpMethods)));
   }
 
   public Object invoke(Object obj, Object[] args) throws Exception {
     method.setAccessible(true);
     return method.invoke(obj, args);
-  }
-
-  @Deprecated
-  public boolean isResponseBody() {
-    return false;
-  }
-
-  @Deprecated
-  public Matcher getPathVariableMatcher(String s) {
-    return null;
   }
 
   public Method getMethod() {
@@ -95,18 +85,14 @@ public class Handler {
     return parameters;
   }
 
-  public List<Interceptor> getInterceptors() {
+  public List<InterceptMatch> getInterceptors() {
     return interceptors;
   }
 
   public Set<RequestMethod> getHttpMethods() {
     return httpMethods;
   }
-
-  public void addInterceptors(Collection<Interceptor> interceptors) {
-    this.interceptors.addAll(interceptors);
-  }
-
+  
   private static List<MethodParameter> buildParameter(Handler handler) {
     Method method = handler.getMethod();
     Parameter[] parameters = method.getParameters();

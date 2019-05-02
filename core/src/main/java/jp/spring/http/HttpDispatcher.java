@@ -8,10 +8,13 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.AttributeKey;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import jp.spring.ioc.beans.factory.BeanFactory;
 import jp.spring.mvc.handler.Handler;
 import jp.spring.mvc.handler.HandlerArgResolver;
+import jp.spring.mvc.interceptor.Interceptor;
 import org.apache.commons.lang3.tuple.Pair;
 
 /**
@@ -39,7 +42,16 @@ public class HttpDispatcher extends SimpleChannelInboundHandler<FullHttpRequest>
     Handler handler = pair.getLeft();
     HandlerArgResolver resolver = HandlerArgResolver.resolve(pair, request, response);
     Object object = beanFactory.getBean(handler.getBeanName());
-    handler.invoke(object, resolver.getArgs());
+
+    List<Interceptor> intercepts = handler.getInterceptors().stream()
+        .map(p -> p.getInterceptor(beanFactory))
+        .collect(Collectors.toList());
+
+    boolean go = intercepts.stream().allMatch(i -> i.beforeHandle(request, response, handler));
+    if (go) {
+      handler.invoke(object, resolver.getArgs());
+      intercepts.forEach(i -> i.afterHandle(request, response, handler));
+    }
     ctx.channel().writeAndFlush(resolver.getResponse());
   }
 }

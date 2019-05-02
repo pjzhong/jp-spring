@@ -13,7 +13,7 @@ public class WebApplicationContext extends ClassPathPropertiesApplicationContext
   }
 
   @Override
-  public Object getBean(String name) throws Exception {
+  public Object getBean(String name)  {
     return beanFactory.getBean(name);
   }
 

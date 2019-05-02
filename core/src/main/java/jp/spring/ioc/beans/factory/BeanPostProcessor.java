@@ -20,5 +20,5 @@ public interface BeanPostProcessor {
      * 对类进行特定处理。
      * 此方法将在bean创建完成并已经已经完成了注入之后在执行
      * */
-    Object postProcessAfterInitialization(Object bean, String beanName) throws Exception;
+    Object postProcessAfterInitialization(Object bean, String beanName);
 }

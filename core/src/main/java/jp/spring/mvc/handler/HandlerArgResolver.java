@@ -22,8 +22,6 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public class HandlerArgResolver {
 
-  private static HandlerArgResolver EMPTY = new HandlerArgResolver();
-
   /**
    * HttpRequest
    */
@@ -70,11 +68,6 @@ public class HandlerArgResolver {
 
   public static HandlerArgResolver resolve(Pair<Handler, Map<String, String>> routed,
       FullHttpRequest request, FullHttpResponse response) {
-    Handler handler = routed.getLeft();
-    if (ObjectUtils.isEmpty(handler.getParameters())) {
-      return EMPTY;
-    }
-
     return new HandlerArgResolver(routed, request, response);
   }
 

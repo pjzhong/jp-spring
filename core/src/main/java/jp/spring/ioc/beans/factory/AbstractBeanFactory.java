@@ -43,7 +43,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
   /**
    * initializing bean
    */
-  protected abstract Object doCreateBean(BeanDefinition beanDefinition) throws Exception;
+  protected abstract Object doCreateBean(BeanDefinition beanDefinition);
 
   @Override
   public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception {
@@ -55,7 +55,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
   }
 
   @Override
-  public Object getBean(String name) throws Exception {
+  public Object getBean(String name)  {
     BeanDefinition beanDefinition = beanNameDefinitionMap.get(name);
     if (beanDefinition == null) {
       throw new IllegalArgumentException("No bean named " + name + " is defined");
@@ -81,7 +81,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
   }
 
-  protected Object afterInitializeBean(Object bean, String name) throws Exception {
+  protected Object afterInitializeBean(Object bean, String name)  {
     if (!beanPostProcessors.isEmpty()) {
       for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
         bean = beanPostProcessor.postProcessAfterInitialization(bean, name);
@@ -92,7 +92,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     return bean;
   }
 
-  private void invokeAware(Object bean) throws Exception {
+  private void invokeAware(Object bean)  {
     if (bean instanceof BeanFactoryAware) {
       ((BeanFactoryAware) bean).setBeanFactory(this);
     }
@@ -106,7 +106,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     return null;
   }
 
-  public <A> List<A> getBeansByType(Class<A> type) throws Exception {
+  public <A> List<A> getBeansByType(Class<A> type) {
     if (beansByType.get(type) != null) {
       return (List<A>) beansByType.get(type);
     }

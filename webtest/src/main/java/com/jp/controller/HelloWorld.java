@@ -4,7 +4,6 @@ import com.jp.Model.User;
 import com.jp.service.OutputService;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
@@ -114,6 +113,11 @@ public class HelloWorld {
     ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
     response.content().writeBytes(buffer);
     buffer.release();
+  }
+
+  @RequestMapping("/end")
+  public void shouldNotBeCalled() {
+    throw new UnsupportedOperationException("should be intercepted");
   }
 
 }

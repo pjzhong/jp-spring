@@ -2,35 +2,45 @@ package jp.spring.mvc.handler;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
+import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.ioc.util.TypeUtil;
-import jp.spring.ioc.util.StringUtils;
 import jp.spring.mvc.annotation.RequestMapping;
 import jp.spring.mvc.annotation.RequestMethod;
+import jp.spring.mvc.interceptor.InterceptMatch;
+import org.apache.commons.lang3.ObjectUtils;
 
 class HandlerBuilder {
 
-  List<Handler> buildHandler(String name, Class<?> controller) {
+  List<Handler> buildHandler(String name, AbstractBeanFactory factory,
+      List<InterceptMatch> intercepts) {
+    Class<?> controller = factory.getType(name);
     if (!TypeUtil.isAnnotated(controller, Controller.class)) {
       return Collections.emptyList();
     }
 
     String[] clazzUrl = getBase(controller);
     List<Handler> handlers = new ArrayList<>();
-    Arrays.stream(controller.getMethods()).filter(m -> TypeUtil.isAnnotated(m, RequestMapping.class))
-        .forEach(m -> {
-          String[] urls = getPath(m);
-          RequestMethod[] httpMethods = getHttpMethods(m);
-          for (String base : clazzUrl) {
-            for (String url : urls) {
-              String absolutePath = cleanPath(String.format("%s/%s", base, url));
-              handlers.add(new Handler(absolutePath, httpMethods, m, name));
-            }
-          }
-        });
+    for (Method m : controller.getMethods()) {
+      // Is handler method
+      if (!TypeUtil.isAnnotated(m, RequestMapping.class)) {
+        continue;
+      }
+
+      String[] urls = getPath(m);
+      RequestMethod[] httpMethods = getHttpMethods(m);
+      for (String base : clazzUrl) {
+        for (String url : urls) {
+          String absolutePath = cleanPath(String.format("%s/%s", base, url));
+          List<InterceptMatch> matches = intercepts.stream().filter(p -> p.match(url)).collect(
+              Collectors.toList());
+          handlers.add(new Handler(absolutePath, httpMethods, m, name, matches));
+        }
+      }
+    }
     return handlers.isEmpty() ? Collections.emptyList() : handlers;
   }
 
@@ -62,7 +72,7 @@ class HandlerBuilder {
    */
   private String[] getPath(Method m) {
     String[] urls = m.getAnnotation(RequestMapping.class).value();
-    if (StringUtils.isEmpty(urls)) {//urls为空，取方法名作默认url
+    if (ObjectUtils.isEmpty(urls)) {//urls为空，取方法名作默认url
       urls = new String[]{m.getName()};
     }
     return urls;
@@ -75,5 +85,6 @@ class HandlerBuilder {
   private RequestMethod[] getHttpMethods(Method m) {
     return m.getAnnotation(RequestMapping.class).method();
   }
+
 
 }

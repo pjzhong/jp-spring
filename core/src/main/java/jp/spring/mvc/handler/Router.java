@@ -20,7 +20,9 @@ public class Router<T> {
   public static final Pattern GROUP_PATTERN = Pattern.compile("\\{(.*?)\\}");
 
   // non-greedy wild card match.
-  private static final Pattern WILD_CARD_PATTERN = Pattern.compile("\\*\\*");
+  public static final Pattern WILD_CARD_PATTERN = Pattern.compile("\\*\\*");
+  // for remove duplicated '/'
+  public static final Pattern CLEAN_PATH = Pattern.compile("/+");
 
   private final int maxPathParts;
   private List<Pair<Pattern, Pair<T, List<String>>>> patternRouteList;
@@ -42,7 +44,7 @@ public class Router<T> {
    * @param destination Destination of the path.
    */
   public void add(final String source, final T destination) {
-    String path = source.replaceAll("/+", "/");
+    String path = CLEAN_PATH.matcher(source).replaceAll("/");
 
     path = (path.endsWith("/") && path.length() > 1) ? path.substring(0, path.length() - 1) : path;
 
