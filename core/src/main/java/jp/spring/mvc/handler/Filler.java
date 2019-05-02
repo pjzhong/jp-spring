@@ -8,6 +8,6 @@ import java.util.function.Function;
  * @author ZJP
  * @since 2019年04月23日 11:01:46
  **/
-public interface Converter<T> extends Function<HandlerArgResolver, T> {
+public interface Filler<T> extends Function<HandlerArgResolver, T> {
 
 }

@@ -5,9 +5,8 @@ import com.jp.service.OutputService;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.handler.codec.http.DefaultFullHttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
 import io.netty.handler.codec.http.cookie.ServerCookieEncoder;
 import io.netty.util.CharsetUtil;
 import java.util.Arrays;
@@ -29,11 +28,9 @@ public class HelloWorld {
 
   @RequestMapping(value = {"/hello/{someone}", "/hi/{someone}"}, method = {RequestMethod.GET,
       RequestMethod.POST})
-  public DefaultFullHttpResponse hello(@PathVariable("someone") String who,
+  public void hello(@PathVariable("someone") String who,
       @RequestHeader("User-agent") String contentType, @CookieValue("time") int cookie,
-      @RequestParam("age") long age) {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-        HttpResponseStatus.OK);
+      @RequestParam("age") long age, FullHttpResponse response) {
     response.headers()
         .add(HttpHeaderNames.SET_COOKIE, ServerCookieEncoder.STRICT.encode("time", "1"));
     response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=UTF-8");
@@ -55,13 +52,11 @@ public class HelloWorld {
     response.content().writeBytes(buffer);
     buffer.release();
     output.output("Hello, World");
-    return response;
   }
 
   @RequestMapping(value = "/love/{someone}")
-  public DefaultFullHttpResponse love(@PathVariable("someone") String params) {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-        HttpResponseStatus.OK);
+  public void love(@PathVariable("someone") String params,
+      FullHttpResponse response) {
     response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=UTF-8");
 
     final String build = String.format("Love, %s", params);
@@ -77,15 +72,11 @@ public class HelloWorld {
     response.content().writeBytes(buffer);
     buffer.release();
     output.output("love, " + params);
-    return response;
   }
 
   @RequestMapping(value = "/nothing/**")
-  public DefaultFullHttpResponse nothing(@RequestParam("a") String a,
-      @RequestParam("user") User user) {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-        HttpResponseStatus.OK);
-    //response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=UTF-8");
+  public void nothing(@RequestParam("a") String a,
+      @RequestParam("user") User user, FullHttpResponse response) {
 
     StringBuilder buf = new StringBuilder()
         .append("<!DOCTYPE html>\r\n")
@@ -98,15 +89,14 @@ public class HelloWorld {
     ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
     response.content().writeBytes(buffer);
     buffer.release();
-    return response;
+
   }
 
   @RequestMapping(value = {"/array/{someone}"}, method = {RequestMethod.GET,
       RequestMethod.POST})
-  public DefaultFullHttpResponse array(@PathVariable("someone") String who,
-      @RequestParam("age") double[] age, @RequestParam("name") LinkedList<String> name) {
-    DefaultFullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
-        HttpResponseStatus.OK);
+  public void array(@PathVariable("someone") String who,
+      @RequestParam("age") double[] age, @RequestParam("name") LinkedList<String> name,
+      FullHttpResponse response) {
     response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=UTF-8");
 
     final String build = String.format("Hello, %s", who);
@@ -124,7 +114,6 @@ public class HelloWorld {
     ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
     response.content().writeBytes(buffer);
     buffer.release();
-    return response;
   }
 
 }

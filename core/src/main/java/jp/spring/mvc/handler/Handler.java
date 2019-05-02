@@ -1,5 +1,7 @@
 package jp.spring.mvc.handler;
 
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -12,17 +14,21 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
+import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.CookieValue;
 import jp.spring.mvc.annotation.PathVariable;
 import jp.spring.mvc.annotation.RequestHeader;
 import jp.spring.mvc.annotation.RequestMethod;
 import jp.spring.mvc.annotation.RequestParam;
-import jp.spring.mvc.handler.impl.CookieConverter;
-import jp.spring.mvc.handler.impl.HeaderConverter;
-import jp.spring.mvc.handler.impl.NullConverter;
-import jp.spring.mvc.handler.impl.PathVariableConverter;
-import jp.spring.mvc.handler.impl.RequestParamConverter;
+import jp.spring.mvc.handler.impl.CookieFiller;
+import jp.spring.mvc.handler.impl.HeaderFiller;
+import jp.spring.mvc.handler.impl.NullFiller;
+import jp.spring.mvc.handler.impl.PathVariableFiller;
+import jp.spring.mvc.handler.impl.RequestFiller;
+import jp.spring.mvc.handler.impl.RequestParamFiller;
+import jp.spring.mvc.handler.impl.ResponseFiller;
 import jp.spring.mvc.interceptor.Interceptor;
+import org.apache.commons.lang3.reflect.TypeUtils;
 
 /**
  * HttpResourceModel contains information needed to handle Http call for a given path. Used as a
@@ -117,12 +123,6 @@ public class Handler {
       Type type = parameterTypes[i];
       Parameter p = parameters[i];
 
-      if (annotations.length <= 0) {
-        throw new IllegalArgumentException(
-            String.format("%s-%s missing Annotation%n", method.getName(), method.getName())
-        );
-      }
-
       int count = 0;
       Annotation anno = null;
       for (Annotation a : annotations) {
@@ -132,37 +132,57 @@ public class Handler {
         }
       }
 
-      // validate annotations
-      if (count <= 0) {
-        throw new IllegalArgumentException(
-            String.format("%s-%s missing required Annotation%n", method.getName(), p.getName())
-        );
-      } else if (1 < count) {
-        throw new IllegalArgumentException(
-            String
-                .format("%s-%s too much  required Annotation%n", method.getName(), p.getName())
-        );
+      Class<?> rawClass = TypeUtil.getRawClass(type);
+      boolean standard = TypeUtils.isAssignable(rawClass, FullHttpRequest.class) || TypeUtils
+          .isAssignable(rawClass, FullHttpResponse.class);
+
+      Filler<Object> filler = NullFiller.NULL;
+      if (standard) {
+        filler = createStandard(type);
+      } else {
+        // validate annotations
+        if (count <= 0) {
+          throw new IllegalArgumentException(
+              String.format("%s-%s missing required Annotation%n", method.getName(), p.getName())
+          );
+        } else if (1 < count) {
+          throw new IllegalArgumentException(
+              String
+                  .format("%s-%s too much  required Annotation%n", method.getName(), p.getName())
+          );
+        }
+
+        filler = createConverter(anno, type);
       }
 
-      Converter<Object> converter = createConverter(anno, type);
-      result.add(new MethodParameter(p.getType(), annotations, converter));
+      result.add(new MethodParameter(p.getType(), annotations, filler));
     }
     return Collections.unmodifiableList(result);
   }
 
-  private static Converter<Object> createConverter(Annotation a, Type type) {
+  private static Filler<Object> createConverter(Annotation a, Type type) {
     // create convert
     Class<? extends Annotation> aType = a.annotationType();
     if (PathVariable.class.isAssignableFrom(aType)) {
-      return PathVariableConverter.of((PathVariable) a, (Class<?>) type);
+      return PathVariableFiller.of((PathVariable) a, (Class<?>) type);
     } else if (RequestParam.class.isAssignableFrom(aType)) {
-      return RequestParamConverter.of((RequestParam) a, type);
+      return RequestParamFiller.of((RequestParam) a, type);
     } else if (RequestHeader.class.isAssignableFrom(aType)) {
-      return HeaderConverter.of((RequestHeader) a, (Class<?>) type);
+      return HeaderFiller.of((RequestHeader) a, (Class<?>) type);
     } else if (CookieValue.class.isAssignableFrom(aType)) {
-      return CookieConverter.of((CookieValue) a, (Class<?>) type);
+      return CookieFiller.of((CookieValue) a, (Class<?>) type);
     } else {
-      return NullConverter.NULL;
+      return NullFiller.NULL;
+    }
+  }
+
+  private static Filler<Object> createStandard(Type type) {
+    if (TypeUtils.isAssignable(type, FullHttpRequest.class)) {
+      return RequestFiller.request;
+    } else if (TypeUtils.isAssignable(type, FullHttpResponse.class)) {
+      return ResponseFiller.response;
+    } else {
+      return NullFiller.NULL;
     }
   }
 

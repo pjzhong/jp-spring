@@ -1,6 +1,6 @@
 package jp.spring.mvc.handler.impl;
 
-import jp.spring.mvc.handler.Converter;
+import jp.spring.mvc.handler.Filler;
 import jp.spring.mvc.handler.HandlerArgResolver;
 
 /**
@@ -9,11 +9,11 @@ import jp.spring.mvc.handler.HandlerArgResolver;
  * @author ZJP
  * @since 2019年04月23日 11:16:05
  **/
-public class NullConverter implements Converter<Object> {
+public class NullFiller implements Filler<Object> {
 
-  public static NullConverter NULL = new NullConverter();
+  public static NullFiller NULL = new NullFiller();
 
-  private NullConverter() {
+  private NullFiller() {
   }
 
   /**

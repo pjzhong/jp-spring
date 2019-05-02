@@ -1,6 +1,7 @@
 package jp.spring.mvc.handler;
 
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.QueryStringDecoder;
 import io.netty.util.CharsetUtil;
@@ -27,6 +28,10 @@ public class HandlerArgResolver {
    * HttpRequest
    */
   private FullHttpRequest request;
+  /**
+   * HttpResponse
+   */
+  private FullHttpResponse response;
   /**
    * 请求处理者
    */
@@ -56,20 +61,21 @@ public class HandlerArgResolver {
   }
 
   private HandlerArgResolver(Pair<Handler, Map<String, String>> routed,
-      FullHttpRequest request) {
+      FullHttpRequest request, FullHttpResponse response) {
     this.handler = routed.getLeft();
     this.paths = routed.getRight();
     this.request = request;
+    this.response = response;
   }
 
   public static HandlerArgResolver resolve(Pair<Handler, Map<String, String>> routed,
-      FullHttpRequest request) {
+      FullHttpRequest request, FullHttpResponse response) {
     Handler handler = routed.getLeft();
     if (ObjectUtils.isEmpty(handler.getParameters())) {
       return EMPTY;
     }
 
-    return new HandlerArgResolver(routed, request);
+    return new HandlerArgResolver(routed, request, response);
   }
 
   private synchronized void parseQueryParam() {
@@ -138,6 +144,10 @@ public class HandlerArgResolver {
 
   public FullHttpRequest getRequest() {
     return request;
+  }
+
+  public FullHttpResponse getResponse() {
+    return response;
   }
 
   public Map<String, String> getPaths() {

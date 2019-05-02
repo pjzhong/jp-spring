@@ -14,10 +14,10 @@ public class MethodParameter {
 
   private Class<?> type;
   private Map<Class<? extends Annotation>, Annotation> annotations;
-  private Converter<Object> converter;
+  private Filler<Object> converter;
 
   public MethodParameter(Class<?> type,
-      Annotation[] annotation, Converter<Object> converter) {
+      Annotation[] annotation, Filler<Object> converter) {
     this.type = type;
     this.converter = converter;
     this.annotations = ObjectUtils.isEmpty(annotation) ? Collections.emptyMap()
@@ -42,7 +42,7 @@ public class MethodParameter {
     return (A) annotations.get(clazz);
   }
 
-  public Converter<Object> getConverter() {
+  public Filler<Object> getConverter() {
     return converter;
   }
 }

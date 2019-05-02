@@ -12,7 +12,7 @@ import jp.spring.aop.Pointcut;
  */
 public class ExecutionPointcut implements Pointcut {
 
-    public static final Pattern RULE_PATTERN = Pattern.compile("execution\\(([a-zA-Z\\.\\*]*)\\(\\)\\)");
+    public static final Pattern RULE_PATTERN = Pattern.compile("([a-zA-Z.*]*)\\(\\)");
 
     private Pattern classNamePattern;
     private Pattern methodNamePattern;

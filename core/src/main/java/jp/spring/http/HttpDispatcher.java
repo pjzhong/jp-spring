@@ -2,7 +2,11 @@ package jp.spring.http;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultFullHttpResponse;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.AttributeKey;
 import java.util.Map;
 import jp.spring.ioc.beans.factory.BeanFactory;
@@ -26,13 +30,16 @@ public class HttpDispatcher extends SimpleChannelInboundHandler<FullHttpRequest>
       .newInstance("methodInfo");
 
   @Override
-  public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
+  public void channelRead0(ChannelHandlerContext ctx, FullHttpRequest request) throws Exception {
     Pair<Handler, Map<String, String>> pair = ctx.channel().attr(METHOD_INFO_KEY).get();
 
+    FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
+        HttpResponseStatus.OK);
+
     Handler handler = pair.getLeft();
-    HandlerArgResolver resolver = HandlerArgResolver.resolve(pair, msg);
+    HandlerArgResolver resolver = HandlerArgResolver.resolve(pair, request, response);
     Object object = beanFactory.getBean(handler.getBeanName());
-    Object result = handler.invoke(object, resolver.getArgs());
-    ctx.channel().writeAndFlush(result);
+    handler.invoke(object, resolver.getArgs());
+    ctx.channel().writeAndFlush(resolver.getResponse());
   }
 }

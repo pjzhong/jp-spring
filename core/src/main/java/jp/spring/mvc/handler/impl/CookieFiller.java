@@ -5,10 +5,10 @@ import java.util.Map;
 import java.util.Optional;
 import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.CookieValue;
-import jp.spring.mvc.handler.Converter;
+import jp.spring.mvc.handler.Filler;
 import jp.spring.mvc.handler.HandlerArgResolver;
 
-public class CookieConverter implements Converter<Object> {
+public class CookieFiller implements Filler<Object> {
 
 
   private CookieValue cookie;
@@ -17,13 +17,13 @@ public class CookieConverter implements Converter<Object> {
    */
   private Class<?> type;
 
-  private CookieConverter(CookieValue c, Class<?> type) {
+  private CookieFiller(CookieValue c, Class<?> type) {
     this.type = type;
     this.cookie = c;
   }
 
-  public static CookieConverter of(CookieValue c, Class<?> type) {
-    return new CookieConverter(c, type);
+  public static CookieFiller of(CookieValue c, Class<?> type) {
+    return new CookieFiller(c, type);
   }
 
   @Override

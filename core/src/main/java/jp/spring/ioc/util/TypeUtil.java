@@ -1,8 +1,14 @@
 package jp.spring.ioc.util;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
+import java.lang.reflect.WildcardType;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -157,5 +163,31 @@ public class TypeUtil {
     }
 
     return null;
+  }
+
+  /**
+   * Returns the raw class of the given type.
+   */
+  public static Class<?> getRawClass(Type type) {
+    if (type instanceof Class) {
+      return (Class<?>) type;
+    }
+    if (type instanceof ParameterizedType) {
+      return getRawClass(((ParameterizedType) type).getRawType());
+    }
+    // For TypeVariable and WildcardType, returns the first upper bound.
+    if (type instanceof TypeVariable) {
+      return getRawClass(((TypeVariable) type).getBounds()[0]);
+    }
+    if (type instanceof WildcardType) {
+      return getRawClass(((WildcardType) type).getUpperBounds()[0]);
+    }
+    if (type instanceof GenericArrayType) {
+      Class<?> componentClass = getRawClass(((GenericArrayType) type).getGenericComponentType());
+      return Array.newInstance(componentClass, 0).getClass();
+    }
+    // This shouldn't happen as we captured all implementations of Type above (as or Java 8)
+    throw new IllegalArgumentException(
+        "Unsupported type " + type + " of type class " + type.getClass());
   }
 }
