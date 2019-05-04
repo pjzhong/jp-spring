@@ -1,138 +1,95 @@
 ### jp-spring是一个轻量型的web框架
-> 这个项目是为了更了解web开发和spring而做出来的
-> 一些名称为了方便熟悉直接从Spring那里拿来......
-> 学习项目
+> 为了熟悉web开发和spring而做出来的，http服务用Netty实现
 
-<hr/>
-Inspired by:
-  <a href="https://github.com/code4craft/tiny-spring" > tiny-spring </a>
-  <a href="https://github.com/menyouping/jw">jw</a>
-  <a href="https://git.oschina.net/huangyong/smart-framework">smart-framework</a>
-
-jp-spring目前有下面4个功能模块， 还有一个是演示例子
-- jp-ioc (负责bean的创建和注入，下面的模块都依赖这个核心。 核心的详解请看<a href="https://github.com/code4craft/tiny-spring"> 这里 </a>)
-- jp-aop (AOP模块， 负责管理和创建Aspect，并对目标类进行织入)
-- jp-orm (ORM模块，现在还没完成)
-- jp-webmvc (MVC模块， 负责映射Request和Controller方法参数自动注入)
-- jp-webtest (所有模块在这里都会具体例子)
-
-
-# ioc模块， 请点 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-ioc?dir=1&filepath=jp-ioc">这里</a>
-```java
-@Component("helloService")
-public class HelloService {
-
-    @Value("jdbc.driver")
-    private String text;
-
-    @Autowired
-    private OutputService outputService;
-
-    @Autowired
-    @Qualifier("outService-2")
-    private OutputService outputService2;
-
-    public void helloWorld(String text) {
-        outputService.output(text);
-    }
-
-    public void outPutHello(String text) {
-        outputService2.output(text);
-    }
-}
-```
-
-# MVC模块
-详情请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-spring-webmvc?dir=1&filepath=jp-spring-webmvc">这里</a> 
+## Controller
 ```java
 @Controller
-public class TestController {
+public class HelloWorld {
 
-    @Autowired
-    OutputService outputService;
+  @RequestMapping(value = {"/hello/{someone}", "/hi/{someone}"}, method = {RequestMethod.GET,
+      RequestMethod.POST})
+  public void hello(@PathVariable("someone") String who,
+      @RequestHeader("User-agent") String contentType, @CookieValue("time") int cookie,
+      @RequestParam("age") long age, FullHttpResponse response) {
+    output.output("love, " + params);
+  }
 
-    public TestController() {
-        System.out.println("Hello I am TestController");
-    }
+  @RequestMapping(value = "/love/{someone}")
+  public void love(@PathVariable("someone") String params,
+      FullHttpResponse response) {
+    output.output("love, " + params);
+  }
 
+  @RequestMapping(value = "/nothing/**")
+  public void nothing(@RequestParam("a") String a,
+      @RequestParam("user") User user, FullHttpResponse response) {
+  }
 
-    @RequestMapping(value = "/test/{one}", method = RequestMethod.GET)
-    public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float number) {
-        System.out.println(outputService);
-        outputService.output(one);
-        outputService.output(user);
-        outputService.output(number);
-        return "test";
-    }
+  @RequestMapping(value = {"/array/{someone}"}, method = {RequestMethod.GET,
+      RequestMethod.POST})
+  public void array(@PathVariable("someone") String who,
+      @RequestParam("age") double[] age, @RequestParam("name") LinkedList<String> name,
+      FullHttpResponse response) {
+    response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=UTF-8");
 
-    @RequestMapping(value = "/test456465", method = RequestMethod.POST)
-    public String test() {
-        return "test";
-    }
+    final String build = String.format("Hello, %s", who);
+    StringBuilder buf = new StringBuilder()
+        .append("<!DOCTYPE html>\r\n")
+        .append("<html><head><meta charset='utf-8' /><title>")
+        .append("</title>")
+        .append(" <script src=\"https://cdn.bootcss.com/jquery/1.10.0/jquery.min.js\"></script>")
+        .append("</head><body>\r\n")
+        .append("<h1>").append(Arrays.toString(age)).append("</h1>")
+        .append("<h1>").append(name).append("</h1>")
+        .append("<h1>").append(build).append("</h1>")
+        .append("</body></html>\r\n");
+
+    ByteBuf buffer = Unpooled.copiedBuffer(buf, CharsetUtil.UTF_8);
+    response.content().writeBytes(buffer);
+    buffer.release();
+  }
+
+  @RequestMapping("/end")
+  public void shouldNotBeCalled() {
+    throw new UnsupportedOperationException("should be intercepted");
+  }
 }
 ```
 
-# AOP模块
-具体介绍请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-aop?dir=1&filepath=jp-aop">AOP-README</a>
+## Interceptor
 ```java
-@Aspect
-@Pointcut("execution(com.jp.controller.*.*())")
-public class ControllerAspect {
+@Intercept(url = "/end")
+public class EndInterceptor implements Interceptor {
 
-    private long begin;
+  @Override
+  public boolean beforeHandle(FullHttpRequest request, FullHttpResponse response,
+      Handler handler) {
+    response.setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE);
+    return false;//Do not Handler this request
+  }
 
-    @Before
-    public void before(TargetSource target) {
-        begin = System.nanoTime();
+  @Override
+  public void afterHandle(FullHttpRequest request, FullHttpResponse response,
+      Handler handle) {
+  }
+}
+  
+  @Intercept(url = "/hello/**")
+ public class HelloInterceptor implements Interceptor {
+  
+    @Override
+    public boolean beforeHandle(FullHttpRequest request, FullHttpResponse response,
+        Handler handler) {
+      System.out.println(request.uri());
+      return true;
     }
-
-    @After
-    public void after(TargetSource target) {
-        System.out.println("cost:" + (System.nanoTime() - begin));
+  
+    @Override
+    public void afterHandle(FullHttpRequest request, FullHttpResponse response,
+        Handler handle) {
+      System.out.println("Handler has handled " + request.uri());
     }
 }
-
-@Aspect
-@Pointcut("execution(com.jp.controller.*.test*())")
-public class TestControllerAspect {
-
-    @Before
-    public void before(TargetSource target) {
-       System.out.println(target.getTargetMethod() + " begin");
-    }
-
-    @After
-    public void after(TargetSource target) {
-        System.out.println(target.getTargetMethod() + " end");
-    }
-}
 ```
-
-
-# webtest
-### 运行环境
-  - servlet3.0 以上
-  - jdk1.7以上
-  - mysql5.6.26以上
-
-数据脚本位置:jp-webtest/doc
-
-在项目根目录下创建一个properties文件，输入下面的内容(jp-webtest里面有具体例子)
-
-```
-package.scan=com.jp
-page.folder=/page
-page.extension=.html
-resource.folder=/resources
-upload.size=5
-```
-
-- package.scan ——代表需要扫描的包， 自动扫描子目录，如果需要配置多个，请使用 ";" 进行分割。为了方便，我直接从根目录开始扫描
-- page.folder ——页面的文件，默认从项目根目录开始
-- page.extension ——页面的扩展名(目前支持jsp，html和freemarker)，默认jsp
-- resource.folder ——静态资源的文件夹，必须配置不然找不到静态资源。如果需要配置多个，请使用";" 进行分割。
-- upload.size ——  单位:MB, 最大上传文件的限制，默认4M
-
-
-##### 使用jp-spring开发的博客系统, 具体点击<a href="https://git.oschina.net/pj_zhong/jp_blog/tree/develop/">这里</a>。(内含演示地址)
+##### 使用jp-spring开发的博客系统, <a href="https://git.oschina.net/pj_zhong/jp_blog/tree/develop/">这里</a>。(内含演示地址)
 **如有不足，希望你能不吝赐教。**

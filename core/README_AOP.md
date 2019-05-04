@@ -1,8 +1,5 @@
 ### Aop 模块使用说明
 
-依赖：jp-ioc(核心模块)和cglib
-
-
 首先编写一个类并为其标上@Aspect和@Pointcut(这两个是必须的)， 然后在@Pointcut里面编写规则(规则介绍请看例子下方)。
 被@Before和@After标记的方法，参数中只能有TargetSource， TargetSource包含了目标对象的基本信息，包括目标类，实例，被调用的方法还有其参数
 
@@ -10,7 +7,7 @@
 
 ```java
 @Aspect
-@Pointcut("execution(com.jp.controller.*.*())")
+@Pointcut("com.jp.controller.*.*()")
 public class ControllerAspect {
 
     private long begin;
@@ -20,7 +17,7 @@ public class ControllerAspect {
         begin = System.nanoTime();
     }
 
-    @After /*将在目标方法被执行之后被调用/
+    @After /*将在目标方法被执行之后被调用*/
     public void after(TargetSource target) {
         System.out.println("cost:" + (System.nanoTime() - begin));
     }
@@ -32,10 +29,10 @@ public class ControllerAspect {
 }
 ```
 
-## @Pointcut规则
-@Pointcut("execution(com.jp.controller.\*.*())")
+## @Pointcut规则 - 待重构
+@Pointcut("com.jp.controller.\*.*()")
 
-#### 规则最核心的有两部分， 以上面的@Pointcut作为例子
+#### 规则最核心的有两部分， 以上面的@Pointcut作为例子 
   -  第一部分.类名规则:
      - 1.com.jp.controller.\* &nbsp;&nbsp;&nbsp; **com.jp.controller包下面的所有类。 ！！！注意不包含子目录**
      - 2.com.jp.controller.. &nbsp;&nbsp;&nbsp; **com.jp.controller包下面的所有类,包含子目录**
@@ -49,9 +46,11 @@ public class ControllerAspect {
        - com.jp.controller.. + "." + \*Service() = com.jp.controller...\*Service()  &nbsp;&nbsp;&nbsp; com.jp.controller包下面的所有类的， 以Service结尾的方法都会被拦截。**包含子目录**
 
   - 最后这样把他们包起来
-       - execution("com.jp.controller.\*.*()")
-       - execution("com.jp.controller...\*Service()")
+       - com.jp.controller.\*.*()
+       - com.jp.controller...\*Service()
   放进@Pointcut就可以了。
+
+**待优化**
 
 **如有不足，希望你能不吝赐教**
     
