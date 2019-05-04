@@ -1,24 +1,32 @@
-### jp-spring是一个实现性质的web框架
-> 这个项目是为了更了解web开发和spring而做出来的
-> 一些名称为了方便熟悉直接从Spring那里拿来......
-> 学习项目
+####Inspired by:
+  - [tiny-spring](https://github.com/code4craft/tiny-spring)
+  - [jw](https://github.com/menyouping/jw)
+  - [smart-framework](https://git.oschina.net/huangyong/smart-framework)
 
-<hr/>
-Inspired by:
-  <a href="https://github.com/code4craft/tiny-spring" > tiny-spring </a>
-  <a href="https://github.com/menyouping/jw">jw</a>
-  <a href="https://git.oschina.net/huangyong/smart-framework">smart-framework</a>
+### IOC
 
-jp-spring目前有下面4个功能模块， 还有一个是演示例子
-- jp-ioc (负责bean的创建和注入，下面的模块都依赖这个核心。 核心的详解请看<a href="https://github.com/code4craft/tiny-spring"> 这里 </a>)
-- jp-aop (AOP模块， 负责管理和创建Aspect，并对目标类进行织入)
-- jp-orm (ORM模块，现在还没完成)
-- jp-webmvc (MVC模块， 负责映射Request和Controller方法参数自动注入)
+依赖：暂无
+原型和加超详细的讲解，[点这里](https://github.com/code4craft/tiny-spring)。
+先我们看下应该怎么做吧
+
+jp-spring分成两部分， 其中一个是演示例子
+- jp-core (核心包。 核心的详解请看[这里](https://github.com/code4craft/tiny-spring))
+   - [web](/core/README_WEB.md)
+   - [aop](/core/README_AOP.md)
 - jp-webtest (所有模块在这里都会具体例子)
 
 
-# ioc模块， 请点 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-ioc?dir=1&filepath=jp-ioc">这里</a>
 ```java
+public class ApplicationContextTest {
+    @Test
+    public void test() throws Exception {
+        ApplicationContext applicationContext = new ClassPathPropertiesApplicationContext("/"/*配置文件地址*/);
+        HelloService helloService = (HelloService) applicationContext.getBean("helloService");
+        helloService.helloWorld();
+        helloService.outPutHello("test");
+    }
+}
+
 @Component("helloService")
 public class HelloService {
 
@@ -42,97 +50,58 @@ public class HelloService {
 }
 ```
 
-# MVC模块
-详情请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-spring-webmvc?dir=1&filepath=jp-spring-webmvc">这里</a> 
+## @Component, 组件
+Class只要标记上@Component并被扫描到，就会纳入ioc的管理之中。
+每个@Component都会一个名字，如果用户没有提供就会取——首字母小写的class.getSimpleName() 来作为默认名字
+
+被ioc当作@Component的还有@Controller, @Service, @Aspect
+
+
+## @Autowired, 自动装配
+自动装配的策略， 默认是按类型来装配的。如果存在多个默认选第一个来进行注入。
+如果你想指定实现，使用@Qualifier并提供实现类的id。就像上面的例子那样。
+id为"outService-2"的实现类就会自动注入到第二个 OutputService
+
 ```java
-@Controller
-public class TestController {
+@Service("outService-2")
+public class outputServiceImpl2  implements OutputService {
 
-    @Autowired
-    OutputService outputService;
-
-    public TestController() {
-        System.out.println("Hello I am TestController");
-    }
-
-
-    @RequestMapping(value = "/test/{one}", method = RequestMethod.GET)
-    public String test2(@PathVariable("one") Integer one, User user, @RequestParam("number") Float number) {
-        System.out.println(outputService);
-        outputService.output(one);
-        outputService.output(user);
-        outputService.output(number);
-        return "test";
-    }
-
-    @RequestMapping(value = "/test456465", method = RequestMethod.POST)
-    public String test() {
-        return "test";
+    @Override
+    public void output(String text) {
+        System.out.println("I am outService-2");
     }
 }
 ```
 
-# AOP模块
-具体介绍请看 <a href="https://git.oschina.net/pj_zhong/jp-spring/tree/master/jp-aop?dir=1&filepath=jp-aop">AOP-README</a>
+_目前@Autowired只支持配置在成员变量上，对于方法无效_
+
+## @Value
+这个标记主要是用来为类注入配置中的值。
+就像 HelloService 的例子中， 成员变量text， ioc会从配置文件需要合适的值并对其注入
+
+配置文件放在项目根路径下
+
+```
+package.scan=jp.spring
+test=123456
+jdbc.driver=com.mysql.jdbc.Driver
+```
+
+@Value默认注入失败也不会报错的, 如果想提示注入失败可以这样写
+
 ```java
-@Aspect
-@Pointcut("execution(com.jp.controller.*.*())")
-public class ControllerAspect {
-
-    private long begin;
-
-    @Before
-    public void before(TargetSource target) {
-        begin = System.nanoTime();
-    }
-
-    @After
-    public void after(TargetSource target) {
-        System.out.println("cost:" + (System.nanoTime() - begin));
-    }
-}
-
-@Aspect
-@Pointcut("execution(com.jp.controller.*.test*())")
-public class TestControllerAspect {
-
-    @Before
-    public void before(TargetSource target) {
-       System.out.println(target.getTargetMethod() + " begin");
-    }
-
-    @After
-    public void after(TargetSource target) {
-        System.out.println(target.getTargetMethod() + " end");
-    }
+@Component("helloService")
+public class HelloService {
+    @Value(value = "jdbc.driver", required = true)
+    private String text;
 }
 ```
+目前@Value只支持配置在成员变量上
 
+- package.scan ——代表需要扫描的包， 自动扫描子目录，如果需要配置多个，请使用 ";" 进行分割
 
-# webtest
-### 运行环境
-  - servlet3.0 以上
-  - jdk1.7以上
-  - mysql5.6.26以上
+## 不足之处
+1.无法处理数组和集合的注入
+2.无法处理泛型
 
-数据脚本位置:jp-webtest/doc
-
-在项目根目录下创建一个properties文件，输入下面的内容(jp-webtest里面有具体例子)
-
-```
-package.scan=com.jp
-page.folder=/page
-page.extension=.html
-resource.folder=/resources
-upload.size=5
-```
-
-- package.scan ——代表需要扫描的包， 自动扫描子目录，如果需要配置多个，请使用 ";" 进行分割。为了方便，我直接从根目录开始扫描
-- page.folder ——页面的文件，默认从项目根目录开始
-- page.extension ——页面的扩展名(目前支持jsp，html和freemarker)，默认jsp
-- resource.folder ——静态资源的文件夹，必须配置不然找不到静态资源。如果需要配置多个，请使用";" 进行分割。
-- upload.size ——  单位:MB, 最大上传文件的限制，默认4M
-
-
-##### 使用jp-spring开发的博客系统, 具体点击<a href="https://git.oschina.net/pj_zhong/jp_blog/tree/develop/">这里</a>。(内含演示地址)
-**如有不足，希望你能不吝赐教。**
+**如有不足，希望你能不吝赐教**
