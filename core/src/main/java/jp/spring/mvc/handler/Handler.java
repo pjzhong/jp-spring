@@ -18,6 +18,7 @@ import jp.spring.mvc.annotation.PathVariable;
 import jp.spring.mvc.annotation.RequestHeader;
 import jp.spring.mvc.annotation.RequestMethod;
 import jp.spring.mvc.annotation.RequestParam;
+import jp.spring.mvc.annotation.ResponseBody;
 import jp.spring.mvc.handler.impl.CookieFiller;
 import jp.spring.mvc.handler.impl.HeaderFiller;
 import jp.spring.mvc.handler.impl.NullFiller;
@@ -45,7 +46,7 @@ public class Handler {
   private final Method method;
   private final String url;
   private final Set<RequestMethod> httpMethods;
-  private Set<Annotation> annotations = Collections.emptySet();
+  private Set<Class<? extends Annotation>> annotations = Collections.emptySet();
   private List<MethodParameter> parameters = null;
   private List<InterceptMatch> interceptors = Collections.emptyList();
 
@@ -56,6 +57,12 @@ public class Handler {
     this.beanName = beanName;
     this.interceptors = interceptors;
     this.httpMethods = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(httpMethods)));
+
+    Set<Class<? extends Annotation>> anns = new HashSet<>();
+    for (Annotation a : method.getAnnotations()) {
+      anns.add(a.annotationType());
+    }
+    this.annotations = anns.isEmpty() ? Collections.emptySet() : anns;
   }
 
   public Object invoke(Object obj, Object[] args) throws Exception {
@@ -92,7 +99,11 @@ public class Handler {
   public Set<RequestMethod> getHttpMethods() {
     return httpMethods;
   }
-  
+
+  public boolean isResponseBody() {
+    return annotations.contains(ResponseBody.class);
+  }
+
   private static List<MethodParameter> buildParameter(Handler handler) {
     Method method = handler.getMethod();
     Parameter[] parameters = method.getParameters();

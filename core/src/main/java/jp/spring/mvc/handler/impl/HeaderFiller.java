@@ -13,6 +13,7 @@ import jp.spring.mvc.handler.HandlerArgResolver;
  **/
 public class HeaderFiller implements Filler<Object> {
 
+  private String name;
   /**
    * 参数标记
    */
@@ -25,6 +26,7 @@ public class HeaderFiller implements Filler<Object> {
   private HeaderFiller(RequestHeader reqHeader, Class<?> type) {
     this.type = type;
     this.reqHeader = reqHeader;
+    this.name = reqHeader.value().toLowerCase();
   }
 
   public static HeaderFiller of(RequestHeader reqHeader, Class<?> type) {
@@ -36,7 +38,7 @@ public class HeaderFiller implements Filler<Object> {
     Optional<String> headLine = Optional
         .ofNullable(args.getRequest())
         .map(FullHttpRequest::headers)
-        .map(hs -> hs.get(reqHeader.value()));
-    return TypeUtil.convert(headLine.orElse(""), type);
+        .map(hs -> hs.get(name));
+    return TypeUtil.convert(headLine.orElse(null), type);
   }
 }

@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import jp.spring.http.BodyFormat;
+import jp.spring.http.MIME;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -80,9 +80,9 @@ public class HandlerArgResolver {
         new QueryStringDecoder(request.uri()).parameters());
 
     String type = request.headers().get(HttpHeaderNames.CONTENT_TYPE, "").toLowerCase();
-    BodyFormat format = BodyFormat.parse(type);
+    MIME format = MIME.parse(type);
 
-    if (format == BodyFormat.APPLICATION_X_WWW_FORM_URLENCODED) {
+    if (format == MIME.APPLICATION_X_WWW_FORM_URLENCODED) {
       String s = request.content().toString(CharsetUtil.UTF_8);
       parameters.putAll(new QueryStringDecoder(s, false).parameters());
     }
