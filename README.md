@@ -1,9 +1,3 @@
-#### Inspired by:
-  - [tiny-spring](https://github.com/code4craft/tiny-spring)
-  - [jw](https://github.com/menyouping/jw)
-  - [smart-framework](https://git.oschina.net/huangyong/smart-framework)
-  - [nett-http](https://github.com/cdapio/netty-http)
-
 ### IOC
 
 依赖：暂无
@@ -101,8 +95,11 @@ public class HelloService {
 
 - package.scan ——代表需要扫描的包， 自动扫描子目录，如果需要配置多个，请使用 ";" 进行分割
 
-## 不足之处
-1.无法处理数组和集合的注入
-2.无法处理泛型
+## Inspired by:
+  - [tiny-spring](https://github.com/code4craft/tiny-spring)
+  - [jw](https://github.com/menyouping/jw)
+  - [smart-framework](https://git.oschina.net/huangyong/smart-framework)
+  - [nett-http](https://github.com/cdapio/netty-http)
+
 
 **如有不足，希望你能不吝赐教**

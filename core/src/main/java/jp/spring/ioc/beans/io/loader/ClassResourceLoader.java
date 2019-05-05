@@ -53,7 +53,6 @@ public class ClassResourceLoader implements ResourceLoader {
    */
   protected static Set<ClassResource> getClassFile(String pkg) {
     Set<ClassResource> classes = new LinkedHashSet<>();
-    boolean recursive = true;
     String pkgDirName = pkg.replace(".", "/");
     try {
       Enumeration<URL> urls = ClassResourceLoader.class.getClassLoader().getResources(pkgDirName);
@@ -67,10 +66,10 @@ public class ClassResourceLoader implements ResourceLoader {
         String protocol = url.getProtocol();
         if ("file".equals(protocol)) { // 如果是以文件的形式保存在服务器上
           String filePath = URLDecoder.decode(url.getFile(), "UTF-8"); // 获取包的物理路径
-          findClazzsByFile(pkg, filePath, recursive, classes);
+          findClazzsByFile(pkg, filePath, classes);
         } else if ("jar".equals(protocol)) {
           JarFile jar = ((JarURLConnection) url.openConnection()).getJarFile();
-          findClassByJar(pkg, jar, recursive, classes);
+          findClassByJar(pkg, jar, classes);
         }
       }
     } catch (IOException e) {
@@ -83,7 +82,7 @@ public class ClassResourceLoader implements ResourceLoader {
   /**
    * pkgName look like this —— com.zjp.pkg pkgPath look like this —— com/zjp/pkg
    */
-  protected static void findClazzsByFile(String pkgName, String pkgPath, final boolean recursive,
+  protected static void findClazzsByFile(String pkgName, String pkgPath,
       Set<ClassResource> classFiles) {
     File dir = new File(pkgPath);
     if (!dir.exists() || !dir.isDirectory()) {
@@ -93,7 +92,7 @@ public class ClassResourceLoader implements ResourceLoader {
     File[] files = dir.listFiles(new FileFilter() {
       @Override
       public boolean accept(File file) {
-        return (recursive && file.isDirectory()) || (file.getName().endsWith(".class"));
+        return file.isDirectory() || (file.getName().endsWith(".class"));
       }
     });
 
@@ -101,7 +100,7 @@ public class ClassResourceLoader implements ResourceLoader {
     Class<?> clazz;
     for (File file : files) {
       if (file.isDirectory()) {
-        findClazzsByFile(pkgName + "." + file.getName(), file.getAbsolutePath(), recursive,
+        findClazzsByFile(pkgName + "." + file.getName(), file.getAbsolutePath(),
             classFiles);
       } else {
         className = file.getName();
@@ -112,7 +111,7 @@ public class ClassResourceLoader implements ResourceLoader {
     }
   }
 
-  public static void findClassByJar(String pkgName, JarFile jar, final boolean recursive,
+  public static void findClassByJar(String pkgName, JarFile jar,
       Set<ClassResource> classResource) {
     String packageDirName = pkgName.replace(".", "/");
 
@@ -132,7 +131,7 @@ public class ClassResourceLoader implements ResourceLoader {
           pkgName = name.substring(0, index).replace('/', '.');
         }
 
-        if ((index > -1) || recursive) {
+        if ((index > -1)) {
           if (name.endsWith(".class") && !jarEntry.isDirectory()) {
             className = name
                 .substring(pkgName.length() + 1, name.length() - 6); // ".class".length = 6
