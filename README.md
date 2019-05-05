@@ -1,7 +1,8 @@
-####Inspired by:
+#### Inspired by:
   - [tiny-spring](https://github.com/code4craft/tiny-spring)
   - [jw](https://github.com/menyouping/jw)
   - [smart-framework](https://git.oschina.net/huangyong/smart-framework)
+  - [nett-http](https://github.com/cdapio/netty-http)
 
 ### IOC
 
