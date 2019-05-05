@@ -152,7 +152,7 @@ public class Handler {
         filler = createConverter(anno, type);
       }
 
-      result.add(new MethodParameter(p.getType(), annotations, filler));
+      result.add(new MethodParameter(p.getType(), filler));
     }
     return Collections.unmodifiableList(result);
   }

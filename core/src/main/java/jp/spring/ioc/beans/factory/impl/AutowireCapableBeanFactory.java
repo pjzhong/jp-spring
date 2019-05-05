@@ -8,11 +8,10 @@ import java.util.Map;
 import jp.spring.ioc.BeansException;
 import jp.spring.ioc.beans.factory.AbstractBeanFactory;
 import jp.spring.ioc.beans.support.BeanDefinition;
-import jp.spring.ioc.beans.support.BeanReference;
 import jp.spring.ioc.beans.support.InjectField;
 import jp.spring.ioc.beans.support.PropertyValue;
-import jp.spring.ioc.util.StringUtils;
 import jp.spring.ioc.util.TypeUtil;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by Administrator on 12/25/2016.
@@ -50,7 +49,7 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
     Object value = null;
     for (InjectField injectField : beanDefinition.getInjectFields()) {
 
-      if (StringUtils.isEmpty(injectField.getId())) {
+      if (StringUtils.isBlank(injectField.getId())) {
         Map<String, Object> matchingBeans = findAutowireCandidates(injectField.getId(),
             injectField.getAutowiredType());
         if (!TypeUtil.isEmpty(matchingBeans)) {
@@ -61,15 +60,9 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
       }
 
       if (value == null && injectField.isRequired()) {
-        if (injectField.isRequired()) {
-          StringBuilder stringBuilder = new StringBuilder();
-          stringBuilder.append("Inject ")
-              .append(injectField.getAutowiredType())
-              .append(" to ")
-              .append(beanDefinition.getBeanClass())
-              .append(" failed");
-          throw new BeansException(stringBuilder.toString());
-        }
+        throw new BeansException(String
+            .format("Inject %s to %s failed", injectField.getAutowiredType(),
+                beanDefinition.getBeanClass()));
       }
 
       injectField.inject(bean, value);
@@ -91,24 +84,16 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
         }
       }
 
-      if (value instanceof BeanReference) {
-        BeanReference beanReference = (BeanReference) value;
-        value = getBean(beanReference.getName());
-      }
-
       if (value == null && propertyValue.isRequired()) {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Inject ").append(propertyValue.getName())
-            .append(" to ").append(beanDefinition.getBeanClassName())
-            .append(" failed");
-        throw new BeansException(builder.toString());
+        throw new BeansException(String.format("Inject %s to %s failed", propertyValue.getName(),
+            beanDefinition.getBeanClassName()));
       } else if (value == null) { //空值没有注入的必要
         continue;
       }
 
       try {
         Method declaredMethod = bean.getClass().getDeclaredMethod(
-            "set" + StringUtils.upperFirst(propertyValue.getField().getName()), value.getClass());
+            "set" + StringUtils.capitalize(propertyValue.getField().getName()), value.getClass());
 
         declaredMethod.setAccessible(true);
         declaredMethod.invoke(bean, value);
@@ -128,7 +113,7 @@ public class AutowireCapableBeanFactory extends AbstractBeanFactory {
 
     try {
       List<String> candidateNames = getBeanNamesForType(requiredType);
-      result = new LinkedHashMap<String, Object>(candidateNames.size());
+      result = new LinkedHashMap<>(candidateNames.size());
       for (String candidateName : candidateNames) {
         result.put(candidateName, getBean(candidateName));
       }

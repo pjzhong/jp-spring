@@ -14,7 +14,7 @@ import java.util.jar.JarFile;
 import jp.spring.ioc.beans.io.Resource;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.resources.ClassResource;
-import jp.spring.ioc.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 扫描某个目录(包含子目录)一下的类 并将其封装成为ClassResource返回
@@ -30,11 +30,11 @@ public class ClassResourceLoader implements ResourceLoader {
    * @param pkgName 支持多folder, 以";"分隔
    */
   protected static ClassResource[] findClassFile(String pkgName) {
-    if (StringUtils.isEmpty(pkgName)) {
+    if (StringUtils.isBlank(pkgName)) {
       return null;
     }
 
-    Set<ClassResource> list = new LinkedHashSet<ClassResource>();
+    Set<ClassResource> list = new LinkedHashSet<>();
     Set<ClassResource> classFiles = null;
 
     String[] pkgs = pkgName.split("\\s*;\\s*");
@@ -52,7 +52,7 @@ public class ClassResourceLoader implements ResourceLoader {
    * Get all class from this package
    */
   protected static Set<ClassResource> getClassFile(String pkg) {
-    Set<ClassResource> classes = new LinkedHashSet<ClassResource>();
+    Set<ClassResource> classes = new LinkedHashSet<>();
     boolean recursive = true;
     String pkgDirName = pkg.replace(".", "/");
     try {

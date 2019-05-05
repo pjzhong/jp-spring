@@ -1,160 +1,162 @@
 package jp.spring.ioc.beans.io.reader;
 
 
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.beans.factory.annotation.Qualifier;
 import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.loader.ClassResourceLoader;
 import jp.spring.ioc.beans.io.resources.ClassResource;
-import jp.spring.ioc.beans.support.*;
+import jp.spring.ioc.beans.support.BeanDefinition;
+import jp.spring.ioc.beans.support.InjectField;
+import jp.spring.ioc.beans.support.PropertyValue;
 import jp.spring.ioc.stereotype.Component;
 import jp.spring.ioc.util.TypeUtil;
-import jp.spring.ioc.util.StringUtils;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by Administrator on 1/8/2017.
  */
 public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
-    private AnnotationBeanDefinitionReader(ResourceLoader resourceLoader) {
-        super(resourceLoader);
+  private AnnotationBeanDefinitionReader(ResourceLoader resourceLoader) {
+    super(resourceLoader);
+  }
+
+  public static AnnotationBeanDefinitionReader getInstance() {
+    return new AnnotationBeanDefinitionReader(new ClassResourceLoader());
+  }
+
+  @Override
+  public void loadBeanDefinitions(String strLocation) throws Exception {
+    if (StringUtils.isBlank(strLocation)) {
+      return;
     }
 
-    public static AnnotationBeanDefinitionReader getInstance() {
-        return new AnnotationBeanDefinitionReader(new ClassResourceLoader());
-    }
-
-    @Override
-    public void loadBeanDefinitions(String strLocation) throws Exception {
-        if(StringUtils.isEmpty(strLocation)) {
-            return;
+    if (getResourceLoader() instanceof ClassResourceLoader) {
+      String[] locations = strLocation.split("\\s*;\\s*");
+      for (String location : locations) {
+        ClassResource[] classResources = (ClassResource[]) getResourceLoader()
+            .getResource(location);
+        for (ClassResource classResource : classResources) {
+          doLoadBeanDefinitions(classResource);
         }
+      }
+    }
+  }
 
-        if(getResourceLoader() instanceof ClassResourceLoader) {
-            String[] locations = strLocation.split("\\s*;\\s*");
-            for(String location : locations) {
-                ClassResource[] classResources = (ClassResource[]) getResourceLoader().getResource(location);
-                for(ClassResource classResource : classResources) {
-                    doLoadBeanDefinitions(classResource);
-                }
-            }
-        }
+  @Override
+  public BeanDefinition loadBeanDefinition(Class<?> beanClass) {
+    return parseClass(beanClass);
+  }
+
+  protected void doLoadBeanDefinitions(ClassResource classResource) {
+    try {
+      String className = classResource.getClassName();
+      Class<?> beanClass = AnnotationBeanDefinitionReader.class.getClassLoader()
+          .loadClass(className);
+      parseClass(beanClass);
+    } catch (ClassNotFoundException e) {
+      //Simply skip
+    }
+  }
+
+  protected BeanDefinition parseClass(Class<?> beanClass) {
+    BeanDefinition definition = null;
+    if (TypeUtil.isAnnotated(beanClass, Component.class)) {
+      definition = new BeanDefinition();
+      definition.setBeanClass(beanClass);
+
+      parseFields(definition, beanClass);
+
+      String name = determinedName(beanClass);
+      getRegistry().put(name, definition);
     }
 
-    @Override
-    public BeanDefinition loadBeanDefinition(Class<?> beanClass) {
-        return parseClass(beanClass);
-    }
+    return definition;
+  }
 
-    protected void doLoadBeanDefinitions(ClassResource classResource) {
+  /**
+   * 获取户提供的名字， 没有就用是首字母字母小写的简单类名(beanClass.getSimpleName())
+   */
+  private String determinedName(Class<?> beanClass) {
+    Annotation[] annotations = beanClass.getAnnotations();
+
+    String name = null;
+    for (Annotation annotation : annotations) {
+      Class<? extends Annotation> type = annotation.annotationType();
+      if (TypeUtil.isAnnotated(type, Component.class)) {
         try {
-            String className = classResource.getClassName();
-            Class<?> beanClass = AnnotationBeanDefinitionReader.class.getClassLoader().loadClass(className);
-            parseClass(beanClass);
-        } catch (ClassNotFoundException e) {
-            //Simply skip
+          Method method = TypeUtil.findMethod(type, "value");
+          if (method != null) {
+            method.setAccessible(true);
+            name = (String) method.invoke(annotation, ArrayUtils.EMPTY_OBJECT_ARRAY);
+          }
+          break;
+        } catch (Exception e) {
+          break;
         }
+      }
     }
 
-    protected BeanDefinition parseClass(Class<?> beanClass) {
-        BeanDefinition definition = null;
-        if(TypeUtil.isAnnotated(beanClass, Component.class)) {
-            definition = new BeanDefinition();
-            definition.setBeanClass(beanClass);
+    if (StringUtils.isBlank(name)) {
+      name = StringUtils.uncapitalize(beanClass.getSimpleName());
+    }
+    return name;
+  }
 
-            parseFields(definition, beanClass);
+  protected void parseFields(BeanDefinition beanDefinition, Class<?> beanClass) {
+    Field[] fields = beanClass.getDeclaredFields();
 
-            String name = determinedName(beanClass);
-            getRegistry().put(name, definition);
+    if (!TypeUtil.isEmpty(fields)) {
+      for (Field field : fields) {
+        if (TypeUtil.isAnnotated(field, Autowired.class)) {
+          beanDefinition.add(parseAutowired(field));
+        } else if (TypeUtil.isAnnotated(field, Value.class)) {
+          beanDefinition.add(parseValue(field));
         }
-
-        return definition;
+      }
     }
 
-    /**
-     * 获取户提供的名字， 没有就用是首字母字母小写的简单类名(beanClass.getSimpleName())
-     * */
-    private String determinedName(Class<?> beanClass) {
-        Annotation[] annotations = beanClass.getAnnotations();
-
-        String name = null;
-        for(Annotation annotation : annotations) {
-            Class<? extends Annotation> type = annotation.annotationType();
-            if(TypeUtil.isAnnotated(type, Component.class)) {
-                try {
-                    Method  method = TypeUtil.findMethod(type, "value");
-                    if(method != null) {
-                        method.setAccessible(true);
-                        name = (String) method.invoke(annotation, null);
-                    }
-                    break;
-                } catch (Exception e) {
-                    break;
-                }
-            }
-        }
-
-        if(StringUtils.isEmpty(name)) {
-            name = StringUtils.lowerFirst(beanClass.getSimpleName());
-        }
-        return name;
+    if (beanClass.getSuperclass() != null) {
+      parseFields(beanDefinition, beanClass.getSuperclass());
     }
+  }
 
-    protected void parseFields(BeanDefinition beanDefinition, Class<?> beanClass) {
-        Field[] fields = beanClass.getDeclaredFields();
+  private InjectField parseAutowired(Field field) {
+    InjectField injectField;
 
-        if(!TypeUtil.isEmpty(fields)) {
-            for(Field field : fields) {
-                if(TypeUtil.isAnnotated(field, Autowired.class)) {
-                    beanDefinition.add( parseAutowired(field));
-                } else if(TypeUtil.isAnnotated(field, Value.class)) {
-                    beanDefinition.add( parseValue(field));
-                }
-            }
-        }
-
-
-        if(beanClass.getSuperclass() != null) {
-            parseFields(beanDefinition, beanClass.getSuperclass());
-        }
+    String id = null;
+    if (TypeUtil.isAnnotated(field, Qualifier.class)) {//用户有提供id，没有就让id的属性为空
+      id = field.getAnnotation(Qualifier.class).value();
     }
+    boolean isRequired = field.getAnnotation(Autowired.class).required();
+    injectField = new InjectField(id, field);
+    injectField.setRequired(isRequired);
 
-    private InjectField parseAutowired(Field field) {
-        InjectField injectField;
+    return injectField;
+  }
 
-        String id = null;
-        if(TypeUtil.isAnnotated(field, Qualifier.class)) {//用户有提供id，没有就让id的属性为空
-          id = field.getAnnotation(Qualifier.class).value();
-        }
-        boolean isRequired = field.getAnnotation(Autowired.class).required();
-        injectField = new InjectField(id, field);
-        injectField.setRequired(isRequired);
+  private PropertyValue parseValue(Field field) {
+    PropertyValue propertyValue = null;
 
-
-        return injectField;
+    Value value = field.getAnnotation(Value.class);
+    String id = value.value();
+    if (StringUtils.isBlank(id)) {
+      id = StringUtils.uncapitalize(field.getName());
     }
+    boolean isRequired = field.getAnnotation(Value.class).required();
 
-    private PropertyValue parseValue(Field field) {
-        PropertyValue propertyValue = null;
+    propertyValue = new PropertyValue();
+    propertyValue.setField(field);
+    propertyValue.setName(id);
+    propertyValue.setRequired(isRequired);
 
-        Value value =  field.getAnnotation(Value.class);
-        String id = value.value();
-        if(StringUtils.isEmpty(id)) {
-            id = StringUtils.lowerFirst(field.getName());
-        }
-        boolean isRequired = field.getAnnotation(Value.class).required();
-
-        propertyValue = new PropertyValue();
-        propertyValue.setField(field);
-        propertyValue.setName(id);
-        propertyValue.setRequired(isRequired);
-
-        return propertyValue;
-    }
+    return propertyValue;
+  }
 
 }

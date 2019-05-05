@@ -2,6 +2,7 @@ package jp.spring.ioc.util;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by Administrator on 2/19/2017.
@@ -26,7 +27,7 @@ public class TypeConvertUtils {
         }  else if(Double.TYPE.equals(requiredType) || Double.class.equals(requiredType)) {
             convertedValue =  Double.valueOf(strValue);
         } else if(Character.TYPE.equals(requiredType) || char.class.equals(requiredType)) {
-            if(!StringUtils.isEmpty(strValue)) { convertedValue = strValue.charAt(0); }
+            if(StringUtils.isNotBlank(strValue)) { convertedValue = strValue.charAt(0); }
         } else if(Boolean.TYPE.equals(requiredType) || Boolean.class.equals(requiredType)) {
            strValue = strValue.toLowerCase();
             if("y".equalsIgnoreCase(strValue) || "yes".equalsIgnoreCase(strValue) || "true".equalsIgnoreCase(strValue) || "1".equalsIgnoreCase(strValue)) {
