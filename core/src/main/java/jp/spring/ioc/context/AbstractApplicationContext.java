@@ -7,7 +7,6 @@ import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.beans.io.reader.AbstractBeanDefinitionReader;
 import jp.spring.ioc.beans.io.reader.AnnotationBeanDefinitionReader;
 import jp.spring.ioc.beans.support.BeanDefinition;
-import jp.spring.ioc.context.impl.ApplicationContextAwareProcessor;
 
 
 /**
@@ -54,8 +53,6 @@ public abstract class AbstractApplicationContext implements ApplicationContext {
     for (Object beanPostProcessor : beanPostProcessors) {
       beanFactory.addBeanPostProcessor((BeanPostProcessor) beanPostProcessor);
     }
-
-    beanFactory.addBeanPostProcessor(new ApplicationContextAwareProcessor(this));
   }
 
   @Override
