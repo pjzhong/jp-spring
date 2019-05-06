@@ -1,6 +1,6 @@
 package jp.spring.scan;
 
-import jp.spring.ioc.beans.scan.FastClassPathScanner;
+import jp.spring.ioc.scan.FastClassPathScanner;
 import jp.spring.ioc.stereotype.Component;
 import org.junit.Test;
 
