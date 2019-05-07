@@ -2,60 +2,25 @@ package jp.spring.ioc.scan;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.matchprocessor.MatchProcessor;
-import jp.spring.ioc.scan.scanner.FailureHandler;
 import jp.spring.ioc.scan.scanner.ScanSpecification;
 import jp.spring.ioc.scan.scanner.Scanner;
 
 @SuppressWarnings("unchecked")
 public class FastClassPathScanner {
 
+  private List<ClassMatcher> classMatchers = new ArrayList<>();
+  private ScanSpecification specification = null;
+
+  public FastClassPathScanner(String... whiteListed) {
+    specification = new ScanSpecification(whiteListed);
+  }
+
   public void scan() {
-    scan(Runtime.getRuntime().availableProcessors());
-  }
-
-  public void scan(int numberThreads) {
-    ExecutorService executorService = null;
-    try {
-      executorService = Executors.newFixedThreadPool(numberThreads);
-      scan(executorService, numberThreads);
-    } finally {
-      if (executorService != null) {
-        executorService.shutdown();
-      }
-    }
-  }
-
-  public void scan(ExecutorService executorService, int numberThreads) {
-    try {
-      ClassGraph graph = launchAsyncScan(executorService, specification, numberThreads, null).get();
-
-      if (classMatchers != null) {
-        for (ClassMatcher matcher : classMatchers) {
-          matcher.lookForMatches(graph);
-        }
-      }
-    } catch (InterruptedException e) {
-      //todo handle this exception
-      throw new RuntimeException(e.getCause());
-    } catch (ExecutionException e) {
-      //todo handle this exception
-      throw new RuntimeException(e.getCause());
-    }
-
-  }
-
-  private Future<ClassGraph> launchAsyncScan(ExecutorService executorService,
-      ScanSpecification specification,
-      int numberThread, FailureHandler handler) {
-    return executorService
-        .submit(new Scanner(executorService, numberThread, specification, handler));
+    ClassGraph graph = new Scanner(specification).call();
+    classMatchers.forEach(m -> m.lookForMatches(graph));
   }
 
   public <T> FastClassPathScanner matchSubClassOf(final Class<T> superClass,
@@ -185,14 +150,6 @@ public class FastClassPathScanner {
   private void addClassMatcher(ClassMatcher classMatcher) {
     classMatchers.add(classMatcher);
   }
-
-  private List<ClassMatcher> classMatchers = new ArrayList<>();
-
-  public FastClassPathScanner(String... whiteListed) {
-    specification = new ScanSpecification(whiteListed);
-  }
-
-  private ScanSpecification specification = null;
 
   @FunctionalInterface
   private interface ClassMatcher {

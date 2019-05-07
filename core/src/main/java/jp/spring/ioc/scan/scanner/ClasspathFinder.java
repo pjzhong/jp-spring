@@ -1,12 +1,11 @@
 package jp.spring.ioc.scan.scanner;
 
 
-import java.io.File;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import jp.spring.ioc.scan.classloaderhandler.ClassLoaderHandler;
 import jp.spring.ioc.scan.classloaderhandler.URLClassLoaderHandler;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by Administrator on 2017/10/31. This is class is a toy, refactor it when you know more
@@ -14,22 +13,21 @@ import jp.spring.ioc.scan.classloaderhandler.URLClassLoaderHandler;
  */
 public class ClasspathFinder {
 
-  ClasspathFinder() {
-    //for convenient, only handler sun.misc.Launcher$AppClassLoader
-    List<ClassLoaderHandler> classLoaderHandlers = Collections.singletonList(new URLClassLoaderHandler());
+  private final List<String> rawClassPathStrings = new ArrayList<>();
 
+  public ClasspathFinder() {
+    //for convenient, only handler sun.misc.Launcher$AppClassLoader
+    ClassLoaderHandler handler = new URLClassLoaderHandler();
     for (ClassLoader loader : ClassLoaderFinder.findEvnClassLoader()) {
-      for (ClassLoaderHandler handler : classLoaderHandlers) {
-        try {
-          handler.handle(loader, this);
-        } catch (Exception e) {
-          //todo say something about what happened;
-        }
+      try {
+        handler.handle(loader, this);
+      } catch (Exception e) {
+        //todo say something about what happened;
       }
     }
   }
 
-  List<String> getRawClassPathStrings() {
+  public List<String> getRawClassPathStrings() {
     return rawClassPathStrings;
   }
 
@@ -41,29 +39,11 @@ public class ClasspathFinder {
    * return false.
    */
   public boolean addClasspathElement(final String pathElement) {
-    if (pathElement != null && !pathElement.isEmpty()) {
+    if (StringUtils.isNotBlank(pathElement)) {
       rawClassPathStrings.add(pathElement);
       return true;
     }
     return false;
   }
 
-  /**
-   * Add classpath elements, separated by the system path separator character. May be called by a
-   * ClassLoaderHandler to add a path string that it knows about.
-   *
-   * @return true (and add the classpath element) if pathElement is not null or empty, otherwise
-   * return false.
-   */
-  public boolean addClasspathElements(final String pathStr) {
-    if (pathStr != null && !pathStr.isEmpty()) {
-      for (final String pathElement : pathStr.split(File.pathSeparator)) {
-        addClasspathElement(pathElement);
-      }
-      return true;
-    }
-    return false;
-  }
-
-  private final List<String> rawClassPathStrings = new ArrayList<>();
 }

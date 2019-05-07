@@ -113,7 +113,6 @@ public class ClassFileBinaryParser {
       }
       return parse(constantPool, classInput);
     } finally {
-
       inputStream.close();
     }
   }

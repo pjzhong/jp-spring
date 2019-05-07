@@ -15,11 +15,6 @@ import org.apache.commons.lang3.StringUtils;
 public class ScanSpecification {
 
   public ScanPathMatch pathWhiteListMatchStatus(final String relatePath) {
-    for (final String blackListed : blackListPathPrefixes) {
-      if (relatePath.startsWith(blackListed)) {
-        return ScanPathMatch.WITHIN_BLACK_LISTED_PATH;
-      }
-    }
 
     for (final String whiteList : whiteListPathPrefixes) {
       if (relatePath.equals(whiteList) || relatePath.startsWith(whiteList)) {
@@ -29,7 +24,7 @@ public class ScanSpecification {
       }
     }
 
-    return ScanPathMatch.NOT_WITHIN_WHITE_LISTED_PATH;
+    return ScanPathMatch.WITHIN_BLACK_LISTED_PATH;
   }
 
   public ScanPathMatch blockJdk(final String relativePath) {
@@ -44,40 +39,16 @@ public class ScanSpecification {
 
   public ScanSpecification(final String... specifications) {
     final Set<String> uniqueWhiteListPathPrefixes = new HashSet<>();
-    final Set<String> uniqueBlackListedPathPrefixes = new HashSet<>();
-    for (final String specification : specifications) {
-      String spec = specification;
-      final boolean blankListed = spec.startsWith("-");
-      if (blankListed) {
-        spec = spec.substring(1);
-      }
-
-      String specPath = spec.replace('.', '/');
+    for (String specification : specifications) {
+      String specPath = specification.replace('.', '/');
       if (!specPath.equals("/")) {
         specPath += "/";
       }// '/' mean scan all
-      if (blankListed) {
-        uniqueBlackListedPathPrefixes.add(specPath);
-      } else {
-        uniqueWhiteListPathPrefixes.add(specPath);
-      }
+      uniqueWhiteListPathPrefixes.add(specPath);
     }
 
-    //process blackListed - always block SystemPackage 2017-11-6
-    if (blackSystemPackages) {
-      //java package prefix
-      uniqueBlackListedPathPrefixes.add("java/");
-      uniqueBlackListedPathPrefixes.add("javax/");
-      uniqueBlackListedPathPrefixes.add("sun/");
-    }
-    blackListPathPrefixes.addAll(uniqueBlackListedPathPrefixes);
-    blackListPathPrefixes.forEach(s -> blackListPackagePrefixes.add(s.replace('/', '.')));
-
-    //block jrePath
     jrePaths = getJrePaths();
-
     //process whiteListed
-    uniqueWhiteListPathPrefixes.removeAll(uniqueBlackListedPathPrefixes);
     whiteListPathPrefixes.addAll(uniqueWhiteListPathPrefixes);
   }
 
@@ -139,11 +110,7 @@ public class ScanSpecification {
   }
 
   private List<String> whiteListPathPrefixes = new ArrayList<>();
-  private List<String> blackListPathPrefixes = new ArrayList<>();
-  private List<String> blackListPackagePrefixes = new ArrayList<>();
   private Set<String> jrePaths;
 
   private boolean scanFiles = true;
-  private boolean blackSystemPackages = true;
-  private boolean blankSystemJars = true;
 }

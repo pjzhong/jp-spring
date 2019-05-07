@@ -2,6 +2,7 @@ package jp.spring.ioc.scan.scanner;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import jp.spring.ioc.scan.FastClassPathScanner;
@@ -37,7 +38,7 @@ import jp.spring.ioc.scan.FastClassPathScanner;
 public class ClassLoaderFinder {
 
   public static ClassLoader[] findEvnClassLoader() {
-    Set<ClassLoader> uniqueClassLoaders = new HashSet<>();
+    Set<ClassLoader> uniqueClassLoaders = new LinkedHashSet<>();
     List<ClassLoader> orderOfClassLoaders = new ArrayList<>();
 
     final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();

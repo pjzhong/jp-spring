@@ -8,7 +8,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jp.spring.ioc.scan.utils.MultiSet;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -16,12 +15,34 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ClassInfo implements Comparable<ClassInfo> {
 
+  private final Map<Relation, Set<ClassInfo>> relations = new HashMap<>();
+  private final String className;
+
+  boolean isInterface;
+  boolean isAnnotation;
+  /**
+   * True when a class has been scanned(i.e its classFile contents read), as opposed to only being
+   * referenced by another class' classFile as a superclass/superInterface/annotation. If
+   * classFileScanned is true, then this also must be a whiteListed (and non-blacklisted) class in a
+   * whiteListed(and non-blackListed) package
+   */
+  boolean classFileScanned;
+
+  private List<FieldInfo> fieldInfoList = Collections.emptyList();
+  private List<MethodInfo> methodInfoList = Collections.emptyList();
+  private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
+
+  ClassInfo(String className) {
+    this.className = className;
+  }
+
   private boolean addRelatedClass(Relation relation, ClassInfo info) {
-    return MultiSet.put(relationSet, relation, info);
+    Set<ClassInfo> infos = relations.computeIfAbsent(relation, k -> new HashSet<>());
+    return infos.add(info);
   }
 
   private Set<ClassInfo> getDirectlyRelatedClass(Relation relation) {
-    Set<ClassInfo> relatedClass = relationSet.get(relation);
+    Set<ClassInfo> relatedClass = relations.get(relation);
     return relatedClass == null ? Collections.emptySet() : relatedClass;
   }
 
@@ -202,10 +223,6 @@ public class ClassInfo implements Comparable<ClassInfo> {
     return Collections.unmodifiableList(methodInfoList);
   }
 
-  ClassInfo(String className) {
-    this.className = className;
-  }
-
   public static ClassInfoBuilder builder(String className, int accessFlag) {
     return new ClassInfoBuilder(className, accessFlag);
   }
@@ -239,23 +256,6 @@ public class ClassInfo implements Comparable<ClassInfo> {
     return (isStandardClass() ? "class " : isInterface() ? "interface " : "annotation ")
         + className;
   }
-
-  private final Map<Relation, Set<ClassInfo>> relationSet = new HashMap<>();
-  private final String className;
-
-  boolean isInterface;
-  boolean isAnnotation;
-  /**
-   * True when a class has been scanned(i.e its classFile contents read), as opposed to only being
-   * referenced by another class' classFile as a superclass/superInterface/annotation. If
-   * classFileScanned is true, then this also must be a whiteListed (and non-blacklisted) class in a
-   * whiteListed(and non-blackListed) package
-   */
-  boolean classFileScanned;
-
-  private List<FieldInfo> fieldInfoList = Collections.emptyList();
-  private List<MethodInfo> methodInfoList = Collections.emptyList();
-  private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
 
   private enum Relation {
     SUPERCLASSES,
