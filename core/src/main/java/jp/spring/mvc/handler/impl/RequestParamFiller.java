@@ -16,6 +16,7 @@ import jp.spring.mvc.annotation.RequestParam;
 import jp.spring.mvc.handler.Filler;
 import jp.spring.mvc.handler.HandlerArgResolver;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
@@ -25,21 +26,29 @@ public class RequestParamFiller implements Filler<Object> {
    * 参数标记
    */
   private RequestParam reqParam;
+  /**
+   * 类型
+   */
   private Type type;
+  /**
+   * 参数名
+   */
+  private String name;
 
-  private RequestParamFiller(RequestParam q, Type type) {
+  private RequestParamFiller(RequestParam q, String name, Type type) {
     this.type = type;
     this.reqParam = q;
+    this.name = StringUtils.isBlank(q.value()) ? name : q.value();
   }
 
-  public static RequestParamFiller of(RequestParam q, Type type) {
-    return new RequestParamFiller(q, type);
+  public static RequestParamFiller of(RequestParam q, String name, Type type) {
+    return new RequestParamFiller(q, name, type);
   }
 
   @Override
   public Object apply(HandlerArgResolver args) {
     Map<String, List<String>> params = args.getParams();
-    List<String> values = params.getOrDefault(reqParam.value(), Collections.emptyList());
+    List<String> values = params.getOrDefault(name, Collections.emptyList());
 
     Class<?> rawType = TypeUtil.getRawClass(type);
     if (TypeUtil.isSimpleType(rawType)) {

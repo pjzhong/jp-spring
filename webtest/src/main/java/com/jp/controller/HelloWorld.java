@@ -27,27 +27,27 @@ public class HelloWorld {
   @RequestMapping(value = {"/hello/{someone}", "/hi/{someone}"}, method = {RequestMethod.GET,
       RequestMethod.POST})
   @ResponseBody
-  public Object hello(@PathVariable("someone") String who,
+  public Object hello(@PathVariable String someone,
       @RequestHeader("host") String header,
       @RequestParam("age") Long age) {
     return new Object() {
       public String h = header;
-      public String w = who;
+      public String w = someone;
       public Long a = age;
     };
   }
 
   @RequestMapping(value = "/love/{someone}")
-  public Object love(@PathVariable("someone") String params,
+  public Object love(@PathVariable String someone,
       FullHttpResponse response) {
     return new Object() {
-      public String w = params;
+      public String w = someone;
     };
   }
 
   @RequestMapping(value = "/nothing/**")
-  public void nothing(@RequestParam("a") String a,
-      @RequestParam("user") User user, FullHttpResponse response) {
+  public void nothing(@RequestParam String a,
+      @RequestParam User user, FullHttpResponse response) {
 
     StringBuilder buf = new StringBuilder()
         .append("<!DOCTYPE html>\r\n")
@@ -65,12 +65,12 @@ public class HelloWorld {
 
   @RequestMapping(value = {"/array/{someone}"}, method = {RequestMethod.GET,
       RequestMethod.POST})
-  public void array(@PathVariable("someone") String who,
-      @RequestParam("age") double[] age, @RequestParam("name") LinkedList<String> name,
+  public void array(@PathVariable String someone,
+      @RequestParam double[] age, @RequestParam LinkedList<String> name,
       FullHttpResponse response) {
     response.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=UTF-8");
 
-    final String build = String.format("Hello, %s", who);
+    final String build = String.format("Hello, %s", someone);
     StringBuilder buf = new StringBuilder()
         .append("<!DOCTYPE html>\r\n")
         .append("<html><head><meta charset='utf-8' /><title>")

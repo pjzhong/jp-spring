@@ -6,6 +6,7 @@ import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.RequestHeader;
 import jp.spring.mvc.handler.Filler;
 import jp.spring.mvc.handler.HandlerArgResolver;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author ZJP
@@ -13,6 +14,9 @@ import jp.spring.mvc.handler.HandlerArgResolver;
  **/
 public class HeaderFiller implements Filler<Object> {
 
+  /**
+   * 参数名
+   */
   private String name;
   /**
    * 参数标记
@@ -23,14 +27,14 @@ public class HeaderFiller implements Filler<Object> {
    */
   private Class<?> type;
 
-  private HeaderFiller(RequestHeader reqHeader, Class<?> type) {
+  private HeaderFiller(RequestHeader reqHeader, String name, Class<?> type) {
     this.type = type;
     this.reqHeader = reqHeader;
-    this.name = reqHeader.value().toLowerCase();
+    this.name = StringUtils.isBlank(reqHeader.value()) ? name : reqHeader.value();
   }
 
-  public static HeaderFiller of(RequestHeader reqHeader, Class<?> type) {
-    return new HeaderFiller(reqHeader, type);
+  public static HeaderFiller of(RequestHeader reqHeader, String name, Class<?> type) {
+    return new HeaderFiller(reqHeader, name, type);
   }
 
   @Override

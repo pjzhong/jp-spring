@@ -6,21 +6,21 @@
 @Controller
 public class HelloWorld {
 
-  @RequestMapping(value = {"/hello/{someone}", "/hi/{someone}"}, method = {RequestMethod.GET,
+  @RequestMapping(value = {"/hello/{who}", "/hi/{who}"}, method = {RequestMethod.GET,
       RequestMethod.POST})
-  public void hello(@PathVariable("someone") String who,
-      @RequestParam("age") long age, FullHttpResponse response) {
+  public void hello(@PathVariable String who,
+      @RequestParam long age, FullHttpResponse response) {
   }
 
   @RequestMapping(value = "/nothing/**")
   public void nothing(@RequestParam("a") String a,
-      @RequestParam("user") User user, FullHttpResponse response) {
+      @RequestParam User user, FullHttpResponse response) {
   }
 
   @RequestMapping(value = {"/array/{someone}"}, method = {RequestMethod.GET,
       RequestMethod.POST})
-  public void array(@PathVariable("someone") String who,
-      @RequestParam("age") double[] age, @RequestParam("name") LinkedList<String> name,
+  public void array(@PathVariable String someone,
+      @RequestParam double[] age, @RequestParam LinkedList<String> name,
       FullHttpResponse response) {
   }
 
