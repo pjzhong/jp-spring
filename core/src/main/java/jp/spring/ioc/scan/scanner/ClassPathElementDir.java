@@ -33,7 +33,7 @@ public class ClassPathElementDir extends ClasspathElement<File> {
   }
 
   private void scanDir(ClassRelativePath classRelativePath, File dir, final int ignorePrefixLen,
-      final Set<String> scannedCanonicalPath, int entryIdx) {
+      final Set<String> scannedCanonicalPath, int count) {
     String canonicalPath;
     try {
       canonicalPath = dir.getCanonicalPath();
@@ -49,11 +49,9 @@ public class ClassPathElementDir extends ClasspathElement<File> {
     final String dirPath = dir.getPath();
     final String dirRelatePath = ignorePrefixLen > dirPath.length() ?
         "/" : dirPath.substring(ignorePrefixLen).replace(File.separatorChar, '/') + "/";
-    final ScanPathMatch matchStatus = scanSpecification.pathWhiteListMatchStatus(dirRelatePath);
-    switch (matchStatus) {
-      case NOT_WITHIN_WHITE_LISTED_PATH:
-      case WITHIN_BLACK_LISTED_PATH:
-        return;
+    final boolean matchStatus = scanSpecification.pathWhiteListMatchStatus(dirRelatePath);
+    if (!matchStatus) {
+      return;
     }
 
     final File[] filesInDir = dir.listFiles();
@@ -62,15 +60,15 @@ public class ClassPathElementDir extends ClasspathElement<File> {
     }
 
     for (final File file : filesInDir) {
-      if (entryIdx++ % 1024 == 0) {
+      if (count++ % 1024 == 0) {
         if (interruptionChecker.checkAndReturn()) {
           return;
         }
       }
 
       if (file.isDirectory()) {
-        scanDir(classRelativePath, file, ignorePrefixLen, scannedCanonicalPath, entryIdx);
-      } else if (file.isFile() && matchStatus == ScanPathMatch.WITHIN_WHITE_LISTED_PATH) {
+        scanDir(classRelativePath, file, ignorePrefixLen, scannedCanonicalPath, count);
+      } else if (file.isFile() && matchStatus) {
         String fileRelativePath = dirRelatePath + file.getName();
         if (ClassRelativePath.isClassFile(fileRelativePath)) {
           classFilesMap.put(fileRelativePath, file);

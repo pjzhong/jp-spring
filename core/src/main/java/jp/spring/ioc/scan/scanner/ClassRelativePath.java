@@ -12,29 +12,28 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ClassRelativePath {
 
+  private final String relativePath;
+  private final boolean isJar;
+  private String resolvedPath;
+  /**
+   * The canonical file for the relative path.
+   */
+  private File file;
+
+  public ClassRelativePath(String relativePath) {
+    this.relativePath = relativePath;
+    this.isJar = this.relativePath.contains("!") || ClassScanUtils.isJar(this.relativePath);
+  }
+
+
   public boolean isValidClasspathElement(ScanSpecification spec) {
     final String path = getResolvedPath();
     if (StringUtils.isBlank(path) || !exists()) {
       return false;
     }
 
-    try {
-      if (isFile()) {
-        if (!ClassScanUtils.isJar(getCanonicalPath())) {
-          return false;//ignore non-jar file on class path
-        }
-        ScanPathMatch matchStatus = spec.blockJdk(path);
-        switch (matchStatus) {
-          case WITHIN_BLACK_LISTED_PATH:
-            return false;
-        }
-      }
-    } catch (IOException e) {
-      //todo log this
-      return false;
-    }
-
-    return true;
+    //ignore non-jar file on class path
+    return !isFile() || (!spec.blockJdk(path) && isJar);
   }
 
   /**
@@ -43,14 +42,6 @@ public class ClassRelativePath {
   public static boolean isClassFile(final String path) {
     final int len = path.length();
     return len > 6 && path.regionMatches(true, len - 6, ".class", 0, 6);
-  }
-
-  public boolean isClassFile() {
-    return isClassFile(getResolvedPath());
-  }
-
-  public boolean isJar() {
-    return isJar;
   }
 
   public boolean exists() {
@@ -77,16 +68,9 @@ public class ClassRelativePath {
     }
   }
 
-  public String getCanonicalPath() throws IOException {
-    if (StringUtils.isEmpty(canonicalPath)) {
-      canonicalPath = asFile().getPath();
-    }
-    return canonicalPath;
-  }
-
   public String getResolvedPath() {
-    if (StringUtils.isEmpty(resolvedPath)) {
-      resolvedPath = FastPathResolver.resolve(basePath, relativePath);
+    if (StringUtils.isBlank(resolvedPath)) {
+      resolvedPath = FastPathResolver.resolve(relativePath);
     }
     return resolvedPath;
   }
@@ -96,7 +80,7 @@ public class ClassRelativePath {
       final String path = getResolvedPath();
       if (path == null) {
         throw new IOException(
-            "Path " + relativePath + " could not be resolved relative to " + basePath);
+            "Path " + relativePath + " could not be resolved relative to ");
       }
 
       file = new File(path);
@@ -109,25 +93,10 @@ public class ClassRelativePath {
     return file;
   }
 
-  public ClassRelativePath(String relativePath) {
-    this.basePath = "";
-    this.relativePath = relativePath;
-    this.isJar = this.relativePath.contains("!") || ClassScanUtils.isJar(this.relativePath);
-  }
-
-  public ClassRelativePath(String basePath, String relativePath) {
-    this.basePath = basePath;
-    this.relativePath = relativePath;
-    this.isJar = this.relativePath.contains("!") || ClassScanUtils.isJar(this.relativePath);
-  }
-
   @Override
   public String toString() {
-    try {
-      return getCanonicalPath();
-    } catch (IOException e) {
-      return getResolvedPath();
-    }
+    return "ClassRelativePath{" + "relativePath='" + getResolvedPath() + '\''
+        + '}';
   }
 
   @Override
@@ -139,30 +108,11 @@ public class ClassRelativePath {
       return false;
     }
     ClassRelativePath that = (ClassRelativePath) o;
-    try {
-      return Objects.equals(getCanonicalPath(), that.getCanonicalPath());
-    } catch (IOException e) {
-      return false;
-    }
+    return Objects.equals(relativePath, that.relativePath);
   }
 
   @Override
   public int hashCode() {
-    try {
-      return Objects.hash(getCanonicalPath());
-    } catch (IOException e) {
-      return 0;
-    }
+    return Objects.hash(relativePath);
   }
-
-  private final String basePath;
-  private final String relativePath;
-  private final boolean isJar;
-
-  private String resolvedPath;
-  /**
-   * The canonical file for the relative path.
-   */
-  private File file;
-  private String canonicalPath;
 }

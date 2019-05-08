@@ -42,7 +42,7 @@ public class ClasspathElementZip extends ClasspathElement<ZipEntry> {
 
   private void scanZipFile(ClassRelativePath classRelativePath, ZipFile zipFile) {
     String prevParentRelativePath = null;
-    ScanPathMatch prevMatchStatus = null;
+    boolean prevMatchStatus = false;
     for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements(); ) {
       final ZipEntry zipEntry = entries.nextElement();
       if (zipEntry.isDirectory()) {
@@ -54,22 +54,15 @@ public class ClasspathElementZip extends ClasspathElement<ZipEntry> {
       final String parentRelativePath =
           lastSlashIdx < 0 ? "/" : relativePath.substring(0, lastSlashIdx + 1);
       final boolean prevParentPathChange = !parentRelativePath.equals(prevParentRelativePath);
-      final ScanPathMatch matchStatus =
+      final boolean matchStatus =
           (prevParentRelativePath == null || prevParentPathChange)
               ? scanSpecification.pathWhiteListMatchStatus(parentRelativePath)
               : prevMatchStatus;
       prevParentRelativePath = parentRelativePath;
       prevMatchStatus = matchStatus;
 
-      switch (matchStatus) {
-        case WITHIN_BLACK_LISTED_PATH:
-        case NOT_WITHIN_WHITE_LISTED_PATH:
-          continue;
-        case WITHIN_WHITE_LISTED_PATH: {
-          if (ClassRelativePath.isClassFile(relativePath)) {
-            classFilesMap.put(relativePath, zipEntry);
-          }
-        }
+      if (matchStatus && ClassRelativePath.isClassFile(relativePath)) {
+        classFilesMap.put(relativePath, zipEntry);
       }
     }
   }

@@ -1,7 +1,6 @@
 package jp.spring.ioc.util;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -40,12 +39,7 @@ public class FileUtils {
             return files;
           }
 
-          File[] targetFiles = dir.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-              return file.getName().endsWith(fileExtension);
-            }
-          });
+          File[] targetFiles = dir.listFiles(f -> f.getName().endsWith(fileExtension));
           if (!TypeUtil.isEmpty(targetFiles)) {
             files.addAll(Arrays.asList(targetFiles));
           }

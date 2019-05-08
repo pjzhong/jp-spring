@@ -20,6 +20,16 @@ import java.util.Set;
 public abstract class ClasspathElement<F> implements AutoCloseable, Iterable<InputStream> {
 
   /**
+   * The list of whiteList classFiles found within this classpath resource, if scanFiles is true.
+   */
+  protected Map<String, F> classFilesMap = new HashMap<>();//relativePath , File
+  protected final ScanSpecification scanSpecification;
+
+  protected boolean ioExceptionOnOpen;
+  protected InterruptionChecker interruptionChecker;
+  protected ClassRelativePath classRelativePath;
+
+  /**
    * remove file encountered file from classFilesMap
    *
    * @param encounteredRelativePath the files has encountered in the run-time context
@@ -56,16 +66,6 @@ public abstract class ClasspathElement<F> implements AutoCloseable, Iterable<Inp
     this.interruptionChecker = checker;
     this.classRelativePath = classRelativePath;
   }
-
-  /**
-   * The list of whiteList classFiles found within this classpath resource, if scanFiles is true.
-   */
-  protected Map<String, F> classFilesMap = new HashMap<>();//relativePath , File
-  protected final ScanSpecification scanSpecification;
-
-  protected boolean ioExceptionOnOpen;
-  protected InterruptionChecker interruptionChecker;
-  protected ClassRelativePath classRelativePath;
 
   @Override
   public String toString() {

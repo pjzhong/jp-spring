@@ -3,7 +3,9 @@ package jp.spring.scan;
 import java.util.List;
 import jp.spring.ioc.cycle.service.A;
 import jp.spring.ioc.scan.FastClassPathScanner;
+import jp.spring.ioc.scan.scanner.ClassRelativePath;
 import jp.spring.ioc.scan.scanner.ClasspathFinder;
+import jp.spring.ioc.scan.scanner.ScanSpecification;
 import jp.spring.ioc.stereotype.Component;
 import jp.spring.ioc.stereotype.Service;
 import org.junit.Test;
@@ -27,7 +29,11 @@ public class ClassInDefaultPackage {
 
   @Test
   public void elementFindTest() {
+    ScanSpecification sepc = new ScanSpecification("jp.spring");
     final List<String> classPathElementStrings = new ClasspathFinder().getRawClassPathStrings();
-    classPathElementStrings.forEach(System.out::println);
+    classPathElementStrings.stream()
+        .peek(System.out::println)
+        .map(ClassRelativePath::new)
+        .filter(c -> c.isValidClasspathElement(sepc)).forEach(System.out::println);
   }
 }

@@ -14,27 +14,26 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ScanSpecification {
 
-  public ScanPathMatch pathWhiteListMatchStatus(final String relatePath) {
+  public boolean pathWhiteListMatchStatus(final String relatePath) {
 
     for (final String whiteList : whiteListPathPrefixes) {
-      if (relatePath.equals(whiteList) || relatePath.startsWith(whiteList)) {
-        return ScanPathMatch.WITHIN_WHITE_LISTED_PATH;
-      } else if (whiteList.startsWith(relatePath) || "/".equals(relatePath)) {
-        return ScanPathMatch.ANCESTOR_OF_WHITE_LISTED_PATH;
+      if (relatePath.equals(whiteList) || relatePath.startsWith(whiteList) ||
+          whiteList.startsWith(relatePath) || "/".equals(relatePath)) {
+        return true;
       }
     }
 
-    return ScanPathMatch.WITHIN_BLACK_LISTED_PATH;
+    return false;
   }
 
-  public ScanPathMatch blockJdk(final String relativePath) {
+  public boolean blockJdk(final String relativePath) {
     for (String jrePath : jrePaths) {
       if (relativePath.startsWith(jrePath)) {
-        return ScanPathMatch.WITHIN_BLACK_LISTED_PATH;
+        return true;
       }
     }
 
-    return ScanPathMatch.NOT_WITHIN_WHITE_LISTED_PATH;
+    return false;
   }
 
   public ScanSpecification(final String... specifications) {
@@ -83,7 +82,7 @@ public class ScanSpecification {
           path += File.separator;
         }
 
-        final String jrePath = FastPathResolver.resolve("", path);
+        final String jrePath = FastPathResolver.resolve(path);
         if (StringUtils.isNotBlank(jrePath)) {
           jrePathStr.add(jrePath);
         }
@@ -92,7 +91,7 @@ public class ScanSpecification {
           if (!canonicalPath.endsWith(File.separator)) {
             canonicalPath += File.separator;
           }
-          String jreCanonicalPath = FastPathResolver.resolve("", canonicalPath);
+          String jreCanonicalPath = FastPathResolver.resolve(canonicalPath);
           if (!jreCanonicalPath.equals(canonicalPath) && StringUtils.isNotBlank(jreCanonicalPath)) {
             jrePathStr.add(jreCanonicalPath);
           }

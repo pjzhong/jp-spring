@@ -43,9 +43,9 @@ public class FastPathResolver {
     return builder.toString();
   }
 
-  public static String resolve(final String resolveBasePath, final String relativePathStr) {
+  public static String resolve(final String relativePathStr) {
     if (StringUtils.isBlank(relativePathStr)) {
-      return resolveBasePath;
+      return relativePathStr;
     }
 
     //We don't fetch remote classpath entries, although they are theoretically valid if
@@ -59,7 +59,6 @@ public class FastPathResolver {
       startIdx += 4;
     }
 
-    boolean isAbsolutePath = false;
     String prefix = "";
     if (relativePathStr.startsWith("file:", startIdx)) {
       startIdx += 5;
@@ -69,7 +68,6 @@ public class FastPathResolver {
           ///Windows UNC URL
           startIdx += 4;
           prefix = "//";
-          isAbsolutePath = true;
         } else if (relativePathStr.startsWith("\\\\", startIdx)) {
           startIdx += 2;
         }
@@ -80,28 +78,16 @@ public class FastPathResolver {
     } else if (WINDOWS && (relativePathStr.startsWith("//") || relativePathStr.startsWith("\\"))) {
       startIdx += 2;
       prefix = "//";
-      isAbsolutePath = true;
     }
 
     //Handle Windows path starting with a drive designation as an absolute path
     if (WINDOWS) {
-      if (relativePathStr.length() - startIdx > 2
-          && Character.isLetter(relativePathStr.charAt(startIdx))
-          && relativePathStr.charAt(startIdx + 1) == ':') {
-        isAbsolutePath = true;
-      } else if (relativePathStr.length() - startIdx > 3
+      if (relativePathStr.length() - startIdx > 3
           && (relativePathStr.charAt(startIdx) == '/' || relativePathStr.charAt(startIdx) == '\\')
           && Character.isLetter(relativePathStr.charAt(startIdx + 1))
       ) {
-        isAbsolutePath = true;
         startIdx++;
       }
-    }
-
-    // Catch-all for paths starting with separator
-    if (relativePathStr.length() - startIdx > 1
-        && (relativePathStr.charAt(startIdx) == '/' || relativePathStr.charAt(startIdx) == '\\')) {
-      isAbsolutePath = true;
     }
 
     String pathStr = normalizePath(
@@ -110,10 +96,6 @@ public class FastPathResolver {
       pathStr = prefix + pathStr;
     }
 
-    if (resolveBasePath == null || isAbsolutePath) {
-      return pathStr;
-    } else {
-      return resolveBasePath + "/" + pathStr;
-    }
+    return pathStr;
   }
 }
