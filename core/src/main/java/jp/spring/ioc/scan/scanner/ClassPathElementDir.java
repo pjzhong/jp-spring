@@ -14,9 +14,11 @@ import java.util.Set;
  */
 public class ClassPathElementDir extends ClasspathElement<File> {
 
-  public ClassPathElementDir(ClassRelativePath classRelativePath, ScanSpecification spec,
-      InterruptionChecker checker) {
-    super(classRelativePath, spec, checker);
+  private ScanSpecification scanSpecification;
+
+  public ClassPathElementDir(ClassRelativePath classRelativePath, ScanSpecification spec) {
+    super(classRelativePath);
+    this.scanSpecification = spec;
     if (spec.isScanFiles()) {
       File dir;
       try {
@@ -28,12 +30,12 @@ public class ClassPathElementDir extends ClasspathElement<File> {
 
       classFilesMap = new HashMap<>();
       final Set<String> scannedCanonicalPaths = new HashSet<>();
-      scanDir(classRelativePath, dir, (dir.getPath().length() + 1), scannedCanonicalPaths, 0);
+      scanDir(dir, (dir.getPath().length() + 1), scannedCanonicalPaths);
     }
   }
 
-  private void scanDir(ClassRelativePath classRelativePath, File dir, final int ignorePrefixLen,
-      final Set<String> scannedCanonicalPath, int count) {
+  private void scanDir(File dir, final int ignorePrefixLen,
+      final Set<String> scannedCanonicalPath) {
     String canonicalPath;
     try {
       canonicalPath = dir.getCanonicalPath();
@@ -60,15 +62,9 @@ public class ClassPathElementDir extends ClasspathElement<File> {
     }
 
     for (final File file : filesInDir) {
-      if (count++ % 1024 == 0) {
-        if (interruptionChecker.checkAndReturn()) {
-          return;
-        }
-      }
-
       if (file.isDirectory()) {
-        scanDir(classRelativePath, file, ignorePrefixLen, scannedCanonicalPath, count);
-      } else if (file.isFile() && matchStatus) {
+        scanDir(file, ignorePrefixLen, scannedCanonicalPath);
+      } else if (file.isFile()) {
         String fileRelativePath = dirRelatePath + file.getName();
         if (ClassRelativePath.isClassFile(fileRelativePath)) {
           classFilesMap.put(fileRelativePath, file);

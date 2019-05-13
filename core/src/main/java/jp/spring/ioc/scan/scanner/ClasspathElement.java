@@ -2,7 +2,7 @@ package jp.spring.ioc.scan.scanner;
 
 
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -22,11 +22,9 @@ public abstract class ClasspathElement<F> implements AutoCloseable, Iterable<Inp
   /**
    * The list of whiteList classFiles found within this classpath resource, if scanFiles is true.
    */
-  protected Map<String, F> classFilesMap = new HashMap<>();//relativePath , File
-  protected final ScanSpecification scanSpecification;
+  protected Map<String, F> classFilesMap = Collections.emptyMap();//relativePath , File
 
   protected boolean ioExceptionOnOpen;
-  protected InterruptionChecker interruptionChecker;
   protected ClassRelativePath classRelativePath;
 
   /**
@@ -60,10 +58,7 @@ public abstract class ClasspathElement<F> implements AutoCloseable, Iterable<Inp
 
   public abstract void close();
 
-  ClasspathElement(ClassRelativePath classRelativePath, ScanSpecification spec,
-      InterruptionChecker checker) {
-    this.scanSpecification = spec;
-    this.interruptionChecker = checker;
+  ClasspathElement(ClassRelativePath classRelativePath) {
     this.classRelativePath = classRelativePath;
   }
 

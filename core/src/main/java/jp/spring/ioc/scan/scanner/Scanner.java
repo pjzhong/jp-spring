@@ -20,7 +20,6 @@ import jp.spring.ioc.scan.beans.ClassInfoBuilder;
 public class Scanner implements Callable<ClassGraph> {
 
   private final ScanSpecification specification;
-  private final InterruptionChecker interruptionChecker = new InterruptionChecker();
 
   public Scanner(ScanSpecification specification) {
     this.specification = specification;
@@ -85,9 +84,9 @@ public class Scanner implements Callable<ClassGraph> {
 
   private ClasspathElement newClassElement(ClassRelativePath relativePath) {
     if (relativePath.isDirectory()) {
-      return new ClassPathElementDir(relativePath, specification, interruptionChecker);
+      return new ClassPathElementDir(relativePath, specification);
     } else {
-      return new ClasspathElementZip(relativePath, specification, interruptionChecker);
+      return new ClasspathElementZip(relativePath, specification);
     }
   }
 

@@ -14,9 +14,11 @@ import java.util.zip.ZipFile;
  */
 public class ClasspathElementZip extends ClasspathElement<ZipEntry> {
 
-  public ClasspathElementZip(ClassRelativePath classRelativePath, ScanSpecification spec,
-      InterruptionChecker checker) {
-    super(classRelativePath, spec, checker);
+  private ScanSpecification scanSpecification;
+
+  public ClasspathElementZip(ClassRelativePath classRelativePath, ScanSpecification spec) {
+    super(classRelativePath);
+    this.scanSpecification = spec;
     final File classpathFile;
     try {
       classpathFile = classRelativePath.asFile();
@@ -32,15 +34,14 @@ public class ClasspathElementZip extends ClasspathElement<ZipEntry> {
 
     try {
       zipFile = new ZipFile(classpathFile);
-      classFilesMap = new HashMap<>(zipFile.size());//in case zero length
-      scanZipFile(classRelativePath, zipFile);
+      classFilesMap = new HashMap<>();
+      scanZipFile(zipFile);
     } catch (IOException e) {
       ioExceptionOnOpen = true;
-      return;
     }
   }
 
-  private void scanZipFile(ClassRelativePath classRelativePath, ZipFile zipFile) {
+  private void scanZipFile(ZipFile zipFile) {
     String prevParentRelativePath = null;
     boolean prevMatchStatus = false;
     for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements(); ) {
