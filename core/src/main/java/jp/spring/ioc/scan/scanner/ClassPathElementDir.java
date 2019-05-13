@@ -19,27 +19,25 @@ public class ClassPathElementDir extends ClasspathElement<File> {
   public ClassPathElementDir(ClassRelativePath classRelativePath, ScanSpecification spec) {
     super(classRelativePath);
     this.scanSpecification = spec;
-    if (spec.isScanFiles()) {
-      File dir;
-      try {
-        dir = classRelativePath.asFile();
-      } catch (IOException e) {
-        ioExceptionOnOpen = true;
-        return;
-      }
-
-      classFilesMap = new HashMap<>();
-      final Set<String> scannedCanonicalPaths = new HashSet<>();
-      scanDir(dir, (dir.getPath().length() + 1), scannedCanonicalPaths);
+    File dir;
+    try {
+      dir = classRelativePath.asFile();
+    } catch (IOException e) {
+      ioExceptionOnOpen = true;
+      return;
     }
+
+    classFilesMap = new HashMap<>();
+    scanDir(dir, (dir.getPath().length() + 1), new HashSet<>());
+
   }
 
-  private void scanDir(File dir, final int ignorePrefixLen,
-      final Set<String> scannedCanonicalPath) {
+  private void scanDir(File dir, int ignorePrefixLen,
+      final Set<String> scanned) {
     String canonicalPath;
     try {
       canonicalPath = dir.getCanonicalPath();
-      if (!scannedCanonicalPath.add(canonicalPath)) {
+      if (!scanned.add(canonicalPath)) {
         System.out.format("Stop recursion at : %s", canonicalPath);
         return;
       }
@@ -63,7 +61,7 @@ public class ClassPathElementDir extends ClasspathElement<File> {
 
     for (final File file : filesInDir) {
       if (file.isDirectory()) {
-        scanDir(file, ignorePrefixLen, scannedCanonicalPath);
+        scanDir(file, ignorePrefixLen, scanned);
       } else if (file.isFile()) {
         String fileRelativePath = dirRelatePath + file.getName();
         if (ClassRelativePath.isClassFile(fileRelativePath)) {
@@ -93,7 +91,6 @@ public class ClassPathElementDir extends ClasspathElement<File> {
       }
     };
   }
-
 
   //do nothing;
   @Override

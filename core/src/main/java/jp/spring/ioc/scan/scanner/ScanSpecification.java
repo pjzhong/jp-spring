@@ -14,8 +14,25 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ScanSpecification {
 
-  public boolean pathWhiteListMatchStatus(final String relatePath) {
+  private List<String> whiteListPathPrefixes = new ArrayList<>();
+  private Set<String> jrePaths;
 
+  public ScanSpecification(final String... specifications) {
+    final Set<String> uniqueWhiteListPathPrefixes = new HashSet<>();
+    for (String specification : specifications) {
+      String specPath = specification.replace('.', '/');
+      if (!specPath.equals("/")) {
+        specPath += "/";
+      }// '/' mean scan all
+      uniqueWhiteListPathPrefixes.add(specPath);
+    }
+
+    jrePaths = getJrePaths();
+    //process whiteListed
+    whiteListPathPrefixes.addAll(uniqueWhiteListPathPrefixes);
+  }
+
+  public boolean pathWhiteListMatchStatus(final String relatePath) {
     for (final String whiteList : whiteListPathPrefixes) {
       if (relatePath.equals(whiteList) || relatePath.startsWith(whiteList) ||
           whiteList.startsWith(relatePath) || "/".equals(relatePath)) {
@@ -34,21 +51,6 @@ public class ScanSpecification {
     }
 
     return false;
-  }
-
-  public ScanSpecification(final String... specifications) {
-    final Set<String> uniqueWhiteListPathPrefixes = new HashSet<>();
-    for (String specification : specifications) {
-      String specPath = specification.replace('.', '/');
-      if (!specPath.equals("/")) {
-        specPath += "/";
-      }// '/' mean scan all
-      uniqueWhiteListPathPrefixes.add(specPath);
-    }
-
-    jrePaths = getJrePaths();
-    //process whiteListed
-    whiteListPathPrefixes.addAll(uniqueWhiteListPathPrefixes);
   }
 
   private Set<String> getJrePaths() {
@@ -104,12 +106,4 @@ public class ScanSpecification {
     return jrePathStr;
   }
 
-  public boolean isScanFiles() {
-    return scanFiles;
-  }
-
-  private List<String> whiteListPathPrefixes = new ArrayList<>();
-  private Set<String> jrePaths;
-
-  private boolean scanFiles = true;
 }
