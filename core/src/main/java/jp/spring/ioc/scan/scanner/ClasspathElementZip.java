@@ -3,11 +3,16 @@ package jp.spring.ioc.scan.scanner;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import jp.spring.ioc.scan.beans.ClassInfoBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Administrator on 11/5/2017.
@@ -15,6 +20,7 @@ import java.util.zip.ZipFile;
 public class ClasspathElementZip extends ClasspathElement<ZipEntry> {
 
   private ScanSpecification scanSpecification;
+  private static Logger logger = LoggerFactory.getLogger(ClasspathElementZip.class);
 
   public ClasspathElementZip(ClassRelativePath classRelativePath, ScanSpecification spec) {
     super(classRelativePath);
@@ -68,6 +74,26 @@ public class ClasspathElementZip extends ClasspathElement<ZipEntry> {
     }
   }
 
+  public List<ClassInfoBuilder> parse(ClassFileBinaryParser parser) {
+    Collection<ZipEntry> files = classFilesMap.values();
+    List<ClassInfoBuilder> builders = new ArrayList<>(files.size());
+
+    for (ZipEntry file : files) {
+      try {
+        InputStream stream = zipFile.getInputStream(file);
+        ClassInfoBuilder b = parser.parse(stream);
+        if (b != null) {
+          builders.add(b);
+        } else {
+          logger.error("can't not parse {}", file);
+        }
+      } catch (IOException e) {
+        logger.error("parse {} error", file);
+      }
+    }
+    return builders;
+  }
+
   public void close() {
     try {
       if (zipFile != null) {
@@ -75,31 +101,9 @@ public class ClasspathElementZip extends ClasspathElement<ZipEntry> {
       }
       classFilesMap.clear();
     } catch (IOException e) {
-      //todo log this
-      throw new RuntimeException(e);
+      logger.error("close {}, error:{}", zipFile, e);
     }
   }
 
   private ZipFile zipFile;
-
-  @Override
-  public Iterator<InputStream> iterator() {
-    return new Iterator<InputStream>() {
-      private Iterator<ZipEntry> zipEntryIterator = classFilesMap.values().iterator();
-
-      @Override
-      public boolean hasNext() {
-        return zipEntryIterator.hasNext();
-      }
-
-      @Override
-      public InputStream next() {
-        try {
-          return zipFile.getInputStream(zipEntryIterator.next());
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        }
-      }
-    };
-  }
 }

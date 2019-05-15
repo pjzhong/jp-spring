@@ -1,7 +1,6 @@
 package jp.spring.ioc.scan.scanner;
 
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.stream.Collectors;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfoBuilder;
 
@@ -55,21 +54,11 @@ public class Scanner implements Callable<ClassGraph> {
 
     // start to parse the class files found in the runtime context */
     long parseStart = System.currentTimeMillis();
-    final ConcurrentLinkedQueue<ClassInfoBuilder> infoBuilders = new ConcurrentLinkedQueue<>();
     ClassFileBinaryParser parser = new ClassFileBinaryParser();
-    classpathOrder.parallelStream().forEach(c ->
-        c.iterator().forEachRemaining(i -> {
-          ClassInfoBuilder builder = null;
-          try {
-            builder = parser.parse(i);
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-          if (builder != null) {
-            infoBuilders.add(builder);
-          }
-        })
-    );
+    List<ClassInfoBuilder> infoBuilders = classpathOrder.parallelStream()
+        .map(c -> c.parse(parser))
+        .flatMap(List::stream)
+        .collect(Collectors.toList());
     classpathOrder.forEach(ClasspathElement::close);
     System.out.format(
         "parsed done cost:%s%n", System.currentTimeMillis() - parseStart);

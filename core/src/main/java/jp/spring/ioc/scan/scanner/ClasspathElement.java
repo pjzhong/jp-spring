@@ -1,13 +1,13 @@
 package jp.spring.ioc.scan.scanner;
 
 
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import jp.spring.ioc.scan.beans.ClassInfoBuilder;
 
 
 /**
@@ -17,15 +17,19 @@ import java.util.Set;
  *
  * Iterator can iterate through the input of file found in this ClasspathElement
  */
-public abstract class ClasspathElement<F> implements AutoCloseable, Iterable<InputStream> {
+public abstract class ClasspathElement<F> implements AutoCloseable {
 
   /**
    * The list of whiteList classFiles found within this classpath resource, if scanFiles is true.
    */
-  protected Map<String, F> classFilesMap = Collections.emptyMap();//relativePath , File
+  Map<String, F> classFilesMap = Collections.emptyMap();//relativePath , File
 
-  protected boolean ioExceptionOnOpen;
-  protected ClassRelativePath classRelativePath;
+  boolean ioExceptionOnOpen;
+  ClassRelativePath classRelativePath;
+
+  ClasspathElement(ClassRelativePath classRelativePath) {
+    this.classRelativePath = classRelativePath;
+  }
 
   /**
    * remove file encountered file from classFilesMap
@@ -49,18 +53,11 @@ public abstract class ClasspathElement<F> implements AutoCloseable, Iterable<Inp
     return classFilesMap.isEmpty();
   }
 
-  /**
-   * iterate through all the inputStreams(open from the file founded in this ClasspathElement)
-   *
-   * @return an Iterator.
-   */
-  public abstract Iterator<InputStream> iterator();
-
+  @Override
   public abstract void close();
 
-  ClasspathElement(ClassRelativePath classRelativePath) {
-    this.classRelativePath = classRelativePath;
-  }
+  public abstract List<ClassInfoBuilder> parse(ClassFileBinaryParser parser);
+
 
   @Override
   public String toString() {

@@ -4,15 +4,22 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
+import jp.spring.ioc.scan.beans.ClassInfoBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * FastClassPathScanner的ClassElement设计不好，竟然在父类里面提供初始化子类的方法 虽然说不对外公开，但这样读起来真的很容疑惑。 .
  */
 public class ClassPathElementDir extends ClasspathElement<File> {
+
+  private static Logger logger = LoggerFactory.getLogger(ClassPathElementDir.class);
 
   private ScanSpecification scanSpecification;
 
@@ -38,11 +45,11 @@ public class ClassPathElementDir extends ClasspathElement<File> {
     try {
       canonicalPath = dir.getCanonicalPath();
       if (!scanned.add(canonicalPath)) {
-        System.out.format("Stop recursion at : %s", canonicalPath);
+        logger.info("Stop recursion at : {}", canonicalPath);
         return;
       }
     } catch (IOException | SecurityException e) {
-      //todo log this
+      logger.error("scan {}, error:{}", dir, e);
       return;
     }
 
@@ -71,26 +78,26 @@ public class ClassPathElementDir extends ClasspathElement<File> {
     }
   }
 
-  @Override
-  public Iterator<InputStream> iterator() {
-    return new Iterator<InputStream>() {
-      private Iterator<File> fileIterator = classFilesMap.values().iterator();
+  public List<ClassInfoBuilder> parse(ClassFileBinaryParser parser) {
+    Collection<File> files = classFilesMap.values();
+    List<ClassInfoBuilder> builders = new ArrayList<>(files.size());
 
-      @Override
-      public boolean hasNext() {
-        return fileIterator.hasNext();
-      }
-
-      @Override
-      public InputStream next() {
-        try {
-          return new FileInputStream(fileIterator.next());
-        } catch (Exception e) {
-          throw new RuntimeException(e);
+    for (File file : files) {
+      try {
+        InputStream stream = new FileInputStream(file);
+        ClassInfoBuilder b = parser.parse(stream);
+        if (b != null) {
+          builders.add(b);
+        } else {
+          logger.error("can't not parse {}", file);
         }
+      } catch (IOException e) {
+        logger.error("parse {} error", file);
       }
-    };
+    }
+    return builders;
   }
+
 
   //do nothing;
   @Override
