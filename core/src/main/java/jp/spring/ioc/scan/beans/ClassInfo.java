@@ -7,7 +7,9 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -42,8 +44,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   private Set<ClassInfo> getDirectlyRelatedClass(Relation relation) {
-    Set<ClassInfo> relatedClass = relations.get(relation);
-    return relatedClass == null ? Collections.emptySet() : relatedClass;
+    return ObjectUtils.defaultIfNull(relations.get(relation), Collections.emptySet());
   }
 
   private Set<ClassInfo> getReachableClasses(Relation relation) {
@@ -240,15 +241,13 @@ public class ClassInfo implements Comparable<ClassInfo> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-
     ClassInfo classInfo = (ClassInfo) o;
-
-    return className.equals(classInfo.className);
+    return Objects.equals(className, classInfo.className);
   }
 
   @Override
   public int hashCode() {
-    return className.hashCode();
+    return Objects.hash(className);
   }
 
   @Override

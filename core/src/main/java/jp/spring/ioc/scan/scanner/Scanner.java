@@ -52,22 +52,20 @@ public class Scanner implements Callable<ClassGraph> {
         elementMap);
     System.out.format("mask done cost:%s%n", System.currentTimeMillis() - maskStart);
 
-    // start to parse the class files found in the runtime context */
+    // start to parse the class files found in the runtime context
     long parseStart = System.currentTimeMillis();
     ClassFileBinaryParser parser = new ClassFileBinaryParser();
     List<ClassInfoBuilder> infoBuilders = classpathOrder.parallelStream()
-        .map(c -> c.parse(parser))
+        .map(c -> c.parse(parser))// Scanning
         .flatMap(List::stream)
         .collect(Collectors.toList());
     classpathOrder.forEach(ClasspathElement::close);
-    System.out.format(
-        "parsed done cost:%s%n", System.currentTimeMillis() - parseStart);
+    System.out.format("parsed done cost:%s%n", System.currentTimeMillis() - parseStart);
 
     // build the classGraph in single-thread
     long buildStart = System.currentTimeMillis();
-    ClassGraph classGraph = ClassGraph.builder(specification, infoBuilders).build();
-    System.out.format(
-        "buildGraph cost:%s%n", System.currentTimeMillis() - buildStart);
+    ClassGraph classGraph = ClassGraph.builder(infoBuilders).build();
+    System.out.format("buildGraph cost:%s%n", System.currentTimeMillis() - buildStart);
     return classGraph;
   }
 

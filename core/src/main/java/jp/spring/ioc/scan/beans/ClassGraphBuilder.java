@@ -3,7 +3,6 @@ package jp.spring.ioc.scan.beans;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import jp.spring.ioc.scan.scanner.ScanSpecification;
 
 /**
  * Created by Administrator on 2017/11/22.
@@ -11,19 +10,17 @@ import jp.spring.ioc.scan.scanner.ScanSpecification;
 public class ClassGraphBuilder {
 
   public ClassGraph build() {
-    Map<String, ClassInfo> infoMap = new HashMap<>(builders.size( ));
+    Map<String, ClassInfo> infoMap = new HashMap<>(builders.size());
     for (ClassInfoBuilder builder : builders) {
       builder.build(infoMap);
     }
 
-    return new ClassGraph(specification, infoMap);
+    return new ClassGraph(infoMap);
   }
 
-  ClassGraphBuilder(ScanSpecification specification, Collection<ClassInfoBuilder> builders) {
-    this.specification = specification;
+  ClassGraphBuilder(Collection<ClassInfoBuilder> builders) {
     this.builders = builders;
   }
 
-  private final ScanSpecification specification;
   private final Collection<ClassInfoBuilder> builders;
 }

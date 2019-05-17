@@ -1,92 +1,87 @@
 package jp.spring.ioc.scan.beans;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import jp.spring.ioc.scan.scanner.ScanSpecification;
 import jp.spring.ioc.scan.utils.ClassScanUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Created by Administrator on 11/12/2017.
  */
 public class ClassGraph {
 
-  public List<ClassInfo> getAllInterfaces() {
+  public Set<ClassInfo> getAllInterfaces() {
     return classBeans.values()
         .parallelStream()
         .filter(c -> c.isInterface() && c.isClassFileScanned())
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
   }
 
-  public List<ClassInfo> getAllAnnotations() {
+  public Set<ClassInfo> getAllAnnotations() {
     return classBeans.values()
         .parallelStream()
         .filter(c -> c.isAnnotation() && c.isClassFileScanned())
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
   }
 
-  public List<ClassInfo> getAllStandardClass() {
+  public Set<ClassInfo> getAllStandardClass() {
     return classBeans.values()
         .parallelStream()
         .filter(c -> c.isStandardClass() && c.isClassFileScanned())
-        .collect(Collectors.toList());
+        .collect(Collectors.toSet());
   }
 
-  public List<ClassInfo> getInfoOfClassSuperClassOf(Class<?> target) {
+  public Set<ClassInfo> getInfoOfClassSuperClassOf(Class<?> target) {
     final ClassInfo info = classBeans.get(target.getName());
-    return (info == null) ? Collections.emptyList() : new ArrayList<>(info.getSuperClasses());
+    return ObjectUtils.defaultIfNull(info.getSuperClasses(), Collections.emptySet());
   }
 
-  public List<ClassInfo> getInfoOfClassSubClassOf(Class<?> target) {
+  public Set<ClassInfo> getInfoOfClassSubClassOf(Class<?> target) {
     final ClassInfo info = classBeans.get(target.getName());
-    return (info == null) ? Collections.emptyList() : new ArrayList<>(info.getSubClasses());
+    return ObjectUtils.defaultIfNull(info.getSubClasses(), Collections.emptySet());
   }
 
   /**
    * return all standard class(include abstract) that implementing the specific interface,exclude
    * interface and annotation
    */
-  public List<ClassInfo> getInfoOfClassImplementing(Class<?> targetInterfaces) {
+  public Set<ClassInfo> getInfoOfClassImplementing(Class<?> targetInterfaces) {
     final ClassInfo info = classBeans.get(ClassScanUtils.interfaceName(targetInterfaces));
     if (info == null) {
-      return Collections.emptyList();
+      return Collections.emptySet();
     } else {
-      Set<ClassInfo> reachableClasses = filterClassInfo(info.getClassesImplementing(),
+      return filterClassInfo(info.getClassesImplementing(),
           ClassType.STANDARD_CLASS);
-      return new ArrayList<>(reachableClasses);
     }
   }
 
   /***
    * return All class that annotated by the specific annotation , exclude annotation
    */
-  public List<ClassInfo> getInfoOfClassesWithMethodAnnotation(Class<?> targetAnnotation) {
+  public Set<ClassInfo> getInfoOfClassesWithMethodAnnotation(Class<?> targetAnnotation) {
     final ClassInfo info = classBeans.get(ClassScanUtils.annotationName(targetAnnotation));
     if (info == null) {
-      return Collections.emptyList();
+      return Collections.emptySet();
     } else {
-      Set<ClassInfo> classWithAnnotation = filterClassInfo(info.getClassesWithMethodAnnotation(),
+      return filterClassInfo(info.getClassesWithMethodAnnotation(),
           ClassType.STANDARD_CLASS, ClassType.INTERFACES);
-
-      return new ArrayList<>(classWithAnnotation);
     }
   }
 
-  public List<ClassInfo> getInfoOfClassesWithFieldAnnotation(Class<?> targetAnnotation) {
+  public Set<ClassInfo> getInfoOfClassesWithFieldAnnotation(Class<?> targetAnnotation) {
     final ClassInfo info = classBeans.get(ClassScanUtils.annotationName(targetAnnotation));
-    return (info == null) ? Collections.emptyList()
-        : new ArrayList<>(info.getClassesWithFieldAnnotation());
+    return (info == null) ? Collections.emptySet()
+        : info.getClassesWithFieldAnnotation();
   }
 
-  public List<ClassInfo> getInfoOfClassesWithAnnotation(Class<?> targetAnnotation) {
+  public Set<ClassInfo> getInfoOfClassesWithAnnotation(Class<?> targetAnnotation) {
     final ClassInfo info = classBeans.get(ClassScanUtils.annotationName(targetAnnotation));
-    return (info == null) ? Collections.emptyList()
-        : new ArrayList<>(info.getClassesWithAnnotation());
+    return (info == null) ? Collections.emptySet()
+        : info.getClassesWithAnnotation();
   }
 
   private Set<ClassInfo> filterClassInfo(Set<ClassInfo> infoSet, ClassType... classTypes) {
@@ -141,18 +136,16 @@ public class ClassGraph {
     return infoAfterFiltered;
   }
 
-  public static ClassGraphBuilder builder(ScanSpecification specification,
+  public static ClassGraphBuilder builder(
       Collection<ClassInfoBuilder> builders) {
-    return new ClassGraphBuilder(specification, builders);
+    return new ClassGraphBuilder(builders);
   }
 
-  ClassGraph(ScanSpecification specification, Map<String, ClassInfo> infoMap) {
-    this.specification = specification;
+  ClassGraph(Map<String, ClassInfo> infoMap) {
     this.classBeans = infoMap;
   }
 
-  public final Map<String, ClassInfo> classBeans;
-  private final ScanSpecification specification;
+  private final Map<String, ClassInfo> classBeans;
 
   private enum ClassType {
     ALL,
