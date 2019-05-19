@@ -12,13 +12,23 @@ import jp.spring.ioc.scan.utils.ReflectionUtils;
  */
 public class MethodInfo {
 
+  private final String className;
+  private final String methodName;
+  private final int modifiers;
+  private final List<String> parameterTypeStrings;
+  private final String returnTypeStr;
+
+  private boolean isConstructor = false;
+  private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
+  private Object defaultValues;
+
   public static MethodInfoBuilder builder(String className, String methodName,
-      String typeDescriptor, int accessFalg) {
-    return new MethodInfoBuilder(className, methodName, typeDescriptor, accessFalg);
+      String typeDescriptor, int accessFlag) {
+    return new MethodInfoBuilder(className, methodName, typeDescriptor, accessFlag);
   }
 
   MethodInfo(String className, String methodName, int modifiers, String typeDescriptor) {
-    this.belongToClass = className;
+    this.className = className;
     this.methodName = methodName;
     this.modifiers = modifiers;
 
@@ -29,16 +39,6 @@ public class MethodInfo {
     this.parameterTypeStrings = typeNames.subList(0, typeNames.size() - 1);
     this.returnTypeStr = typeNames.get(typeNames.size() - 1);
   }
-
-  private final String belongToClass;
-  private final String methodName;
-  private final int modifiers;
-  private final List<String> parameterTypeStrings;
-  private final String returnTypeStr;
-
-  private boolean isConstructor = false;
-  private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
-  private Object defaultValues;
 
   void setAnnotations(Map<String, AnnotationInfo> annotations) {
     this.annotations = annotations;
@@ -193,14 +193,14 @@ public class MethodInfo {
       return false;
     }
     MethodInfo that = (MethodInfo) o;
-    return Objects.equals(belongToClass, that.belongToClass) &&
+    return Objects.equals(className, that.className) &&
         Objects.equals(methodName, that.methodName) &&
         Objects.equals(parameterTypeStrings, that.parameterTypeStrings);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(belongToClass, methodName, parameterTypeStrings);
+    return Objects.hash(className, methodName, parameterTypeStrings);
   }
 
   @Override
@@ -229,7 +229,7 @@ public class MethodInfo {
           throw new IllegalArgumentException(
               "Got non-array type for last parameter of varargs method " + methodName);
         }
-        buf.append(paramType.substring(0, paramType.length() - 2));
+        buf.append(paramType, 0, paramType.length() - 2);
         buf.append("...");
       } else {
         buf.append(paramType);

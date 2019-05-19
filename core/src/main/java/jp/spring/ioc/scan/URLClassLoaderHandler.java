@@ -1,4 +1,4 @@
-package jp.spring.ioc.scan.classloaderhandler;
+package jp.spring.ioc.scan;
 
 import java.net.URL;
 import java.net.URLClassLoader;

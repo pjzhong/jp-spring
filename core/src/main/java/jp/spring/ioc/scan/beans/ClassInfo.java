@@ -9,11 +9,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created by Administrator on 11/6/2017.
+ * @link https://github.com/classgraph/classgraph/blob/master/src/main/java/io/github/classgraph/ClassInfo.java
  */
 public class ClassInfo implements Comparable<ClassInfo> {
 
@@ -25,36 +23,40 @@ public class ClassInfo implements Comparable<ClassInfo> {
   /**
    * True when a class has been scanned(i.e its classFile contents read), as opposed to only being
    * referenced by another class' classFile as a superclass/superInterface/annotation. If
-   * classFileScanned is true, then this also must be a whiteListed (and non-blacklisted) class in a
+   *
+   * @code isScanned is true, then this also must be a whiteListed (and non-blacklisted) class in a
    * whiteListed(and non-blackListed) package
    */
-  boolean classFileScanned;
+  boolean isScanned;
 
-  private List<FieldInfo> fieldInfoList = Collections.emptyList();
-  private List<MethodInfo> methodInfoList = Collections.emptyList();
+  private List<FieldInfo> fieldInfos = Collections.emptyList();
+  private List<MethodInfo> methodInfos = Collections.emptyList();
   private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
+
+  public static ClassInfoBuilder builder(String className, int accessFlag) {
+    return new ClassInfoBuilder(className, accessFlag);
+  }
 
   ClassInfo(String className) {
     this.className = className;
   }
 
-  private boolean addRelatedClass(Relation relation, ClassInfo info) {
-    Set<ClassInfo> infos = relations.computeIfAbsent(relation, k -> new HashSet<>());
-    return infos.add(info);
+  private void related(Relation relation, ClassInfo info) {
+    relations.computeIfAbsent(relation, k -> new HashSet<>()).add(info);
   }
 
   private Set<ClassInfo> getDirectlyRelatedClass(Relation relation) {
-    return ObjectUtils.defaultIfNull(relations.get(relation), Collections.emptySet());
+    return relations.getOrDefault(relation, Collections.emptySet());
   }
 
   private Set<ClassInfo> getReachableClasses(Relation relation) {
-    final Set<ClassInfo> directlyRelatedCLasses = getDirectlyRelatedClass(relation);
-    if (directlyRelatedCLasses.isEmpty()) {
-      return directlyRelatedCLasses;
+    final Set<ClassInfo> related = getDirectlyRelatedClass(relation);
+    if (related.isEmpty()) {
+      return related;
     }
 
-    Set<ClassInfo> reachableClasses = new HashSet<>(directlyRelatedCLasses);
-    LinkedList<ClassInfo> queue = new LinkedList<>(directlyRelatedCLasses);
+    Set<ClassInfo> reachableClasses = new HashSet<>(related);
+    LinkedList<ClassInfo> queue = new LinkedList<>(related);
     while (!queue.isEmpty()) {
       ClassInfo head = queue.removeFirst();
       for (final ClassInfo info : head.getDirectlyRelatedClass(relation)) {
@@ -68,74 +70,68 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   void addSuperclass(String superclassName, ClassInfoBuilder builder) {
-    if (StringUtils.isNotBlank(superclassName)) {
-      final ClassInfo superClass = builder.getClassInfo(superclassName);
-      this.addRelatedClass(Relation.SUPERCLASSES, superClass);
-      superClass.addRelatedClass(Relation.SUBCLASSES, this);
-    }
+    ClassInfo superClass = builder.getClassInfo(superclassName);
+    superClass.related(Relation.SUBCLASSES, this);
+
+    this.related(Relation.SUPERCLASSES, superClass);
   }
 
   void addImplementedInterface(String interfaceName, ClassInfoBuilder builder) {
-    if (StringUtils.isNotBlank(interfaceName)) {
-      final ClassInfo interfaceClass = builder.getClassInfo(interfaceName);
-      interfaceClass.isInterface = true;
-      this.addRelatedClass(Relation.IMPLEMENTED_INTERFACES, interfaceClass);
-      interfaceClass.addRelatedClass(Relation.CLASSES_IMPLEMENTING, this);
-    }
+    ClassInfo interfaceClass = builder.getClassInfo(interfaceName);
+    interfaceClass.isInterface = true;
+    interfaceClass.related(Relation.CLASSES_IMPLEMENTING, this);
+
+    this.related(Relation.IMPLEMENTED_INTERFACES, interfaceClass);
   }
 
   void addAnnotation(AnnotationInfo annotation, ClassInfoBuilder builder) {
-    if (annotation != null) {
-      final ClassInfo annotationClass = builder.getClassInfo(annotation.getName());
-      annotationClass.isAnnotation = true;
-      this.addRelatedClass(Relation.ANNOTATIONS, annotationClass);
-      annotationClass.addRelatedClass(Relation.ANNOTATED_CLASSES, this);
+    final ClassInfo annotationClass = builder.getClassInfo(annotation.getName());
+    annotationClass.isAnnotation = true;
+    annotationClass.related(Relation.ANNOTATED_CLASSES, this);
 
-      if (annotations == Collections.EMPTY_MAP) {
-        annotations = new HashMap<>();
-      }
-      annotations.put(annotation.getName(), annotation);
+    this.related(Relation.ANNOTATIONS, annotationClass);
+    if (annotations == Collections.EMPTY_MAP) {
+      annotations = new HashMap<>();
     }
+    annotations.put(annotation.getName(), annotation);
   }
 
   void addMethodAnnotation(String annotationName, ClassInfoBuilder builder) {
-    if (StringUtils.isNotBlank(annotationName)) {
-      final ClassInfo annotationClass = builder.getClassInfo(annotationName);
-      annotationClass.isAnnotation = true;
-      this.addRelatedClass(Relation.METHOD_ANNOTATIONS, annotationClass);
-      annotationClass.addRelatedClass(Relation.CLASSES_WITH_METHOD_ANNOTATION, this);
-    }
+    ClassInfo annotationClass = builder.getClassInfo(annotationName);
+    annotationClass.isAnnotation = true;
+
+    annotationClass.related(Relation.CLASSES_WITH_METHOD_ANNOTATION, this);
+    this.related(Relation.METHOD_ANNOTATIONS, annotationClass);
   }
 
   void addFieldAnnotation(String annotationName, ClassInfoBuilder builder) {
-    if (StringUtils.isNotBlank(annotationName)) {
-      final ClassInfo annotationClass = builder.getClassInfo(annotationName);
-      annotationClass.isAnnotation = true;
-      this.addRelatedClass(Relation.FIELD_ANNOTATIONS, annotationClass);
-      annotationClass.addRelatedClass(Relation.CLASSES_WITH_FIELD_ANNOTATION, this);
-    }
+    ClassInfo annotationClass = builder.getClassInfo(annotationName);
+    annotationClass.isAnnotation = true;
+    annotationClass.related(Relation.CLASSES_WITH_FIELD_ANNOTATION, this);
+
+    this.related(Relation.FIELD_ANNOTATIONS, annotationClass);
   }
 
   /**
    * Add field info.
    */
   void addFieldInfo(final List<FieldInfo> fieldInfoList) {
-    if (this.fieldInfoList == Collections.EMPTY_LIST) {
-      this.fieldInfoList = new ArrayList<>();
+    if (this.fieldInfos == Collections.EMPTY_LIST) {
+      this.fieldInfos = new ArrayList<>();
     }
 
-    this.fieldInfoList.addAll(fieldInfoList);
+    this.fieldInfos.addAll(fieldInfoList);
   }
 
   /**
    * Add method info.
    */
   void addMethodInfo(final List<MethodInfo> methodInfoList) {
-    if (this.methodInfoList == Collections.EMPTY_LIST) {
-      this.methodInfoList = new ArrayList<>();
+    if (this.methodInfos == Collections.EMPTY_LIST) {
+      this.methodInfos = new ArrayList<>();
     }
 
-    this.methodInfoList.addAll(methodInfoList);
+    this.methodInfos.addAll(methodInfoList);
   }
 
   Set<ClassInfo> getClassesWithFieldAnnotation() {
@@ -153,6 +149,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
     Set<ClassInfo> classWithAnnotation = getReachableClasses(Relation.ANNOTATED_CLASSES);
 
+    //Is this annotation can be inherited
     boolean isInherited = false;
     for (ClassInfo metaAnnotation : getDirectlyRelatedClass(Relation.ANNOTATIONS)) {
       if (metaAnnotation.className.equals("java.lang.annotation.Inherited")) {
@@ -162,15 +159,12 @@ public class ClassInfo implements Comparable<ClassInfo> {
     }
 
     if (isInherited) {
-      final Set<ClassInfo> classesWithAnnotationAndTheirSubclasses = new HashSet<>(
-          classWithAnnotation);
       for (ClassInfo info : classWithAnnotation) {
-        classesWithAnnotationAndTheirSubclasses.addAll(info.getSubClasses());
+        classWithAnnotation.addAll(info.getSubClasses());
       }
-      return classesWithAnnotationAndTheirSubclasses;
-    } else {
-      return classWithAnnotation;
     }
+
+    return classWithAnnotation;
   }
 
   public Set<ClassInfo> getClassesImplementing() {
@@ -196,8 +190,8 @@ public class ClassInfo implements Comparable<ClassInfo> {
     return getReachableClasses(Relation.SUBCLASSES);
   }
 
-  boolean isClassFileScanned() {
-    return classFileScanned;
+  boolean isScanned() {
+    return isScanned;
   }
 
   public String getClassName() {
@@ -216,16 +210,12 @@ public class ClassInfo implements Comparable<ClassInfo> {
     return !(isAnnotation || isInterface);
   }
 
-  public List<FieldInfo> getFieldInfoList() {
-    return Collections.unmodifiableList(fieldInfoList);
+  public List<FieldInfo> getFieldInfos() {
+    return Collections.unmodifiableList(fieldInfos);
   }
 
-  public List<MethodInfo> getMethodInfoList() {
-    return Collections.unmodifiableList(methodInfoList);
-  }
-
-  public static ClassInfoBuilder builder(String className, int accessFlag) {
-    return new ClassInfoBuilder(className, accessFlag);
+  public List<MethodInfo> getMethodInfos() {
+    return Collections.unmodifiableList(methodInfos);
   }
 
   @Override
@@ -252,8 +242,13 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
   @Override
   public String toString() {
-    return (isStandardClass() ? "class " : isInterface() ? "interface " : "annotation ")
+    String name = (isStandardClass() ? "class " : isInterface() ? "interface " : "annotation ")
         + className;
+
+    if (!isScanned()) {
+      name += " Not Scanned";
+    }
+    return name;
   }
 
   private enum Relation {
@@ -274,19 +269,35 @@ public class ClassInfo implements Comparable<ClassInfo> {
      */
     CLASSES_IMPLEMENTING,
 
+    /**
+     * I am a class, and I have a annotation
+     */
     ANNOTATIONS,
 
+    /**
+     * classes that have annotated with this class, if this class is an annotation
+     */
     ANNOTATED_CLASSES,
 
-    /*Annotations on one ore more methos of this class. */
+    /**
+     * Annotations on one ore more methods of this class.
+     */
     METHOD_ANNOTATIONS,
 
-    /*Classes that have one or more method annotated with this annotation, if this is an annotation*/
+    /**
+     * classes that have one or more method annotated with this annotation, if this is an
+     * annotation
+     */
     CLASSES_WITH_METHOD_ANNOTATION,
 
-    /* Annotations on one or more fields of this class*/
+    /**
+     * Annotations on one or more fields of this class
+     */
     FIELD_ANNOTATIONS,
 
+    /**
+     * classes that have one or more field annotated with this annotation, if this is an annotation
+     */
     CLASSES_WITH_FIELD_ANNOTATION,
   }
 }

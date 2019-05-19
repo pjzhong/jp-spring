@@ -3,8 +3,8 @@ package jp.spring.ioc.scan.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
-import jp.spring.ioc.scan.classloaderhandler.ClassLoaderHandler;
-import jp.spring.ioc.scan.classloaderhandler.URLClassLoaderHandler;
+import jp.spring.ioc.scan.ClassLoaderHandler;
+import jp.spring.ioc.scan.URLClassLoaderHandler;
 import org.apache.commons.lang3.StringUtils;
 
 /**

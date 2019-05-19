@@ -1,4 +1,4 @@
-package jp.spring.ioc.scan.classloaderhandler;
+package jp.spring.ioc.scan;
 
 
 import jp.spring.ioc.scan.scanner.ClasspathFinder;

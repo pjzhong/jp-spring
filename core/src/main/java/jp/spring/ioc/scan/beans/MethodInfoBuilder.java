@@ -42,5 +42,5 @@ public class MethodInfoBuilder {
   private final int accessFlags;
   private final boolean isConstructor;
   private Map<String, AnnotationInfo> annotationNames = Collections.emptyMap();
-  private Object defaultValue;//only annotation methods, may contains one or more default values
+  private Object defaultValue;//only annotation methods, may contains default value(s)
 }

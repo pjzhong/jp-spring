@@ -7,10 +7,9 @@ import java.util.Map;
 public class AnnotationInfo {
 
   private final String name;
-  private Map<String, AnnotationParamValue> params = Collections.emptyMap();
+  private Map<String, ParamValue> params = Collections.emptyMap();
 
-  public AnnotationInfo(String name,
-      Map<String, AnnotationParamValue> params) {
+  public AnnotationInfo(String name, Map<String, ParamValue> params) {
     this.name = name;
     this.params = params;
   }
@@ -23,7 +22,7 @@ public class AnnotationInfo {
   public String toString() {
     final StringBuilder sb = new StringBuilder(name);
     sb.append("(");
-    Iterator<AnnotationParamValue> iterator = params.values().iterator();
+    Iterator<ParamValue> iterator = params.values().iterator();
     while (iterator.hasNext()) {
       sb.append(iterator.next());
       if (iterator.hasNext()) {
@@ -35,27 +34,27 @@ public class AnnotationInfo {
     return sb.toString();
   }
 
-  public static class AnnotationParamValue {
+  public static class ParamValue {
 
-    private final String paramName;
-    private final Object paramValue;
+    private final String name;
+    private final Object value;
 
-    public AnnotationParamValue(String paramName, Object paramValue) {
-      this.paramName = paramName;
-      this.paramValue = paramValue;
+    public ParamValue(String paramName, Object value) {
+      this.name = paramName;
+      this.value = value;
     }
 
     @Override
     public String toString() {
-      return paramName + "=" + paramValue;
+      return name + "=" + value;
     }
   }
 
-  public static class AnnotationClassRef {
+  public static class classRef {
 
     private final String typeDescriptor;
 
-    public AnnotationClassRef(String typeDescriptor) {
+    public classRef(String typeDescriptor) {
       this.typeDescriptor = typeDescriptor;
     }
 
@@ -65,19 +64,19 @@ public class AnnotationInfo {
     }
   }
 
-  public static class AnnotationEnumRef {
+  public static class enumRef {
 
-    private final String className;
-    private final String fieldName;
+    private final String name;
+    private final String field;
 
-    public AnnotationEnumRef(String className, String fieldName) {
-      this.fieldName = fieldName;
-      this.className = className;
+    public enumRef(String name, String field) {
+      this.field = field;
+      this.name = name;
     }
 
     @Override
     public String toString() {
-      return className + "." + fieldName;
+      return name + "." + field;
     }
   }
 }

@@ -13,9 +13,9 @@ import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import jp.spring.ioc.scan.beans.AnnotationInfo;
-import jp.spring.ioc.scan.beans.AnnotationInfo.AnnotationClassRef;
-import jp.spring.ioc.scan.beans.AnnotationInfo.AnnotationEnumRef;
-import jp.spring.ioc.scan.beans.AnnotationInfo.AnnotationParamValue;
+import jp.spring.ioc.scan.beans.AnnotationInfo.ParamValue;
+import jp.spring.ioc.scan.beans.AnnotationInfo.classRef;
+import jp.spring.ioc.scan.beans.AnnotationInfo.enumRef;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.beans.ClassInfoBuilder;
 import jp.spring.ioc.scan.beans.FieldInfo;
@@ -293,12 +293,12 @@ public class ClassFileBinaryParser {
     }
 
     final int numElementValuePairs = input.readUnsignedShort();
-    Map<String, AnnotationParamValue> paramValues =
+    Map<String, ParamValue> paramValues =
         numElementValuePairs > 0 ? new HashMap<>(numElementValuePairs) : Collections.emptyMap();
     for (int i = 0; i < numElementValuePairs; i++) {
       final String elementName = readRefString(input, constantPool);//element_name_index
       Object value = parseElementValue(input, constantPool);
-      paramValues.put(elementName, new AnnotationParamValue(elementName, value));
+      paramValues.put(elementName, new ParamValue(elementName, value));
     }
 
     return new AnnotationInfo(annotationClassName, paramValues);
@@ -335,7 +335,7 @@ public class ClassFileBinaryParser {
       }
       case 'c': { //class_info_index
         String typeDescriptor = readRefString(input, constantPool);
-        return new AnnotationClassRef(typeDescriptor);
+        return new classRef(typeDescriptor);
       }
       case 'e': {//enum_constant_index
         final String typeDescriptor = readRefString(input, constantPool);
@@ -345,7 +345,7 @@ public class ClassFileBinaryParser {
           throw new RuntimeException(
               "Illegal element_value enum_constant_index: " + typeDescriptor);
         }
-        return new AnnotationEnumRef(/*className*/type.get(0), fieldName);
+        return new enumRef(/*className*/type.get(0), fieldName);
       }
       default:
         throw new RuntimeException("Unknown annotation elementValue type" + tag);

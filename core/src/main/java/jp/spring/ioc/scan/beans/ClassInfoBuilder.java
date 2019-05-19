@@ -22,7 +22,7 @@ public class ClassInfoBuilder {
       infoMap.put(className, classInfo = new ClassInfo(className));
     }
 
-    classInfo.classFileScanned = true;
+    classInfo.isScanned = true;
     classInfo.isInterface |= isInterface();
     classInfo.isAnnotation |= isAnnotation();
     return classInfo;
