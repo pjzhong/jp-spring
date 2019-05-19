@@ -7,6 +7,7 @@ import jp.spring.ioc.scan.scanner.ClassRelativePath;
 import jp.spring.ioc.scan.scanner.ClasspathFinder;
 import jp.spring.ioc.scan.scanner.ScanSpecification;
 import jp.spring.ioc.stereotype.Component;
+import jp.spring.ioc.stereotype.Controller;
 import jp.spring.ioc.stereotype.Service;
 import org.junit.Test;
 
@@ -20,6 +21,8 @@ public class ClassInDefaultPackage {
           .matchClassesImplementing(A.class, (info, c) -> System.out.println(c + " impl A"))
           .matchClassesWithAnnotation(Service.class,
               (info, c) -> System.out.println("Annotated by service| " + c))
+          .matchClassesWithAnnotation(Controller.class,
+              (info, c) -> System.out.println("Annotated by controller| " + c))
           .matchClassesWithAnnotation(Component.class,
               (info, c) -> System.out.println("Annotated by component| " + c));
       scanner.scan();

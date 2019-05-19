@@ -58,7 +58,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     Set<ClassInfo> reachableClasses = new HashSet<>(related);
     LinkedList<ClassInfo> queue = new LinkedList<>(related);
     while (!queue.isEmpty()) {
-      ClassInfo head = queue.removeFirst();
+      ClassInfo head = queue.poll();
       for (final ClassInfo info : head.getDirectlyRelatedClass(relation)) {
         if (reachableClasses.add(info)) {//don't get in cycle
           queue.add(info);
@@ -81,7 +81,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     interfaceClass.isInterface = true;
     interfaceClass.related(Relation.CLASSES_IMPLEMENTING, this);
 
-    this.related(Relation.IMPLEMENTED_INTERFACES, interfaceClass);
+    this.related(Relation.IMPLEMENTED_INTERFACE, interfaceClass);
   }
 
   void addAnnotation(AnnotationInfo annotation, ClassInfoBuilder builder) {
@@ -100,14 +100,14 @@ public class ClassInfo implements Comparable<ClassInfo> {
     ClassInfo annotationClass = builder.getClassInfo(annotationName);
     annotationClass.isAnnotation = true;
 
-    annotationClass.related(Relation.CLASSES_WITH_METHOD_ANNOTATION, this);
+    annotationClass.related(Relation.CLASSES_WITH_METHOD_ANNOTATED, this);
     this.related(Relation.METHOD_ANNOTATIONS, annotationClass);
   }
 
   void addFieldAnnotation(String annotationName, ClassInfoBuilder builder) {
     ClassInfo annotationClass = builder.getClassInfo(annotationName);
     annotationClass.isAnnotation = true;
-    annotationClass.related(Relation.CLASSES_WITH_FIELD_ANNOTATION, this);
+    annotationClass.related(Relation.CLASSES_WITH_FIELD_ANNOTATED, this);
 
     this.related(Relation.FIELD_ANNOTATIONS, annotationClass);
   }
@@ -135,11 +135,11 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   Set<ClassInfo> getClassesWithFieldAnnotation() {
-    return getDirectlyRelatedClass(Relation.CLASSES_WITH_FIELD_ANNOTATION);
+    return getDirectlyRelatedClass(Relation.CLASSES_WITH_FIELD_ANNOTATED);
   }
 
   Set<ClassInfo> getClassesWithMethodAnnotation() {
-    return getDirectlyRelatedClass(Relation.CLASSES_WITH_METHOD_ANNOTATION);
+    return getDirectlyRelatedClass(Relation.CLASSES_WITH_METHOD_ANNOTATED);
   }
 
   Set<ClassInfo> getClassesWithAnnotation() {
@@ -262,7 +262,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
      * (May also include annotations, since annotations are interfaces, so you can implement an
      * annotation.)
      */
-    IMPLEMENTED_INTERFACES,
+    IMPLEMENTED_INTERFACE,
 
     /**
      * Classes that implement this interface (including sub-interfaces), if this is an interface.
@@ -280,7 +280,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     ANNOTATED_CLASSES,
 
     /**
-     * Annotations on one ore more methods of this class.
+     * This Annotation annotated on method(s) of some class
      */
     METHOD_ANNOTATIONS,
 
@@ -288,16 +288,16 @@ public class ClassInfo implements Comparable<ClassInfo> {
      * classes that have one or more method annotated with this annotation, if this is an
      * annotation
      */
-    CLASSES_WITH_METHOD_ANNOTATION,
+    CLASSES_WITH_METHOD_ANNOTATED,
 
     /**
-     * Annotations on one or more fields of this class
+     * This Annotation annotated on field(s) of some class
      */
     FIELD_ANNOTATIONS,
 
     /**
      * classes that have one or more field annotated with this annotation, if this is an annotation
      */
-    CLASSES_WITH_FIELD_ANNOTATION,
+    CLASSES_WITH_FIELD_ANNOTATED,
   }
 }

@@ -3,6 +3,7 @@ package jp.spring.ioc.scan.beans;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
@@ -13,6 +14,10 @@ import org.apache.commons.lang3.ObjectUtils;
 public class ClassGraph {
 
   private final Map<String, ClassInfo> classBeans;
+
+  public static ClassGraphBuilder builder(Collection<ClassInfoBuilder> builders) {
+    return new ClassGraphBuilder(builders);
+  }
 
   ClassGraph(Map<String, ClassInfo> infoMap) {
     this.classBeans = infoMap;
@@ -46,7 +51,9 @@ public class ClassGraph {
 
   public Set<ClassInfo> getInfoOfClassSubClassOf(Class<?> target) {
     final ClassInfo info = classBeans.get(target.getName());
-    return ObjectUtils.defaultIfNull(info.getSubClasses(), Collections.emptySet());
+    return Optional.ofNullable(info)
+        .map(ClassInfo::getSubClasses)
+        .orElseGet(Collections::emptySet);
   }
 
   /**
@@ -64,8 +71,9 @@ public class ClassGraph {
         .collect(Collectors.toSet());
   }
 
-  /***
-   * return All class that annotated by the specific annotation , exclude annotation
+  /**
+   * return All class that have method(s) annotated by this specific annotation , exclude
+   * annotation
    */
   public Set<ClassInfo> getInfoOfClassesWithMethodAnnotation(Class<?> targetAnnotation) {
     final ClassInfo info = classBeans.get(targetAnnotation.getName());
@@ -81,16 +89,17 @@ public class ClassGraph {
 
   public Set<ClassInfo> getInfoOfClassesWithFieldAnnotation(Class<?> targetAnnotation) {
     final ClassInfo info = classBeans.get(targetAnnotation.getName());
-    return ObjectUtils.defaultIfNull(info.getClassesWithFieldAnnotation(), Collections.emptySet());
+
+    return Optional.ofNullable(info)
+        .map(ClassInfo::getClassesWithFieldAnnotation)
+        .orElseGet(Collections::emptySet);
   }
 
   public Set<ClassInfo> getInfoOfClassesWithAnnotation(Class<?> targetAnnotation) {
     final ClassInfo info = classBeans.get(targetAnnotation.getName());
-    return ObjectUtils.defaultIfNull(info.getClassesWithAnnotation(), Collections.emptySet());
-  }
 
-  public static ClassGraphBuilder builder(
-      Collection<ClassInfoBuilder> builders) {
-    return new ClassGraphBuilder(builders);
+    return Optional.ofNullable(info)
+        .map(ClassInfo::getClassesWithAnnotation)
+        .orElseGet(Collections::emptySet);
   }
 }
