@@ -38,8 +38,7 @@ public class ClassFileBinaryParser {
 
   public ClassInfoBuilder parse(final InputStream inputStream) throws IOException {
     try {
-      final DataInputStream classInput = new DataInputStream(
-          new BufferedInputStream(inputStream, inputStream.available()));
+      final DataInputStream classInput = new DataInputStream(new BufferedInputStream(inputStream));
 
       //Magic number
       if (classInput.readInt() != 0xCAFEBABE) {
