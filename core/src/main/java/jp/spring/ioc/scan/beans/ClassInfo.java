@@ -45,28 +45,28 @@ public class ClassInfo implements Comparable<ClassInfo> {
     relations.computeIfAbsent(relation, k -> new HashSet<>()).add(info);
   }
 
-  private Set<ClassInfo> getDirectlyRelatedClass(Relation relation) {
+  private Set<ClassInfo> getDirectlyRelated(Relation relation) {
     return relations.getOrDefault(relation, Collections.emptySet());
   }
 
-  private Set<ClassInfo> getReachableClasses(Relation relation) {
-    final Set<ClassInfo> related = getDirectlyRelatedClass(relation);
+  private Set<ClassInfo> getReachable(Relation relation) {
+    final Set<ClassInfo> related = getDirectlyRelated(relation);
     if (related.isEmpty()) {
       return related;
     }
 
-    Set<ClassInfo> reachableClasses = new HashSet<>(related);
+    Set<ClassInfo> reachable = new HashSet<>(related);
     LinkedList<ClassInfo> queue = new LinkedList<>(related);
     while (!queue.isEmpty()) {
       ClassInfo head = queue.poll();
-      for (final ClassInfo info : head.getDirectlyRelatedClass(relation)) {
-        if (reachableClasses.add(info)) {//don't get in cycle
+      for (final ClassInfo info : head.getDirectlyRelated(relation)) {
+        if (reachable.add(info)) {//don't get in cycle
           queue.add(info);
         }
       }
     }
 
-    return reachableClasses;
+    return reachable;
   }
 
   void addSuperclass(String superclassName, ClassInfoBuilder builder) {
@@ -77,19 +77,19 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   void addImplementedInterface(String interfaceName, ClassInfoBuilder builder) {
-    ClassInfo interfaceClass = builder.getClassInfo(interfaceName);
-    interfaceClass.isInterface = true;
-    interfaceClass.related(Relation.CLASSES_IMPLEMENTING, this);
+    ClassInfo inter = builder.getClassInfo(interfaceName);
+    inter.isInterface = true;
+    inter.related(Relation.CLASSES_IMPLEMENTING, this);
 
-    this.related(Relation.IMPLEMENTED_INTERFACE, interfaceClass);
+    this.related(Relation.IMPLEMENTED_INTERFACE, inter);
   }
 
   void addAnnotation(AnnotationInfo annotation, ClassInfoBuilder builder) {
-    final ClassInfo annotationClass = builder.getClassInfo(annotation.getName());
-    annotationClass.isAnnotation = true;
-    annotationClass.related(Relation.ANNOTATED_CLASSES, this);
+    final ClassInfo anno = builder.getClassInfo(annotation.getName());
+    anno.isAnnotation = true;
+    anno.related(Relation.ANNOTATED_CLASSES, this);
 
-    this.related(Relation.ANNOTATIONS, annotationClass);
+    this.related(Relation.ANNOTATIONS, anno);
     if (annotations == Collections.EMPTY_MAP) {
       annotations = new HashMap<>();
     }
@@ -97,19 +97,19 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   void addMethodAnnotation(String annotationName, ClassInfoBuilder builder) {
-    ClassInfo annotationClass = builder.getClassInfo(annotationName);
-    annotationClass.isAnnotation = true;
+    ClassInfo anno = builder.getClassInfo(annotationName);
+    anno.isAnnotation = true;
 
-    annotationClass.related(Relation.CLASSES_WITH_METHOD_ANNOTATED, this);
-    this.related(Relation.METHOD_ANNOTATIONS, annotationClass);
+    anno.related(Relation.CLASSES_WITH_METHOD_ANNOTATED, this);
+    this.related(Relation.METHOD_ANNOTATIONS, anno);
   }
 
   void addFieldAnnotation(String annotationName, ClassInfoBuilder builder) {
-    ClassInfo annotationClass = builder.getClassInfo(annotationName);
-    annotationClass.isAnnotation = true;
-    annotationClass.related(Relation.CLASSES_WITH_FIELD_ANNOTATED, this);
+    ClassInfo anno = builder.getClassInfo(annotationName);
+    anno.isAnnotation = true;
+    anno.related(Relation.CLASSES_WITH_FIELD_ANNOTATED, this);
 
-    this.related(Relation.FIELD_ANNOTATIONS, annotationClass);
+    this.related(Relation.FIELD_ANNOTATIONS, anno);
   }
 
   /**
@@ -135,11 +135,11 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   Set<ClassInfo> getClassesWithFieldAnnotation() {
-    return getDirectlyRelatedClass(Relation.CLASSES_WITH_FIELD_ANNOTATED);
+    return getDirectlyRelated(Relation.CLASSES_WITH_FIELD_ANNOTATED);
   }
 
   Set<ClassInfo> getClassesWithMethodAnnotation() {
-    return getDirectlyRelatedClass(Relation.CLASSES_WITH_METHOD_ANNOTATED);
+    return getDirectlyRelated(Relation.CLASSES_WITH_METHOD_ANNOTATED);
   }
 
   Set<ClassInfo> getClassesWithAnnotation() {
@@ -147,11 +147,11 @@ public class ClassInfo implements Comparable<ClassInfo> {
       return Collections.emptySet();
     }
 
-    Set<ClassInfo> classWithAnnotation = getReachableClasses(Relation.ANNOTATED_CLASSES);
+    Set<ClassInfo> classWithAnnotation = getReachable(Relation.ANNOTATED_CLASSES);
 
     //Is this annotation can be inherited
     boolean isInherited = false;
-    for (ClassInfo metaAnnotation : getDirectlyRelatedClass(Relation.ANNOTATIONS)) {
+    for (ClassInfo metaAnnotation : getDirectlyRelated(Relation.ANNOTATIONS)) {
       if (metaAnnotation.className.equals("java.lang.annotation.Inherited")) {
         isInherited = true;
         break;
@@ -172,22 +172,22 @@ public class ClassInfo implements Comparable<ClassInfo> {
       return Collections.emptySet();
     }
 
-    Set<ClassInfo> reachableClasses = getReachableClasses(Relation.CLASSES_IMPLEMENTING);
+    Set<ClassInfo> reachableClasses = getReachable(Relation.CLASSES_IMPLEMENTING);
 
     final Set<ClassInfo> allImplementingClasses = new HashSet<>();
     for (ClassInfo implementingClass : reachableClasses) {
       allImplementingClasses.add(implementingClass);
-      allImplementingClasses.addAll(implementingClass.getReachableClasses(Relation.SUBCLASSES));
+      allImplementingClasses.addAll(implementingClass.getReachable(Relation.SUBCLASSES));
     }
     return allImplementingClasses;
   }
 
   public Set<ClassInfo> getSuperClasses() {
-    return getReachableClasses(Relation.SUBCLASSES);
+    return getReachable(Relation.SUBCLASSES);
   }
 
   public Set<ClassInfo> getSubClasses() {
-    return getReachableClasses(Relation.SUBCLASSES);
+    return getReachable(Relation.SUBCLASSES);
   }
 
   boolean isScanned() {
@@ -258,7 +258,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     /**
      * Interfaces that this class implements, if this is a regular class, or superinterfaces, if
      * this is an interface.
-     *
+     * <p>
      * (May also include annotations, since annotations are interfaces, so you can implement an
      * annotation.)
      */

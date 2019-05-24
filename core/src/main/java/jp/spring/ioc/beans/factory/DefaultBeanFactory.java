@@ -5,32 +5,41 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import jp.spring.ioc.BeansException;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.support.BeanDefinition;
+import jp.spring.ioc.beans.support.InjectField;
+import jp.spring.ioc.beans.support.PropertyValue;
 import jp.spring.ioc.util.TypeUtil;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by Administrator on 12/25/2016. 简单的规定了如何获取和注册Bean, 至于如何创造Bean，则留给子类去实现
  */
-public abstract class AbstractBeanFactory implements BeanFactory {
+public class DefaultBeanFactory implements BeanFactory {
 
   private final Map<String, BeanDefinition> beanNameDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
 
   private final Map<Class<?>, String[]> beanNamesByType = new ConcurrentHashMap<Class<?>, String[]>();
 
-  private final Map<Class<?>, List<?>> beansByType = new HashMap<>();
+  private final Map<Class<?>, List<?>> beansByType = new ConcurrentHashMap<>();
 
-  private final Map<Class<? extends Annotation>, List<String>> beanNamesByAnnotation = new HashMap<>();
+  private final Map<Class<? extends Annotation>, List<String>> beanNamesByAnnotation = new ConcurrentHashMap<>();
 
   private final List<String> beanDefinitionIds = new ArrayList<String>();
 
   private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
 
   private final Properties properties = new Properties();
+
+  public DefaultBeanFactory() {
+
+  }
 
   public void refresh() {
     try {
@@ -39,11 +48,6 @@ public abstract class AbstractBeanFactory implements BeanFactory {
       throw new RuntimeException("Error Raised when refresh factory", e);
     }
   }
-
-  /**
-   * initializing bean
-   */
-  protected abstract Object doCreateBean(BeanDefinition beanDefinition);
 
   @Override
   public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception {
@@ -55,7 +59,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
   }
 
   @Override
-  public Object getBean(String name)  {
+  public Object getBean(String name) {
     BeanDefinition beanDefinition = beanNameDefinitionMap.get(name);
     if (beanDefinition == null) {
       throw new IllegalArgumentException("No bean named " + name + " is defined");
@@ -81,7 +85,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     }
   }
 
-  protected Object afterInitializeBean(Object bean, String name)  {
+  protected Object afterInitializeBean(Object bean, String name) {
     if (!beanPostProcessors.isEmpty()) {
       for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
         bean = beanPostProcessor.postProcessAfterInitialization(bean, name);
@@ -92,7 +96,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     return bean;
   }
 
-  private void invokeAware(Object bean)  {
+  private void invokeAware(Object bean) {
     if (bean instanceof BeanFactoryAware) {
       ((BeanFactoryAware) bean).setBeanFactory(this);
     }
@@ -101,7 +105,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
   //various getters
   public Class<?> getType(String name) {
     if (beanNameDefinitionMap.get(name) != null) {
-      return beanNameDefinitionMap.get(name).getBeanClass();
+      return beanNameDefinitionMap.get(name).getClazz();
     }
     return null;
   }
@@ -113,7 +117,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
     List<A> beans = new ArrayList<A>();
     for (String beanDefinitionName : beanDefinitionIds) {
-      if (type.isAssignableFrom(beanNameDefinitionMap.get(beanDefinitionName).getBeanClass())) {
+      if (type.isAssignableFrom(beanNameDefinitionMap.get(beanDefinitionName).getClazz())) {
         beans.add((A) getBean(beanDefinitionName));
       }
     }
@@ -135,7 +139,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     boolean matchFound;
     for (String beanName : beanDefinitionIds) {
       BeanDefinition beanDefinition = beanNameDefinitionMap.get(beanName);
-      matchFound = targetType.isAssignableFrom(beanDefinition.getBeanClass());
+      matchFound = targetType.isAssignableFrom(beanDefinition.getClazz());
       if (matchFound) {
         result.add(beanName);
       }
@@ -156,7 +160,7 @@ public abstract class AbstractBeanFactory implements BeanFactory {
     BeanDefinition beanDefinition;
     for (String beanName : beanDefinitionIds) {
       beanDefinition = beanNameDefinitionMap.get(beanName);
-      if (TypeUtil.isAnnotated(beanDefinition.getBeanClass(), annotation)) {
+      if (TypeUtil.isAnnotated(beanDefinition.getClazz(), annotation)) {
         result.add(beanName);
       }
     }
@@ -169,5 +173,95 @@ public abstract class AbstractBeanFactory implements BeanFactory {
 
   public Properties getProperties() {
     return properties;
+  }
+
+  protected Object doCreateBean(BeanDefinition beanDefinition) {
+    Object bean = null;
+    try {
+      bean = createBeanInstance(beanDefinition);
+      beanDefinition.setBean(bean);
+      resolveDependency(bean, beanDefinition);
+      injectPropertyValue(bean, beanDefinition);
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    return bean;
+  }
+
+  protected Object createBeanInstance(BeanDefinition beanDefinition) throws Exception {
+    return beanDefinition.getClazz().newInstance();
+  }
+
+  protected void resolveDependency(Object bean, BeanDefinition beanDefinition) throws Exception {
+    List<InjectField> fields = beanDefinition.getInjectFields();
+    if (TypeUtil.isEmpty(fields)) {
+      return;
+    }
+
+    /* 两种情况:
+     * 1.没有@Qualifier, 那么根据类型来获取注入对象。多个取第一个
+     * 2.用户添加了@Qualifier, 使用@Qualifier的值来获取注入对象
+     */
+    Object value = null;
+    for (InjectField injectField : beanDefinition.getInjectFields()) {
+
+      if (StringUtils.isBlank(injectField.getId())) {
+        Map<String, Object> matchingBeans = findAutowireCandidates(
+            injectField.getType());
+        if (!TypeUtil.isEmpty(matchingBeans)) {
+          value = matchingBeans.entrySet().iterator().next().getValue();
+        }
+      } else {
+        value = getBean(injectField.getId());
+      }
+
+      if (value == null && injectField.isRequired()) {
+        throw new BeansException(String
+            .format("Inject %s to %s failed", injectField.getType(),
+                beanDefinition.getClazz()));
+      }
+
+      injectField.inject(bean, value);
+    }
+  }
+
+  protected void injectPropertyValue(Object bean, BeanDefinition beanDefinition) throws Exception {
+    List<PropertyValue> values = beanDefinition.getPropertyValues();
+    if (values == null) {
+      return;
+    }
+
+    for (PropertyValue propertyValue : beanDefinition.getPropertyValues()) {
+      Object value = null;
+      String strValue = getProperties().getProperty(propertyValue.getName());
+      if ((strValue != null) && TypeUtil.isSimpleType(propertyValue.getField().getType())) {
+        value = TypeUtil.convert(strValue, propertyValue.getField().getType());
+      }
+
+      if (value == null && propertyValue.isRequired()) {
+        throw new BeansException(String.format("Inject %s to %s failed", propertyValue.getName(),
+            beanDefinition.getBeanClassName()));
+      }
+
+      if (value != null) {
+        propertyValue.inject(bean, value);
+      }
+    }
+  }
+
+  protected Map<String, Object> findAutowireCandidates(Class<?> requiredType) {
+    Map<String, Object> result = null;
+
+    try {
+      List<String> candidateNames = getBeanNamesForType(requiredType);
+      result = new LinkedHashMap<>(candidateNames.size());
+      for (String candidateName : candidateNames) {
+        result.put(candidateName, getBean(candidateName));
+      }
+    } catch (Exception e) {
+      result = null;
+    }
+
+    return result;
   }
 }

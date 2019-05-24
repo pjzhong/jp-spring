@@ -1,5 +1,6 @@
 package jp.spring.scan;
 
+import java.util.Collections;
 import java.util.List;
 import jp.spring.ioc.cycle.service.A;
 import jp.spring.ioc.scan.FastClassPathScanner;
@@ -17,7 +18,8 @@ public class ClassInDefaultPackage {
   @Test
   public void myScannerTest() {
     for (int i = 0; i < 1; i++) {
-      FastClassPathScanner scanner = new FastClassPathScanner("jp.spring")
+      FastClassPathScanner scanner = new FastClassPathScanner(
+          Collections.singletonList("jp.spring"))
           .matchClassesImplementing(A.class, (info, c) -> System.out.println(c + " impl A"))
           .matchClassesWithAnnotation(Service.class,
               (info, c) -> System.out.println("Annotated by service| " + c))
@@ -32,7 +34,7 @@ public class ClassInDefaultPackage {
 
   @Test
   public void elementFindTest() {
-    ScanSpecification sepc = new ScanSpecification("jp.spring");
+    ScanSpecification sepc = new ScanSpecification(Collections.singletonList("jp.spring"));
     final List<String> classPathElementStrings = new ClasspathFinder().getRawClassPathStrings();
     classPathElementStrings.stream()
         .peek(System.out::println)

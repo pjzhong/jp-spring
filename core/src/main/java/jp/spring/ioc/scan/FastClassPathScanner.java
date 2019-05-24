@@ -13,13 +13,14 @@ public class FastClassPathScanner {
   private List<ClassMatcher> classMatchers = new ArrayList<>();
   private ScanSpecification specification = null;
 
-  public FastClassPathScanner(String... whiteListed) {
-    specification = new ScanSpecification(whiteListed);
+  public FastClassPathScanner(List<String> scanned) {
+    specification = new ScanSpecification(scanned);
   }
 
-  public void scan() {
+  public ClassGraph scan() {
     ClassGraph graph = new Scanner(specification).call();
     classMatchers.forEach(m -> m.lookForMatches(graph));
+    return graph;
   }
 
   public <T> FastClassPathScanner matchSubClassOf(final Class<T> superClass,
@@ -50,7 +51,7 @@ public class FastClassPathScanner {
   public FastClassPathScanner matchClassesWithAnnotation(final Class<?> annotation,
       final MatchProcessor processor) {
     addClassMatcher(g -> {
-      for (ClassInfo classWithAnnotation : g.getInfoOfClassesWithAnnotation(annotation)) {
+      for (ClassInfo classWithAnnotation : g.getInfoWithAnnotation(annotation)) {
         Class cls = loadClass(classWithAnnotation.getClassName());
         processor.processMatch(classWithAnnotation, cls);
       }
@@ -61,7 +62,7 @@ public class FastClassPathScanner {
   public FastClassPathScanner matchClassesWithMethodAnnotation(final Class<?> annotation,
       final MatchProcessor processor) {
     addClassMatcher(g -> {
-      for (ClassInfo classWithAnnotation : g.getInfoOfClassesWithMethodAnnotation(annotation)) {
+      for (ClassInfo classWithAnnotation : g.getInfoWithMethodAnnotation(annotation)) {
         Class cls = loadClass(classWithAnnotation.getClassName());
         processor.processMatch(classWithAnnotation, cls);
       }

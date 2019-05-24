@@ -1,6 +1,6 @@
 package jp.spring.ioc.context;
 
-import jp.spring.ioc.beans.factory.AbstractBeanFactory;
+import jp.spring.ioc.beans.factory.DefaultBeanFactory;
 import jp.spring.ioc.beans.factory.BeanFactory;
 
 /**
@@ -8,5 +8,5 @@ import jp.spring.ioc.beans.factory.BeanFactory;
  */
 public interface ApplicationContext extends BeanFactory {
 
-  AbstractBeanFactory getBeanFactory();
+  DefaultBeanFactory getBeanFactory();
 }

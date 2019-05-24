@@ -8,8 +8,11 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.CharsetUtil;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import jp.spring.ioc.beans.factory.annotation.Autowired;
+import jp.spring.ioc.beans.factory.annotation.Value;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.mvc.annotation.PathVariable;
 import jp.spring.mvc.annotation.RequestHeader;
@@ -24,17 +27,21 @@ public class HelloWorld {
   @Autowired
   private OutputService output;
 
+  @Value("package.scan")
+  private String scan;
+
   @RequestMapping(value = {"/hello/{someone}", "/hi/{someone}"}, method = {RequestMethod.GET,
       RequestMethod.POST})
   @ResponseBody
   public Object hello(@PathVariable String someone,
       @RequestHeader("host") String header,
       @RequestParam("age") Long age) {
-    return new Object() {
-      public String h = header;
-      public String w = someone;
-      public Long a = age;
-    };
+    Map<String, Object> map = new HashMap<>();
+    map.put("h", header);
+    map.put("w", someone);
+    map.put("a", age);
+    map.put("scan", scan);
+    return map;
   }
 
   @RequestMapping(value = "/love/{someone}")

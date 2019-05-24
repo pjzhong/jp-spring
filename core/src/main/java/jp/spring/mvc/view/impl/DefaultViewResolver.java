@@ -10,7 +10,6 @@ import jp.spring.mvc.view.AbstractViewResolver;
 /**
  * Created by Administrator on 1/13/2017.
  */
-@Component
 public class DefaultViewResolver extends AbstractViewResolver {
 
     @Override

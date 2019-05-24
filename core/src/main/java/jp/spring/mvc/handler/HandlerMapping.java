@@ -8,7 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import jp.spring.ioc.beans.factory.AbstractBeanFactory;
+import jp.spring.ioc.beans.factory.DefaultBeanFactory;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.Intercept;
@@ -153,12 +153,12 @@ public class HandlerMapping {
     };
   }
 
-  public static HandlerMapping build(AbstractBeanFactory beanFactory) {
+  public static HandlerMapping build(DefaultBeanFactory beanFactory) {
     Router<Handler> router = buildHandlerMapping(beanFactory);
     return new HandlerMapping(router);
   }
 
-  private static Router<Handler> buildHandlerMapping(AbstractBeanFactory beanFactory) {
+  private static Router<Handler> buildHandlerMapping(DefaultBeanFactory beanFactory) {
     List<String> controllerNames = beanFactory.getBeanNamByAnnotation(Controller.class);
 
     Router<Handler> router = Router.create(DEFAULT_MAX_PARTS);
@@ -181,7 +181,7 @@ public class HandlerMapping {
   /**
    * 为了每一个interceptor创建一个匹配器
    */
-  private static List<InterceptMatch> buildInterceptMatch(AbstractBeanFactory beanFactory) {
+  private static List<InterceptMatch> buildInterceptMatch(DefaultBeanFactory beanFactory) {
     List<String> interceptorNames = beanFactory.getBeanNamByAnnotation(Intercept.class);
     List<InterceptMatch> interceptors = Collections.emptyList();
     if (!TypeUtil.isEmpty(interceptorNames)) {

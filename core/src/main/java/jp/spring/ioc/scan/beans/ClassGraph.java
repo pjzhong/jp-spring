@@ -75,7 +75,7 @@ public class ClassGraph {
    * return All class that have method(s) annotated by this specific annotation , exclude
    * annotation
    */
-  public Set<ClassInfo> getInfoOfClassesWithMethodAnnotation(Class<?> targetAnnotation) {
+  public Set<ClassInfo> getInfoWithMethodAnnotation(Class<?> targetAnnotation) {
     final ClassInfo info = classBeans.get(targetAnnotation.getName());
     if (info == null) {
       return Collections.emptySet();
@@ -87,7 +87,7 @@ public class ClassGraph {
         .collect(Collectors.toSet());
   }
 
-  public Set<ClassInfo> getInfoOfClassesWithFieldAnnotation(Class<?> targetAnnotation) {
+  public Set<ClassInfo> getInfoWithFieldAnnotation(Class<?> targetAnnotation) {
     final ClassInfo info = classBeans.get(targetAnnotation.getName());
 
     return Optional.ofNullable(info)
@@ -95,7 +95,7 @@ public class ClassGraph {
         .orElseGet(Collections::emptySet);
   }
 
-  public Set<ClassInfo> getInfoOfClassesWithAnnotation(Class<?> targetAnnotation) {
+  public Set<ClassInfo> getInfoWithAnnotation(Class<?> targetAnnotation) {
     final ClassInfo info = classBeans.get(targetAnnotation.getName());
 
     return Optional.ofNullable(info)

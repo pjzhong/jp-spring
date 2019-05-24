@@ -69,7 +69,7 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
     BeanDefinition definition = null;
     if (TypeUtil.isAnnotated(beanClass, Component.class)) {
       definition = new BeanDefinition();
-      definition.setBeanClass(beanClass);
+      definition.setClazz(beanClass);
 
       parseFields(definition, beanClass);
 
@@ -134,29 +134,13 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
     if (TypeUtil.isAnnotated(field, Qualifier.class)) {//用户有提供id，没有就让id的属性为空
       id = field.getAnnotation(Qualifier.class).value();
     }
-    boolean isRequired = field.getAnnotation(Autowired.class).required();
-    injectField = new InjectField(id, field);
-    injectField.setRequired(isRequired);
+    injectField = new InjectField(id, field, field.getAnnotation(Autowired.class));
 
     return injectField;
   }
 
   private PropertyValue parseValue(Field field) {
-    PropertyValue propertyValue = null;
-
-    Value value = field.getAnnotation(Value.class);
-    String id = value.value();
-    if (StringUtils.isBlank(id)) {
-      id = StringUtils.uncapitalize(field.getName());
-    }
-    boolean isRequired = field.getAnnotation(Value.class).required();
-
-    propertyValue = new PropertyValue();
-    propertyValue.setField(field);
-    propertyValue.setName(id);
-    propertyValue.setRequired(isRequired);
-
-    return propertyValue;
+    return new PropertyValue(field, field.getAnnotation(Value.class));
   }
 
 }

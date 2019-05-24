@@ -16,14 +16,14 @@ import io.netty.util.concurrent.ImmediateEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-import jp.spring.mvc.context.WebApplicationContext;
+import jp.spring.ioc.context.DefaultApplicationContext;
 import jp.spring.mvc.handler.HandlerMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class NettyHttpService {
+public final class HttpService {
 
-  private static final Logger LOG = LoggerFactory.getLogger(NettyHttpService.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HttpService.class);
 
   private final String name;
   private int bossThreadSize;
@@ -34,10 +34,10 @@ public final class NettyHttpService {
   private InetSocketAddress bindAddress;
   private ServerBootstrap bootstrap;
   private ChannelGroup channels;
-  private WebApplicationContext context;
+  private DefaultApplicationContext context;
   private HandlerMapping handlerMapping;
 
-  private NettyHttpService(String name) {
+  private HttpService(String name) {
     this.name = name;
   }
 
@@ -56,7 +56,7 @@ public final class NettyHttpService {
       bindAddress = (InetSocketAddress) serverChannel.localAddress();
 
       // Init ApplicationContext
-      context = new WebApplicationContext("/");
+      context = new DefaultApplicationContext("/");
       handlerMapping = HandlerMapping.build(context.getBeanFactory());
 
       LOG.info("Started HTTP Service {} at address {}", name, bindAddress);
@@ -165,11 +165,11 @@ public final class NettyHttpService {
       return this;
     }
 
-    public NettyHttpService build() {
+    public HttpService build() {
       InetSocketAddress bindAddress;
       bindAddress = new InetSocketAddress(host == null ? "localhost" : host, port);
 
-      NettyHttpService httpService = new NettyHttpService(name);
+      HttpService httpService = new HttpService(name);
       httpService.bindAddress = bindAddress;
       httpService.bossThreadSize = bossThreadSize;
       httpService.workerThreadSize = workerThreadSize;

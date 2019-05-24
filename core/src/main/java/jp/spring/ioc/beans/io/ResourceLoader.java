@@ -5,5 +5,5 @@ package jp.spring.ioc.beans.io;
  */
 public interface ResourceLoader {
 
-    public Resource[] getResource(String location);
+    Resource[] getResource(String location);
 }

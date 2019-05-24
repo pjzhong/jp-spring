@@ -1,76 +1,66 @@
 package jp.spring.ioc.beans.support;
 
 import java.lang.reflect.Field;
+import java.util.Objects;
+import jp.spring.ioc.beans.factory.annotation.Value;
+import org.apache.commons.lang3.StringUtils;
 
 /**
- * 用于bean的属性注入
- * @author yihua.huang@dianping.com
- */
+ * 配置信息注入
+ *
+ * @author ZJP
+ * @since 2019年05月24日 16:36:29
+ **/
 public class PropertyValue {
 
-    private  String name;
+  private String name;
+  private Field field;
+  private boolean isRequired = false;
 
-    private Field field;
+  public PropertyValue() {
+  }
 
-    private  Object value;
-
-    private boolean isRequired = false;
-
-    public PropertyValue() {
-
+  public PropertyValue(Field field, Value value) {
+    field.setAccessible(true);
+    String name = value.value();
+    if (StringUtils.isBlank(name)) {
+      name = field.getName();
     }
+    this.name = StringUtils.uncapitalize(name);
+    this.field = field;
+    this.isRequired = value.required();
+  }
 
-    public PropertyValue(String name, Object value) {
-        this.name = name;
-        this.value = value;
+  public String getName() {
+    return name;
+  }
+
+  public boolean isRequired() {
+    return isRequired;
+  }
+
+  public Field getField() {
+    return field;
+  }
+
+  public void inject(Object bean, Object value) throws IllegalAccessException {
+    field.set(bean, value);
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
     }
-
-    public String getName() {
-        return name;
+    if (o == null || getClass() != o.getClass()) {
+      return false;
     }
+    PropertyValue that = (PropertyValue) o;
+    return Objects.equals(name, that.name);
+  }
 
-    public Object getValue() {
-        return value;
-    }
-
-    public boolean isRequired() {
-        return isRequired;
-    }
-
-    public void setRequired(boolean required) {
-        isRequired = required;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setValue(Object value) {
-        this.value = value;
-    }
-
-    public Field getField() {
-        return field;
-    }
-
-    public void setField(Field field) {
-        this.field = field;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        PropertyValue that = (PropertyValue) o;
-
-        return name != null ? !name.equals(that.name) : that.name != null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        return result;
-    }
+  @Override
+  public int hashCode() {
+    return Objects.hash(name);
+  }
 }

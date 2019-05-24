@@ -8,82 +8,72 @@ import java.util.List;
  */
 public class BeanDefinition {
 
-    private Object bean;
+  private Object bean;
 
-    private Class<?> beanClass;
+  private Class<?> clazz;
 
-    private String beanClassName;
+  private List<PropertyValue> propertyValues = null;
 
-    private List<PropertyValue> propertyValues = null;
+  private List<InjectField> injectFields = null;
 
-    private List<InjectField> injectFields = null;
+  public BeanDefinition() {
+  }
 
-    public BeanDefinition() {
+  public BeanDefinition(Class<?> clazz, Object bean) {
+    this.clazz = clazz;
+    this.bean = bean;
+  }
+
+  public void setBean(Object bean) {
+    this.bean = bean;
+  }
+
+  public Class<?> getClazz() {
+    return clazz;
+  }
+
+  public void setClazz(Class<?> clazz) {
+    this.clazz = clazz;
+  }
+
+  public String getBeanClassName() {
+    return clazz.getName();
+  }
+
+
+  public Object getBean() {
+    return bean;
+  }
+
+  public void add(InjectField injectField) {
+    if (injectFields == null) {
+      injectFields = new ArrayList<>();
+    }
+    injectFields.add(injectField);
+  }
+
+  public void add(PropertyValue propertyValue) {
+    if (propertyValues == null) {
+      propertyValues = new ArrayList<>();
     }
 
-    public BeanDefinition(Class<?> beanClass, Object bean) {
-        this.beanClass = beanClass;
-        this.bean = bean;
-    }
+    propertyValues.add(propertyValue);
+  }
 
-    public void setBean(Object bean) {
-        this.bean = bean;
-    }
+  public List<PropertyValue> getPropertyValues() {
+    return propertyValues;
+  }
 
-    public Class<?> getBeanClass() {
-        return beanClass;
-    }
+  public List<InjectField> getInjectFields() {
+    return injectFields;
+  }
 
-    public void setBeanClass(Class<?> beanClass) {
-        this.beanClass = beanClass;
-    }
-
-    public String getBeanClassName() {
-        return beanClassName;
-    }
-
-    public void setBeanClassName(String beanClassName) {
-        this.beanClassName = beanClassName;
-        try {
-            this.beanClass = Class.forName(beanClassName);
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public Object getBean() {
-        return bean;
-    }
-
-    public void add(InjectField injectField) {
-        if(injectFields == null) {
-            injectFields = new ArrayList<>();
-        }
-        injectFields.add(injectField);
-    }
-
-    public void add(PropertyValue propertyValue) {
-        if(propertyValues == null) {
-            propertyValues = new ArrayList<>();
-        }
-
-        propertyValues.add(propertyValue);
-    }
-
-    public List<PropertyValue> getPropertyValues() {
-        return propertyValues;
-    }
-
-    public List<InjectField> getInjectFields() {
-        return injectFields;
-    }
-
-    @Override
-    public String toString() {
-        return "BeanDefinition{" +
-                "beanClassName='" + beanClassName + '\'' +
-                ", propertyValues=" + propertyValues +
-                ", injectFields=" + injectFields +
-                '}';
-    }
+  @Override
+  public String toString() {
+    return "BeanDefinition{" +
+        "beanClassName='" + clazz.getName() + '\'' +
+        ", propertyValues=" + propertyValues +
+        ", injectFields=" + injectFields +
+        '}';
+  }
 }

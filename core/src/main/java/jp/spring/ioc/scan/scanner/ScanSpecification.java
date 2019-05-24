@@ -17,9 +17,9 @@ public class ScanSpecification {
   private List<String> whiteListPathPrefixes = new ArrayList<>();
   private Set<String> jrePaths;
 
-  public ScanSpecification(final String... specifications) {
+  public ScanSpecification(List<String> scanned) {
     final Set<String> uniqueWhiteListPathPrefixes = new HashSet<>();
-    for (String specification : specifications) {
+    for (String specification : scanned) {
       String specPath = specification.replace('.', '/');
       if (!specPath.equals("/")) {
         specPath += "/";

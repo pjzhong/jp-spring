@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import jp.spring.ioc.beans.factory.AbstractBeanFactory;
+import jp.spring.ioc.beans.factory.DefaultBeanFactory;
 import jp.spring.ioc.stereotype.Controller;
 import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.RequestMapping;
@@ -15,7 +15,7 @@ import org.apache.commons.lang3.ObjectUtils;
 
 class HandlerBuilder {
 
-  List<Handler> buildHandler(String name, AbstractBeanFactory factory,
+  List<Handler> buildHandler(String name, DefaultBeanFactory factory,
       List<InterceptMatch> intercepts) {
     Class<?> controller = factory.getType(name);
     if (!TypeUtil.isAnnotated(controller, Controller.class)) {

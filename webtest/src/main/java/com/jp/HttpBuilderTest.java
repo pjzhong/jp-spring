@@ -1,11 +1,12 @@
-package jp.spring.http;
+package com.jp;
 
 import java.util.Scanner;
+import jp.spring.http.HttpService;
 
 public class HttpBuilderTest {
 
   public static void main(String[] args) throws Throwable {
-    NettyHttpService service = NettyHttpService.builder("test").build();
+    HttpService service = HttpService.builder("test").build();
     service.start();
 
     Scanner scanner = new Scanner(System.in);

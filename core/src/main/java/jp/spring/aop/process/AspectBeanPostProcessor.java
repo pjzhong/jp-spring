@@ -7,7 +7,7 @@ import jp.spring.aop.Proxy;
 import jp.spring.aop.ProxyFactory;
 import jp.spring.aop.impl.ExecutionAspectProxy;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
-import jp.spring.ioc.beans.factory.AbstractBeanFactory;
+import jp.spring.ioc.beans.factory.DefaultBeanFactory;
 import jp.spring.ioc.beans.factory.BeanFactory;
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.beans.support.BeanDefinition;
@@ -21,7 +21,7 @@ import jp.spring.ioc.util.TypeUtil;
 @Component
 public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryAware{
 
-    private AbstractBeanFactory beanFactory;
+    private DefaultBeanFactory beanFactory;
 
     /**
      * initialize all the aspects provide by user
@@ -35,7 +35,7 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
             beanDefinition = new BeanDefinition();
             BaseAspect aspect = new ExecutionAspectProxy(beanFactory.getType(name), beanFactory.getBean(name));
 
-            beanDefinition.setBeanClass(aspect.getClass());
+            beanDefinition.setClazz(aspect.getClass());
             beanDefinition.setBean(aspect);
 
             beanFactory.registerBeanDefinition(name + ".proxy", beanDefinition);
@@ -71,8 +71,8 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
 
     @Override
     public void setBeanFactory(BeanFactory beanFactory) {
-        if(beanFactory instanceof AbstractBeanFactory) {
-            this.beanFactory = (AbstractBeanFactory)beanFactory;
+        if(beanFactory instanceof DefaultBeanFactory) {
+            this.beanFactory = (DefaultBeanFactory)beanFactory;
         }
     }
 
