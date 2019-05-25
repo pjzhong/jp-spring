@@ -1,12 +1,11 @@
-package jp.spring.ioc.scan.scanner;
+package jp.spring.ioc.scan.scan;
 
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.Callable;
+import java.util.Objects;
+import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import jp.spring.ioc.scan.beans.ClassGraph;
@@ -16,7 +15,7 @@ import jp.spring.ioc.scan.beans.ClassInfoBuilder;
 /**
  * Created by Administrator on 10/28/2017.
  */
-public class Scanner implements Callable<ClassGraph> {
+public class Scanner {
 
   private final ScanSpecification specification;
 
@@ -24,8 +23,8 @@ public class Scanner implements Callable<ClassGraph> {
     this.specification = specification;
   }
 
-  @Override
-  public ClassGraph call() {
+
+  public ScanResult call() {
     // Get all classpathElements from the runtime-context, have no idea what these is ?
     // Write a class, and run the code below:
     //      System.getProperty("java.class.path");
@@ -37,36 +36,48 @@ public class Scanner implements Callable<ClassGraph> {
 
     // split dir and jar file than started to scan them
     long scannedStart = System.currentTimeMillis();
-    Map<ClassRelativePath, ClasspathElement<?>> elementMap = new ConcurrentHashMap<>();
-    rawClassPathElements.parallelStream()
+    Map<ClassRelativePath, ClasspathElement> elementMap = new ConcurrentHashMap<>();
+    rawClassPathElements.stream()
         .filter(c -> c.isValidClasspathElement(specification))
         .forEach(c -> elementMap.computeIfAbsent(c, this::newClassElement));
     System.out.format("scanned done cost:%s%n", System.currentTimeMillis() - scannedStart);
 
     //
-    // restore the classpathOrder and filtered the same classes but occurs in difference jar file
-    // (remove the second and subsequent)
+    // restore the classpathOrder
+    // TODO
+    //  filtered the same classes but occurs in difference file(s)
+    //  (remove the second and subsequent), use an other way to do this, give up maskFiles method
     //
     long maskStart = System.currentTimeMillis();
-    List<ClasspathElement<?>> classpathOrder = restoredClasspathOrder(rawClassPathElements,
-        elementMap);
+    List<ClasspathElement> classpathOrder = rawClassPathElements.stream()
+        .map(elementMap::get)
+        .filter(Objects::nonNull)
+        .collect(Collectors.toList());
     System.out.format("mask done cost:%s%n", System.currentTimeMillis() - maskStart);
 
-    // start to parse the class files found in the runtime context
+    // start to read the files found in the runtime context
     long parseStart = System.currentTimeMillis();
     ClassFileBinaryParser parser = new ClassFileBinaryParser();
-    List<ClassInfoBuilder> infoBuilders = classpathOrder.parallelStream()
-        .map(c -> c.parse(parser))// Scanning
-        .flatMap(List::stream)
+    List<ReadResult> results = classpathOrder.parallelStream()
+        .map(c -> c.read(parser))// Scanning
         .collect(Collectors.toList());
     classpathOrder.forEach(ClasspathElement::close);
     System.out.format("parsed done cost:%s%n", System.currentTimeMillis() - parseStart);
 
     // build the classGraph in single-thread
     long buildStart = System.currentTimeMillis();
-    ClassGraph classGraph = ClassGraph.builder(infoBuilders).build();
+    List<ClassInfoBuilder> builders = results.stream()
+        .map(ReadResult::getBuilders)
+        .flatMap(List::stream)
+        .collect(Collectors.toList());
+    ClassGraph classGraph = ClassGraph.builder(builders).build();
     System.out.format("buildGraph cost:%s%n", System.currentTimeMillis() - buildStart);
-    return classGraph;
+
+    Properties properties = new Properties();
+    for (ReadResult result : results) {
+      properties.putAll(result.getProperties());
+    }
+    return ScanResult.of(classGraph, properties);
   }
 
   private ClasspathElement newClassElement(ClassRelativePath relativePath) {
@@ -75,25 +86,5 @@ public class Scanner implements Callable<ClassGraph> {
     } else {
       return new ClasspathElementZip(relativePath, specification);
     }
-  }
-
-  /**
-   * restore the classPath after scanned;
-   */
-  private List<ClasspathElement<?>> restoredClasspathOrder(List<ClassRelativePath> rawPaths,
-      Map<ClassRelativePath, ClasspathElement<?>> elementMap) {
-    final List<ClasspathElement<?>> order = new ArrayList<>();
-    final Set<String> encounteredClassFile = new HashSet<>();
-    for (ClassRelativePath relativePath : rawPaths) {
-      ClasspathElement element = elementMap.get(relativePath);
-      if (element != null) {
-        element.maskFiles(encounteredClassFile);
-        if (!element.isEmpty()) {
-          order.add(element);
-        }
-      }
-    }
-
-    return order;
   }
 }

@@ -1,6 +1,7 @@
 package com.jp;
 
 import java.util.Scanner;
+import jp.spring.DefaultApplicationContext;
 import jp.spring.http.HttpService;
 
 public class HttpBuilderTest {

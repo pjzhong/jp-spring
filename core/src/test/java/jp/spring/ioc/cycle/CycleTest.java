@@ -3,8 +3,8 @@ package jp.spring.ioc.cycle;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
-import jp.spring.ioc.context.DefaultApplicationContext;
-import jp.spring.ioc.context.ApplicationContext;
+import jp.spring.DefaultApplicationContext;
+import jp.spring.ApplicationContext;
 import org.junit.Test;
 
 public class CycleTest {

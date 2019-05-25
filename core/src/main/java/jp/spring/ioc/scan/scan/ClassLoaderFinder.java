@@ -1,4 +1,4 @@
-package jp.spring.ioc.scan.scanner;
+package jp.spring.ioc.scan.scan;
 
 import java.util.ArrayList;
 import java.util.HashSet;

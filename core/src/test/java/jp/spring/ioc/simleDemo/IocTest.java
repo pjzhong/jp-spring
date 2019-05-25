@@ -1,7 +1,7 @@
 package jp.spring.ioc.simleDemo;
 
-import jp.spring.ioc.context.ApplicationContext;
-import jp.spring.ioc.context.DefaultApplicationContext;
+import jp.spring.ApplicationContext;
+import jp.spring.DefaultApplicationContext;
 import jp.spring.ioc.simleDemo.service.TestService;
 import org.junit.Test;
 

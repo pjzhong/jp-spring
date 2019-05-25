@@ -1,7 +1,7 @@
 package jp.spring.ioc.scan;
 
 
-import jp.spring.ioc.scan.scanner.ClasspathFinder;
+import jp.spring.ioc.scan.scan.ClasspathFinder;
 
 /**
  * Created by Administrator on 2017/10/31.

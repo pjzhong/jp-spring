@@ -4,8 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfo;
-import jp.spring.ioc.scan.scanner.ScanSpecification;
-import jp.spring.ioc.scan.scanner.Scanner;
+import jp.spring.ioc.scan.scan.ScanResult;
+import jp.spring.ioc.scan.scan.ScanSpecification;
+import jp.spring.ioc.scan.scan.Scanner;
 
 
 public class FastClassPathScanner {
@@ -17,10 +18,10 @@ public class FastClassPathScanner {
     specification = new ScanSpecification(scanned);
   }
 
-  public ClassGraph scan() {
-    ClassGraph graph = new Scanner(specification).call();
-    classMatchers.forEach(m -> m.lookForMatches(graph));
-    return graph;
+  public ScanResult scan() {
+    ScanResult result = new Scanner(specification).call();
+    classMatchers.forEach(m -> m.lookForMatches(result.getClassGraph()));
+    return result;
   }
 
   public <T> FastClassPathScanner matchSubClassOf(final Class<T> superClass,

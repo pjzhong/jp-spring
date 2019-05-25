@@ -22,33 +22,19 @@ import org.apache.commons.lang3.tuple.Pair;
  */
 public class HandlerArgResolver {
 
-  /**
-   * HttpRequest
-   */
+  /** HttpRequest */
   private FullHttpRequest request;
-  /**
-   * HttpResponse
-   */
+  /** HttpResponse */
   private FullHttpResponse response;
-  /**
-   * 请求处理者
-   */
+  /** 请求处理者 */
   private Handler handler;
-  /**
-   * 路径参数
-   */
+  /** 路径参数 */
   private Map<String, String> paths;
-  /**
-   * 请求参数
-   */
+  /** 请求参数 */
   private Map<String, List<String>> params;
-  /**
-   * Cookies
-   */
+  /** Cookies */
   private Map<String, HttpCookie> cookies;
-  /**
-   * Hanlder所需参数
-   */
+  /** Hanlder所需参数 */
   private Object[] args;
 
   private HandlerArgResolver() {

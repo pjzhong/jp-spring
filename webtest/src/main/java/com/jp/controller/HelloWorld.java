@@ -27,7 +27,7 @@ public class HelloWorld {
   @Autowired
   private OutputService output;
 
-  @Value("package.scan")
+  @Value(value = "package.scan", required = true)
   private String scan;
 
   @RequestMapping(value = {"/hello/{someone}", "/hi/{someone}"}, method = {RequestMethod.GET,

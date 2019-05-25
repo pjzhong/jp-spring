@@ -1,8 +1,7 @@
 package jp.spring.ioc.beans.io.reader;
 
-import java.util.HashSet;
+import java.util.List;
 import java.util.Properties;
-import java.util.Set;
 import jp.spring.ioc.beans.io.Resource;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.loader.PropertiesResourceLoader;
@@ -13,29 +12,26 @@ import jp.spring.ioc.beans.io.loader.PropertiesResourceLoader;
 public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
   private Properties configProperties;
+  private List<String> packages;
 
-  public PropertiesBeanDefinitionReader() {
-  }
 
-  public PropertiesBeanDefinitionReader(ResourceLoader resourceLoader) {
+  public PropertiesBeanDefinitionReader(ResourceLoader resourceLoader, List<String> packages) {
     super(resourceLoader);
+    this.packages = packages;
   }
 
   @Override
   public void loadBeanDefinitions(String location) throws Exception {
     if (getResourceLoader() instanceof PropertiesResourceLoader) {
+
+      // TODO REFACTOR THIS
       Resource[] resources = getResourceLoader().getResource(location);
-      Set<String> componentScan = new HashSet<>();
-      //TODO IMPROVE IT 临时措施
-      componentScan.add("jp.spring");
       configProperties = new Properties();
       for (Resource resource : resources) {
         configProperties.load(resource.getInputStream());
-        componentScan.add(configProperties.getProperty("package.scan"));
-        //多个properties之间 package.scan 会相互覆盖，所以每载入一次。扫描一次
       }
 
-      for (String strPackage : componentScan) {
+      for (String strPackage : packages) {
         scanComponent(strPackage);
       }
     }

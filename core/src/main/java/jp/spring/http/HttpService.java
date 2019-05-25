@@ -16,7 +16,7 @@ import io.netty.util.concurrent.ImmediateEventExecutor;
 import java.net.InetSocketAddress;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.atomic.AtomicInteger;
-import jp.spring.ioc.context.DefaultApplicationContext;
+import jp.spring.DefaultApplicationContext;
 import jp.spring.mvc.handler.HandlerMapping;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

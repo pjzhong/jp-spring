@@ -1,4 +1,4 @@
-package jp.spring.ioc.scan.scanner;
+package jp.spring.ioc.scan.scan;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +32,7 @@ public class ScanSpecification {
     whiteListPathPrefixes.addAll(uniqueWhiteListPathPrefixes);
   }
 
-  public boolean pathWhiteListMatchStatus(final String relatePath) {
+  public boolean isWhiteList(final String relatePath) {
     for (final String whiteList : whiteListPathPrefixes) {
       if (relatePath.equals(whiteList) || relatePath.startsWith(whiteList) ||
           whiteList.startsWith(relatePath) || "/".equals(relatePath)) {
@@ -53,6 +53,11 @@ public class ScanSpecification {
     return false;
   }
 
+  /**
+   * Obtain Jre path for block purpose
+   *
+   * @since 2019年05月25日 17:24:24
+   */
   private Set<String> getJrePaths() {
     Set<File> jrePathFile = new HashSet<>();
     String javaHome = System.getProperty("java.home");

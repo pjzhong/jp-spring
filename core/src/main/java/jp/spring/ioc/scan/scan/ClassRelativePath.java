@@ -1,10 +1,10 @@
-package jp.spring.ioc.scan.scanner;
+package jp.spring.ioc.scan.scan;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
-import jp.spring.ioc.scan.utils.ClassScanUtils;
 import jp.spring.ioc.scan.utils.FastPathResolver;
+import jp.spring.ioc.scan.utils.ScanUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -22,7 +22,7 @@ public class ClassRelativePath {
 
   public ClassRelativePath(String relativePath) {
     this.relativePath = relativePath;
-    this.isJar = this.relativePath.contains("!") || ClassScanUtils.isJar(this.relativePath);
+    this.isJar = this.relativePath.contains("!") || ScanUtils.isJar(this.relativePath);
   }
 
 
@@ -34,14 +34,6 @@ public class ClassRelativePath {
 
     //ignore non-jar file on class path
     return !isFile() || (!spec.blockJdk(path) && isJar);
-  }
-
-  /**
-   * Returns true if path has a .class extension, ignoring case.
-   */
-  public static boolean isClassFile(final String path) {
-    final int len = path.length();
-    return len > 6 && path.regionMatches(true, len - 6, ".class", 0, 6);
   }
 
   public boolean exists() {
@@ -95,7 +87,7 @@ public class ClassRelativePath {
 
   @Override
   public String toString() {
-    return "ClassRelativePath{" + "relativePath='" + getResolvedPath() + '\''
+    return "ClassRelativePath{" + "relativePath='" + relativePath + '\''
         + '}';
   }
 
