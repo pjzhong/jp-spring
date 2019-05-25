@@ -24,12 +24,12 @@ public class ClasspathElementZip implements ClasspathElement {
 
   private Logger logger = LoggerFactory.getLogger(ClasspathElementZip.class);
 
-  private ScanSpecification scanSpecification;
+  private ScanConfig scanSpecification;
   private ZipFile zipFile;
   private Map<String, ZipEntry> zips = new HashMap<>();
   private Map<String, ZipEntry> properties = new HashMap<>();
 
-  ClasspathElementZip(ClassRelativePath classRelativePath, ScanSpecification spec) {
+  ClasspathElementZip(ClassRelativePath classRelativePath, ScanConfig spec) {
     this.scanSpecification = spec;
     final File classpathFile;
     try {

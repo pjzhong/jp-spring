@@ -26,7 +26,7 @@ public class ClassRelativePath {
   }
 
 
-  public boolean isValidClasspathElement(ScanSpecification spec) {
+  public boolean isValidClasspathElement(ScanConfig spec) {
     final String path = getResolvedPath();
     if (StringUtils.isBlank(path) || !exists()) {
       return false;

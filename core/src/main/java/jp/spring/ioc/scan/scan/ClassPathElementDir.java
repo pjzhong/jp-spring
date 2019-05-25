@@ -25,9 +25,9 @@ class ClassPathElementDir implements ClasspathElement {
   private static Logger logger = LoggerFactory.getLogger(ClassPathElementDir.class);
   private Map<String, File> files = new HashMap<>();//relativePath , File
   private Map<String, File> properties = new HashMap<>();
-  private ScanSpecification scanSpecification;
+  private ScanConfig scanSpecification;
 
-  ClassPathElementDir(ClassRelativePath classRelativePath, ScanSpecification spec) {
+  ClassPathElementDir(ClassRelativePath classRelativePath, ScanConfig spec) {
     this.scanSpecification = spec;
     File dir;
     try {
@@ -55,8 +55,8 @@ class ClassPathElementDir implements ClasspathElement {
     }
 
     final String dirPath = dir.getPath();
-    final String dirRelatePath = ignorePrefixLen > dirPath.length() ?
-        "/" : dirPath.substring(ignorePrefixLen).replace(File.separatorChar, '/') + "/";
+    final String dirRelatePath =  dirPath.length() < ignorePrefixLen?
+        "/" : dirPath.substring(ignorePrefixLen).replace(File.separatorChar, '/');
     final boolean match = scanSpecification.isWhiteList(dirRelatePath);
     if (!match) {
       return;

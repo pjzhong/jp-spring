@@ -17,10 +17,10 @@ import jp.spring.ioc.scan.beans.ClassInfoBuilder;
  */
 public class Scanner {
 
-  private final ScanSpecification specification;
+  private final ScanConfig config;
 
-  public Scanner(ScanSpecification specification) {
-    this.specification = specification;
+  public Scanner(ScanConfig config) {
+    this.config = config;
   }
 
 
@@ -28,7 +28,8 @@ public class Scanner {
     // Get all classpathElements from the runtime-context, have no idea what these is ?
     // Write a class, and run the code below:
     //      System.getProperty("java.class.path");
-    final List<String> classPathElementStrings = new ClasspathFinder().getRawClassPathStrings();
+    final List<String> classPathElementStrings = new ClasspathFinder(config)
+        .getRawClassPathStrings();
     final List<ClassRelativePath> rawClassPathElements = new ArrayList<>();
     for (String classElementStr : classPathElementStrings) {
       rawClassPathElements.add(new ClassRelativePath(classElementStr));
@@ -38,7 +39,7 @@ public class Scanner {
     long scannedStart = System.currentTimeMillis();
     Map<ClassRelativePath, ClasspathElement> elementMap = new ConcurrentHashMap<>();
     rawClassPathElements.stream()
-        .filter(c -> c.isValidClasspathElement(specification))
+        .filter(c -> c.isValidClasspathElement(config))
         .forEach(c -> elementMap.computeIfAbsent(c, this::newClassElement));
     System.out.format("scanned done cost:%s%n", System.currentTimeMillis() - scannedStart);
 
@@ -82,9 +83,9 @@ public class Scanner {
 
   private ClasspathElement newClassElement(ClassRelativePath relativePath) {
     if (relativePath.isDirectory()) {
-      return new ClassPathElementDir(relativePath, specification);
+      return new ClassPathElementDir(relativePath, config);
     } else {
-      return new ClasspathElementZip(relativePath, specification);
+      return new ClasspathElementZip(relativePath, config);
     }
   }
 }

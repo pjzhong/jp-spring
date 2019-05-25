@@ -1,8 +1,10 @@
 package jp.spring;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.beans.factory.DefaultBeanFactory;
 import jp.spring.ioc.beans.io.loader.PropertiesResourceLoader;
@@ -11,6 +13,7 @@ import jp.spring.ioc.beans.io.reader.AnnotationBeanDefinitionReader;
 import jp.spring.ioc.beans.io.reader.PropertiesBeanDefinitionReader;
 import jp.spring.ioc.beans.support.BeanDefinition;
 import jp.spring.ioc.scan.FastClassPathScanner;
+import jp.spring.ioc.scan.scan.ScanConfig;
 import jp.spring.ioc.scan.scan.ScanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -89,11 +92,12 @@ public class DefaultApplicationContext implements ApplicationContext {
   }
 
   private void loadBeanDefinitions() throws Exception {
-    List<String> target = getScanPackage();
-    logger.info("Found package:{}", target);
+    ScanConfig config = scanConfig();
+    logger.info("Found package:{}", config.getPackages());
+    logger.info("Found loaders:{}", config.getLoaders());
 
     PropertiesBeanDefinitionReader reader = new PropertiesBeanDefinitionReader(
-        new PropertiesResourceLoader(), target);
+        new PropertiesResourceLoader(), config.getPackages());
     reader.loadBeanDefinitions(configLocation);
     Map<String, BeanDefinition> empty = reader.getRegistry();
     for (Map.Entry<String, BeanDefinition> beanDefinitionEntry : empty.entrySet()) {
@@ -102,7 +106,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
     //FastClassPathScanner
-    FastClassPathScanner scanner = new FastClassPathScanner(target);
+    FastClassPathScanner scanner = new FastClassPathScanner(config);
     ScanResult result = scanner.scan();
     beanFactory.getProperties().putAll(result.getProperties());
   }
@@ -117,21 +121,24 @@ public class DefaultApplicationContext implements ApplicationContext {
    *
    * @since 2019年05月25日 15:47:31
    */
-  private List<String> getScanPackage() {
-    List<String> res = new ArrayList<>();
+  private ScanConfig scanConfig() {
+    List<String> white = new ArrayList<>();
+    Set<ClassLoader> loaders = new HashSet<>();
     String corePackage = DefaultApplicationContext.class.getPackage().getName();
-    res.add(corePackage);
+    white.add(corePackage);
+    loaders.add(DefaultApplicationContext.class.getClassLoader());
     // Get the caller
     CallerResolver resolver = new CallerResolver();
     final Class<?>[] callStack = resolver.getClassContext();
     for (int fcsIdx = callStack.length - 1; fcsIdx >= 0; --fcsIdx) {
       String pkg = callStack[fcsIdx].getPackage().getName();
       if (!pkg.startsWith(corePackage)) {
-        res.add(pkg);
+        white.add(pkg);
+        loaders.add(callStack[fcsIdx].getClassLoader());
         break;
       }
     }
-    return res;
+    return new ScanConfig(white, loaders);
   }
 
   private static final class CallerResolver extends SecurityManager {

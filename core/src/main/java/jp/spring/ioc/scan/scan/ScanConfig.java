@@ -3,6 +3,7 @@ package jp.spring.ioc.scan.scan;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -12,14 +13,22 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Created by Administrator on 2017/10/31.
  */
-public class ScanSpecification {
+public class ScanConfig {
 
-  private List<String> whiteListPathPrefixes = new ArrayList<>();
+  private List<String> whites = new ArrayList<>();
+  private List<String> packages;
+  private Set<ClassLoader> loaders;
   private Set<String> jrePaths;
 
-  public ScanSpecification(List<String> scanned) {
+  public ScanConfig(List<String> packages, Set<ClassLoader> loaders) {
+    this(packages);
+    this.packages = packages;
+    this.loaders = loaders;
+  }
+
+  public ScanConfig(List<String> whites) {
     final Set<String> uniqueWhiteListPathPrefixes = new HashSet<>();
-    for (String specification : scanned) {
+    for (String specification : whites) {
       String specPath = specification.replace('.', '/');
       if (!specPath.equals("/")) {
         specPath += "/";
@@ -29,11 +38,13 @@ public class ScanSpecification {
 
     jrePaths = getJrePaths();
     //process whiteListed
-    whiteListPathPrefixes.addAll(uniqueWhiteListPathPrefixes);
+    this.whites.addAll(uniqueWhiteListPathPrefixes);
+
+    this.loaders = Collections.singleton(getClass().getClassLoader());
   }
 
-  public boolean isWhiteList(final String relatePath) {
-    for (final String whiteList : whiteListPathPrefixes) {
+  boolean isWhiteList(final String relatePath) {
+    for (final String whiteList : whites) {
       if (relatePath.equals(whiteList) || relatePath.startsWith(whiteList) ||
           whiteList.startsWith(relatePath) || "/".equals(relatePath)) {
         return true;
@@ -43,7 +54,7 @@ public class ScanSpecification {
     return false;
   }
 
-  public boolean blockJdk(final String relativePath) {
+  boolean blockJdk(final String relativePath) {
     for (String jrePath : jrePaths) {
       if (relativePath.startsWith(jrePath)) {
         return true;
@@ -111,4 +122,11 @@ public class ScanSpecification {
     return jrePathStr;
   }
 
+  public Set<ClassLoader> getLoaders() {
+    return loaders;
+  }
+
+  public List<String> getPackages() {
+    return packages;
+  }
 }

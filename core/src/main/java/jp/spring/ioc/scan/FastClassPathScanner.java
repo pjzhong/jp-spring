@@ -5,17 +5,18 @@ import java.util.List;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.scan.ScanResult;
-import jp.spring.ioc.scan.scan.ScanSpecification;
+import jp.spring.ioc.scan.scan.ScanConfig;
 import jp.spring.ioc.scan.scan.Scanner;
+import org.apache.log4j.helpers.Loader;
 
 
 public class FastClassPathScanner {
 
   private List<ClassMatcher> classMatchers = new ArrayList<>();
-  private ScanSpecification specification = null;
+  private ScanConfig specification = null;
 
-  public FastClassPathScanner(List<String> scanned) {
-    specification = new ScanSpecification(scanned);
+  public FastClassPathScanner(ScanConfig config) {
+    specification = config;
   }
 
   public ScanResult scan() {
