@@ -1,13 +1,12 @@
 package jp.spring.ioc.scan.beans;
 
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 
 public class AnnotationInfo {
 
   private final String name;
-  private Map<String, ParamValue> params = Collections.emptyMap();
+  private Map<String, ParamValue> params;
 
   public AnnotationInfo(String name, Map<String, ParamValue> params) {
     this.name = name;

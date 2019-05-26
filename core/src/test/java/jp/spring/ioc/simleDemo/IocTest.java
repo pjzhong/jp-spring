@@ -9,7 +9,7 @@ public class IocTest {
 
   @Test
   public void test() throws Exception {
-    ApplicationContext context = new DefaultApplicationContext("/");
+    ApplicationContext context = new DefaultApplicationContext();
     TestService service = (TestService) context.getBean("testServiceImple");
     service.sayHello(null);
   }

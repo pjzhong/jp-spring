@@ -29,12 +29,7 @@ class ClassPathElementDir implements ClasspathElement {
 
   ClassPathElementDir(ClassRelativePath classRelativePath, ScanConfig spec) {
     this.scanSpecification = spec;
-    File dir;
-    try {
-      dir = classRelativePath.asFile();
-    } catch (IOException e) {
-      return;
-    }
+    File dir = classRelativePath.asFile();
 
     files = new HashMap<>();
     scanDir(dir, (dir.getPath().length() + 1), new HashSet<>());
@@ -55,7 +50,7 @@ class ClassPathElementDir implements ClasspathElement {
     }
 
     final String dirPath = dir.getPath();
-    final String dirRelatePath =  dirPath.length() < ignorePrefixLen?
+    final String dirRelatePath = dirPath.length() < ignorePrefixLen ?
         "/" : dirPath.substring(ignorePrefixLen).replace(File.separatorChar, '/');
     final boolean match = scanSpecification.isWhiteList(dirRelatePath);
     if (!match) {
@@ -90,6 +85,7 @@ class ClassPathElementDir implements ClasspathElement {
     for (File file : files.values()) {
       try {
         InputStream stream = new FileInputStream(file);
+
         ClassInfoBuilder b = parser.parse(stream);
         if (b != null) {
           builders.add(b);

@@ -56,7 +56,7 @@ public final class HttpService {
       bindAddress = (InetSocketAddress) serverChannel.localAddress();
 
       // Init ApplicationContext
-      context = new DefaultApplicationContext("/");
+      context = new DefaultApplicationContext();
       handlerMapping = HandlerMapping.build(context.getBeanFactory());
 
       LOG.info("Started HTTP Service {} at address {}", name, bindAddress);

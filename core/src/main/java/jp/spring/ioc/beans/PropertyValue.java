@@ -1,4 +1,4 @@
-package jp.spring.ioc.beans.support;
+package jp.spring.ioc.beans;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
@@ -13,12 +13,12 @@ import org.apache.commons.lang3.StringUtils;
  **/
 public class PropertyValue {
 
+  /** 配置名称 */
   private String name;
+  /** 注入字段 */
   private Field field;
-  private boolean isRequired = false;
-
-  public PropertyValue() {
-  }
+  /** 是否必须 */
+  private boolean isRequired;
 
   public PropertyValue(Field field, Value value) {
     field.setAccessible(true);

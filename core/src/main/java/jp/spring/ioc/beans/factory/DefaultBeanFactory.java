@@ -4,7 +4,6 @@ import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,9 +11,9 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import jp.spring.ioc.BeansException;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
-import jp.spring.ioc.beans.support.BeanDefinition;
-import jp.spring.ioc.beans.support.InjectField;
-import jp.spring.ioc.beans.support.PropertyValue;
+import jp.spring.ioc.beans.BeanDefinition;
+import jp.spring.ioc.beans.InjectField;
+import jp.spring.ioc.beans.PropertyValue;
 import jp.spring.ioc.util.TypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -205,14 +204,14 @@ public class DefaultBeanFactory implements BeanFactory {
     Object value = null;
     for (InjectField injectField : beanDefinition.getInjectFields()) {
 
-      if (StringUtils.isBlank(injectField.getId())) {
+      if (StringUtils.isBlank(injectField.getQualifier())) {
         Map<String, Object> matchingBeans = findAutowireCandidates(
             injectField.getType());
         if (!TypeUtil.isEmpty(matchingBeans)) {
           value = matchingBeans.entrySet().iterator().next().getValue();
         }
       } else {
-        value = getBean(injectField.getId());
+        value = getBean(injectField.getQualifier());
       }
 
       if (value == null && injectField.isRequired()) {

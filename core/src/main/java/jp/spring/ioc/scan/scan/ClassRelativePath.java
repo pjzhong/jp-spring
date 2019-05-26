@@ -3,7 +3,6 @@ package jp.spring.ioc.scan.scan;
 import java.io.File;
 import java.io.IOException;
 import java.util.Objects;
-import jp.spring.ioc.scan.utils.FastPathResolver;
 import jp.spring.ioc.scan.utils.ScanUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -14,10 +13,7 @@ public class ClassRelativePath {
 
   private final String relativePath;
   private final boolean isJar;
-  private String resolvedPath;
-  /**
-   * The canonical file for the relative path.
-   */
+  /** The canonical file for the relative path. */
   private File file;
 
   public ClassRelativePath(String relativePath) {
@@ -27,7 +23,7 @@ public class ClassRelativePath {
 
 
   public boolean isValidClasspathElement(ScanConfig spec) {
-    final String path = getResolvedPath();
+    final String path = relativePath;
     if (StringUtils.isBlank(path) || !exists()) {
       return false;
     }
@@ -37,49 +33,25 @@ public class ClassRelativePath {
   }
 
   public boolean exists() {
-    try {
-      return asFile().exists();
-    } catch (IOException e) {
-      return false;
-    }
+    return asFile().exists();
   }
 
   public boolean isDirectory() {
-    try {
-      return asFile().isDirectory();
-    } catch (IOException e) {
-      return false;
-    }
+    return asFile().isDirectory();
   }
 
   public boolean isFile() {
-    try {
-      return asFile().isFile();
-    } catch (IOException e) {
-      return false;
-    }
+    return asFile().isFile();
   }
 
-  public String getResolvedPath() {
-    if (StringUtils.isBlank(resolvedPath)) {
-      resolvedPath = FastPathResolver.resolve(relativePath);
-    }
-    return resolvedPath;
-  }
 
-  public File asFile() throws IOException {
+  public File asFile() {
     if (file == null) {
-      final String path = getResolvedPath();
-      if (path == null) {
-        throw new IOException(
-            "Path " + relativePath + " could not be resolved relative to ");
-      }
-
-      file = new File(path);
+      file = new File(relativePath);
       try {
         file = file.getCanonicalFile();
-      } catch (SecurityException e) {
-        throw new IOException(e);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
       }
     }
     return file;

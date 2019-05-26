@@ -1,8 +1,6 @@
 package jp.spring.ioc.beans.io.reader;
 
 import java.util.List;
-import java.util.Properties;
-import jp.spring.ioc.beans.io.Resource;
 import jp.spring.ioc.beans.io.ResourceLoader;
 import jp.spring.ioc.beans.io.loader.PropertiesResourceLoader;
 
@@ -11,7 +9,6 @@ import jp.spring.ioc.beans.io.loader.PropertiesResourceLoader;
  */
 public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader {
 
-  private Properties configProperties;
   private List<String> packages;
 
 
@@ -22,15 +19,8 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
 
   @Override
   public void loadBeanDefinitions(String location) throws Exception {
+    //TODO refactor this
     if (getResourceLoader() instanceof PropertiesResourceLoader) {
-
-      // TODO REFACTOR THIS
-      Resource[] resources = getResourceLoader().getResource(location);
-      configProperties = new Properties();
-      for (Resource resource : resources) {
-        configProperties.load(resource.getInputStream());
-      }
-
       for (String strPackage : packages) {
         scanComponent(strPackage);
       }
@@ -41,9 +31,5 @@ public class PropertiesBeanDefinitionReader extends AbstractBeanDefinitionReader
     AbstractBeanDefinitionReader reader = AnnotationBeanDefinitionReader.getInstance();
     reader.loadBeanDefinitions(strPackage);
     getRegistry().putAll(reader.getRegistry());
-  }
-
-  public Properties getConfigProperties() {
-    return configProperties;
   }
 }

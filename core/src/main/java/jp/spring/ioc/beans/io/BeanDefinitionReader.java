@@ -1,6 +1,6 @@
 package jp.spring.ioc.beans.io;
 
-import jp.spring.ioc.beans.support.BeanDefinition;
+import jp.spring.ioc.beans.BeanDefinition;
 
 /**
  * 从配置中读取BeanDefinitionReader

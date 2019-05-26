@@ -100,7 +100,7 @@ public class ScanConfig {
           path += File.separator;
         }
 
-        final String jrePath = FastPathResolver.resolve(path);
+        final String jrePath = FastPathResolver.normalizePath(path);
         if (StringUtils.isNotBlank(jrePath)) {
           jrePathStr.add(jrePath);
         }
@@ -109,7 +109,7 @@ public class ScanConfig {
           if (!canonicalPath.endsWith(File.separator)) {
             canonicalPath += File.separator;
           }
-          String jreCanonicalPath = FastPathResolver.resolve(canonicalPath);
+          String jreCanonicalPath = FastPathResolver.normalizePath(canonicalPath);
           if (!jreCanonicalPath.equals(canonicalPath) && StringUtils.isNotBlank(jreCanonicalPath)) {
             jrePathStr.add(jreCanonicalPath);
           }

@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import jp.spring.ioc.beans.io.BeanDefinitionReader;
 import jp.spring.ioc.beans.io.ResourceLoader;
-import jp.spring.ioc.beans.support.BeanDefinition;
+import jp.spring.ioc.beans.BeanDefinition;
 
 /**
  * 从配置中读取BeanDefinitionReader

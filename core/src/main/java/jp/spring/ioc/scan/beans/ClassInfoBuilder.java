@@ -10,9 +10,30 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created by Administrator on 10/28/2017.
- */
+ * 类信息构造者
+ *
+ * @author ZJP
+ * @since 2019年05月26日 21:06:51
+ **/
 public class ClassInfoBuilder {
+
+  private final String className;
+
+  private final int accessFlag;
+  private String superclassName;    // Superclass (can be null if no superclass, or if superclass is blacklisted)
+  private Set<String> methodAnnotations = Collections.emptySet();
+  private Set<String> fieldAnnotations = Collections.emptySet();
+  private List<String> implementedInterfaces = Collections.emptyList();
+  private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
+  private List<FieldInfo> fieldInfoList = Collections.emptyList();
+  private List<MethodInfo> methodInfoList = Collections.emptyList();
+
+  private Map<String, ClassInfo> infoMap; //intense share by all ClassInfoBuilder instance
+
+  ClassInfoBuilder(final String className, final int accessFlag) {
+    this.className = className;
+    this.accessFlag = accessFlag;
+  }
 
   ClassInfo addScannedClass(final String className) {
     ClassInfo classInfo;
@@ -119,21 +140,4 @@ public class ClassInfoBuilder {
     return superclassName;
   }
 
-  ClassInfoBuilder(final String className, final int accessFlag) {
-    this.className = className;
-    this.accessFlag = accessFlag;
-  }
-
-  private final String className;
-
-  private final int accessFlag;
-  private String superclassName;    // Superclass (can be null if no superclass, or if superclass is blacklisted)
-  private Set<String> methodAnnotations = Collections.emptySet();
-  private Set<String> fieldAnnotations = Collections.emptySet();
-  private List<String> implementedInterfaces = Collections.emptyList();
-  private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
-  private List<FieldInfo> fieldInfoList = Collections.emptyList();
-  private List<MethodInfo> methodInfoList = Collections.emptyList();
-
-  private Map<String, ClassInfo> infoMap; //intense share by all ClassInfoBuilder instance
 }

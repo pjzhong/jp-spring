@@ -10,6 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfoBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -17,12 +19,12 @@ import jp.spring.ioc.scan.beans.ClassInfoBuilder;
  */
 public class Scanner {
 
+  private Logger logger = LoggerFactory.getLogger(this.getClass());
   private final ScanConfig config;
 
   public Scanner(ScanConfig config) {
     this.config = config;
   }
-
 
   public ScanResult call() {
     // Get all classpathElements from the runtime-context, have no idea what these is ?
@@ -41,7 +43,7 @@ public class Scanner {
     rawClassPathElements.stream()
         .filter(c -> c.isValidClasspathElement(config))
         .forEach(c -> elementMap.computeIfAbsent(c, this::newClassElement));
-    System.out.format("scanned done cost:%s%n", System.currentTimeMillis() - scannedStart);
+    logger.info("scanned done cost:{}", System.currentTimeMillis() - scannedStart);
 
     //
     // restore the classpathOrder
@@ -54,7 +56,7 @@ public class Scanner {
         .map(elementMap::get)
         .filter(Objects::nonNull)
         .collect(Collectors.toList());
-    System.out.format("mask done cost:%s%n", System.currentTimeMillis() - maskStart);
+    logger.info("mask done cost:{}", System.currentTimeMillis() - maskStart);
 
     // start to read the files found in the runtime context
     long parseStart = System.currentTimeMillis();
@@ -63,7 +65,7 @@ public class Scanner {
         .map(c -> c.read(parser))// Scanning
         .collect(Collectors.toList());
     classpathOrder.forEach(ClasspathElement::close);
-    System.out.format("parsed done cost:%s%n", System.currentTimeMillis() - parseStart);
+    logger.info("parsed done cost:{}", System.currentTimeMillis() - parseStart);
 
     // build the classGraph in single-thread
     long buildStart = System.currentTimeMillis();
@@ -72,7 +74,7 @@ public class Scanner {
         .flatMap(List::stream)
         .collect(Collectors.toList());
     ClassGraph classGraph = ClassGraph.builder(builders).build();
-    System.out.format("buildGraph cost:%s%n", System.currentTimeMillis() - buildStart);
+    logger.info("buildGraph cost:{}", System.currentTimeMillis() - buildStart);
 
     Properties properties = new Properties();
     for (ReadResult result : results) {

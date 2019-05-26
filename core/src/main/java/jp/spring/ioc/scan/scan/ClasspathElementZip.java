@@ -31,19 +31,13 @@ public class ClasspathElementZip implements ClasspathElement {
 
   ClasspathElementZip(ClassRelativePath classRelativePath, ScanConfig spec) {
     this.scanSpecification = spec;
-    final File classpathFile;
-    try {
-      classpathFile = classRelativePath.asFile();
-    } catch (IOException e) {
-      return;
-    }
-
-    if (classpathFile == null || !classpathFile.canRead()) {
+    final File classFile = classRelativePath.asFile();
+    if (classFile == null || !classFile.canRead()) {
       return;
     }
 
     try {
-      zipFile = new ZipFile(classpathFile);
+      zipFile = new ZipFile(classFile);
       scanZipFile(zipFile);
     } catch (IOException e) {
       logger.error("scanning {} error", classRelativePath);

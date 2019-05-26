@@ -43,12 +43,13 @@ public class FastPathResolver {
     return builder.toString();
   }
 
+  @Deprecated
   public static String resolve(final String relativePathStr) {
     if (StringUtils.isBlank(relativePathStr)) {
       return relativePathStr;
     }
 
-    //We don't fetch remote classpath entries, although they are theoretically valid if
+    // We don't fetch remote classpath entries, although they are theoretically valid if
     // using a URLClassLoader
     if (relativePathStr.startsWith("http:") || relativePathStr.startsWith("https:")) {
       return "";

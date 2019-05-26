@@ -1,6 +1,6 @@
 package jp.spring.ioc.beans.factory;
 
-import jp.spring.ioc.beans.support.BeanDefinition;
+import jp.spring.ioc.beans.BeanDefinition;
 
 /**
  * Created by Administrator on 12/24/2016.

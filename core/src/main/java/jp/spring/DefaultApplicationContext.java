@@ -5,16 +5,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.beans.factory.DefaultBeanFactory;
 import jp.spring.ioc.beans.io.loader.PropertiesResourceLoader;
 import jp.spring.ioc.beans.io.reader.AbstractBeanDefinitionReader;
 import jp.spring.ioc.beans.io.reader.AnnotationBeanDefinitionReader;
 import jp.spring.ioc.beans.io.reader.PropertiesBeanDefinitionReader;
-import jp.spring.ioc.beans.support.BeanDefinition;
-import jp.spring.ioc.scan.FastClassPathScanner;
+import jp.spring.ioc.scan.beans.ClassGraph;
+import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.scan.ScanConfig;
 import jp.spring.ioc.scan.scan.ScanResult;
+import jp.spring.ioc.scan.scan.Scanner;
+import jp.spring.ioc.stereotype.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,20 +34,18 @@ public class DefaultApplicationContext implements ApplicationContext {
 
   private DefaultBeanFactory beanFactory;
 
-  private String configLocation;
-
-
-  public DefaultApplicationContext(String configLocation) throws Exception {
+  public DefaultApplicationContext() throws Exception {
     this.beanFactory = new DefaultBeanFactory();
-    this.configLocation = configLocation;
     this.refresh();
   }
 
 
-  public void refresh() throws Exception {
-    loadBeanDefinitions();
+  private void refresh() throws Exception {
+    loadBeanDefinitions(beanFactory);
+    //TODO 这两个方法重构
     loadBeanPostProcessors(beanFactory);
     registerBeanPostProcessors(beanFactory);
+    //TODO 这两个方法重构
     beanFactory.refresh();
   }
 
@@ -91,14 +92,14 @@ public class DefaultApplicationContext implements ApplicationContext {
     beanFactory.registerBeanDefinition(name, beanDefinition);
   }
 
-  private void loadBeanDefinitions() throws Exception {
+  private void loadBeanDefinitions(DefaultBeanFactory beanFactory) throws Exception {
     ScanConfig config = scanConfig();
     logger.info("Found package:{}", config.getPackages());
     logger.info("Found loaders:{}", config.getLoaders());
 
     PropertiesBeanDefinitionReader reader = new PropertiesBeanDefinitionReader(
         new PropertiesResourceLoader(), config.getPackages());
-    reader.loadBeanDefinitions(configLocation);
+    reader.loadBeanDefinitions(null);
     Map<String, BeanDefinition> empty = reader.getRegistry();
     for (Map.Entry<String, BeanDefinition> beanDefinitionEntry : empty.entrySet()) {
       beanFactory
@@ -106,9 +107,17 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
 
     //FastClassPathScanner
-    FastClassPathScanner scanner = new FastClassPathScanner(config);
-    ScanResult result = scanner.scan();
+    Scanner scanner = new Scanner(config);
+    ScanResult result = scanner.call();
+
+    // configuration
     beanFactory.getProperties().putAll(result.getProperties());
+
+    // graph
+    ClassGraph graph = result.getClassGraph();
+    Set<ClassInfo> infos = graph.getInfoWithAnnotation(Component.class);
+    logger.info("Found infos:{}", infos.size());
+    infos.forEach(System.out::println);
   }
 
   /**
@@ -124,17 +133,18 @@ public class DefaultApplicationContext implements ApplicationContext {
   private ScanConfig scanConfig() {
     List<String> white = new ArrayList<>();
     Set<ClassLoader> loaders = new HashSet<>();
-    String corePackage = DefaultApplicationContext.class.getPackage().getName();
-    white.add(corePackage);
+
+    String core = DefaultApplicationContext.class.getPackage().getName();
+    white.add(core);
     loaders.add(DefaultApplicationContext.class.getClassLoader());
     // Get the caller
     CallerResolver resolver = new CallerResolver();
-    final Class<?>[] callStack = resolver.getClassContext();
-    for (int fcsIdx = callStack.length - 1; fcsIdx >= 0; --fcsIdx) {
-      String pkg = callStack[fcsIdx].getPackage().getName();
-      if (!pkg.startsWith(corePackage)) {
+    Class<?>[] callStack = resolver.getClassContext();
+    for (Class<?> c : callStack) {
+      String pkg = c.getPackage().getName();
+      if (!pkg.startsWith(core)) {
         white.add(pkg);
-        loaders.add(callStack[fcsIdx].getClassLoader());
+        loaders.add(c.getClassLoader());
         break;
       }
     }

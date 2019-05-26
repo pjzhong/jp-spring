@@ -11,7 +11,7 @@ public class CycleTest {
 
   @Test
   public void test() throws Exception {
-    ApplicationContext context = new DefaultApplicationContext("/");
+    ApplicationContext context = new DefaultApplicationContext();
     Both both = (Both) context.getBean("both");
 
     assertNotNull(both);

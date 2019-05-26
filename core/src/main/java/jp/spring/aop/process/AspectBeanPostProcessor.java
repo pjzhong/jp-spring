@@ -10,7 +10,7 @@ import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.factory.DefaultBeanFactory;
 import jp.spring.ioc.beans.factory.BeanFactory;
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
-import jp.spring.ioc.beans.support.BeanDefinition;
+import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.stereotype.Aspect;
 import jp.spring.ioc.stereotype.Component;
 import jp.spring.ioc.util.TypeUtil;
