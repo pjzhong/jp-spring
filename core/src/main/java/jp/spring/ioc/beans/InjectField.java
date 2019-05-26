@@ -16,11 +16,11 @@ public class InjectField {
   private final boolean isRequired;
   /** 字段对象 */
   private final Field field;
-  /** 名字 */
-  private final String id;
+  /** 候选者 */
+  private final String qualifier;
 
-  public InjectField(String id, Field field, Autowired auto) {
-    this.id = id;
+  public InjectField(String qualifier, Field field, Autowired auto) {
+    this.qualifier = qualifier;
     this.field = field;
     this.field.setAccessible(true);
     this.isRequired = auto.required();
@@ -30,8 +30,8 @@ public class InjectField {
     return isRequired;
   }
 
-  public String getId() {
-    return id;
+  public String getQualifier() {
+    return qualifier;
   }
 
   public void inject(Object target, Object value) throws Exception {
@@ -52,18 +52,18 @@ public class InjectField {
     }
     InjectField that = (InjectField) o;
     return field.equals(that.field) &&
-        id.equals(that.id);
+        qualifier.equals(that.qualifier);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(field, id);
+    return Objects.hash(field, qualifier);
   }
 
   @Override
   public String toString() {
     return "InjectField{" + "field=" + field
-        + ", id='" + id + '\''
+        + ", qualifier='" + qualifier + '\''
         + '}';
   }
 }
