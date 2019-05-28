@@ -15,20 +15,19 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class ScanConfig {
 
-  private List<String> whites = new ArrayList<>();
+  private List<String> whites;
   private List<String> packages;
-  private Set<ClassLoader> loaders;
   private Set<String> jrePaths;
+  private Set<ClassLoader> loaders;
 
   public ScanConfig(List<String> packages, Set<ClassLoader> loaders) {
     this(packages);
-    this.packages = packages;
     this.loaders = loaders;
   }
 
-  public ScanConfig(List<String> whites) {
+  public ScanConfig(List<String> packages) {
     final Set<String> uniqueWhiteListPathPrefixes = new HashSet<>();
-    for (String specification : whites) {
+    for (String specification : packages) {
       String specPath = specification.replace('.', '/');
       if (!specPath.equals("/")) {
         specPath += "/";
@@ -38,8 +37,8 @@ public class ScanConfig {
 
     jrePaths = getJrePaths();
     //process whiteListed
-    this.whites.addAll(uniqueWhiteListPathPrefixes);
-
+    this.whites = new ArrayList<>(uniqueWhiteListPathPrefixes);
+    this.packages = packages;
     this.loaders = Collections.singleton(getClass().getClassLoader());
   }
 

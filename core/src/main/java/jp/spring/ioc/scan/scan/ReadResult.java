@@ -10,27 +10,27 @@ import jp.spring.ioc.scan.beans.ClassInfoBuilder;
  * @author ZJP
  * @since 2019年05月25日 21:15:40
  **/
-public class ReadResult {
+class ReadResult {
 
   /** 类信息构造器 */
-  public List<ClassInfoBuilder> builders;
+  private List<ClassInfoBuilder> builders;
   /** 配置文件信息 */
   private Properties properties;
 
-  public List<ClassInfoBuilder> getBuilders() {
+  List<ClassInfoBuilder> getBuilders() {
     return builders;
   }
 
-  public ReadResult setBuilders(List<ClassInfoBuilder> builders) {
+  ReadResult setBuilders(List<ClassInfoBuilder> builders) {
     this.builders = builders;
     return this;
   }
 
-  public Properties getProperties() {
+  Properties getProperties() {
     return properties;
   }
 
-  public ReadResult setProperties(Properties properties) {
+  ReadResult setProperties(Properties properties) {
     this.properties = properties;
     return this;
   }
