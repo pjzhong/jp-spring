@@ -10,29 +10,32 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import jp.spring.ioc.BeansException;
-import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.beans.InjectField;
 import jp.spring.ioc.beans.PropertyValue;
+import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.util.TypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created by Administrator on 12/25/2016. 简单的规定了如何获取和注册Bean, 至于如何创造Bean，则留给子类去实现
- */
+ * 默认对象工厂
+ *
+ * @author ZJP
+ * @since 2019年05月28日 20:52:39
+ **/
 public class DefaultBeanFactory implements BeanFactory {
 
-  private final Map<String, BeanDefinition> beanNameDefinitionMap = new ConcurrentHashMap<String, BeanDefinition>();
+  private final Map<String, BeanDefinition> beanNameDefinitionMap = new ConcurrentHashMap<>();
 
-  private final Map<Class<?>, String[]> beanNamesByType = new ConcurrentHashMap<Class<?>, String[]>();
+  private final Map<Class<?>, String[]> beanNamesByType = new ConcurrentHashMap<>();
 
   private final Map<Class<?>, List<?>> beansByType = new ConcurrentHashMap<>();
 
   private final Map<Class<? extends Annotation>, List<String>> beanNamesByAnnotation = new ConcurrentHashMap<>();
 
-  private final List<String> beanDefinitionIds = new ArrayList<String>();
+  private final List<String> beanDefinitionIds = new ArrayList<>();
 
-  private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<BeanPostProcessor>();
+  private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
 
   private final Properties properties = new Properties();
 
@@ -49,7 +52,7 @@ public class DefaultBeanFactory implements BeanFactory {
   }
 
   @Override
-  public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception {
+  public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
     if (beanNameDefinitionMap.containsKey(name)) {
       throw new IllegalArgumentException("Bean name " + name + " must be unique");
     }
@@ -72,23 +75,19 @@ public class DefaultBeanFactory implements BeanFactory {
     return beanDefinition.getBean();
   }
 
-  public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) throws Exception {
+  public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
     this.beanPostProcessors.add(beanPostProcessor);
   }
 
-  protected void beforeInitializeBean() throws Exception {
-    if (!beanPostProcessors.isEmpty()) {
-      for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
-        beanPostProcessor.postProcessBeforeInitialization();
-      }
+  private void beforeInitializeBean() throws Exception {
+    for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+      beanPostProcessor.postProcessBeforeInitialization();
     }
   }
 
-  protected Object afterInitializeBean(Object bean, String name) {
-    if (!beanPostProcessors.isEmpty()) {
-      for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
-        bean = beanPostProcessor.postProcessAfterInitialization(bean, name);
-      }
+  private Object afterInitializeBean(Object bean, String name) {
+    for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+      bean = beanPostProcessor.postProcessAfterInitialization(bean, name);
     }
 
     invokeAware(bean);
@@ -126,8 +125,8 @@ public class DefaultBeanFactory implements BeanFactory {
     return beans;
   }
 
-  public List<String> getBeanNamesForType(Class<?> targetType) {
-    List<String> result = new ArrayList<String>();
+  private List<String> getBeanNamesForType(Class<?> targetType) {
+    List<String> result = new ArrayList<>();
 
     String[] temp = beanNamesByType.get(targetType);
     if (temp != null) {
@@ -145,7 +144,7 @@ public class DefaultBeanFactory implements BeanFactory {
     }
 
     if (!TypeUtil.isEmpty(result)) {
-      beanNamesByType.put(targetType, result.toArray(new String[result.size()]));
+      beanNamesByType.put(targetType, result.toArray(new String[0]));
     }
     return result;
   }
@@ -174,7 +173,7 @@ public class DefaultBeanFactory implements BeanFactory {
     return properties;
   }
 
-  protected Object doCreateBean(BeanDefinition beanDefinition) {
+  private Object doCreateBean(BeanDefinition beanDefinition) {
     Object bean = null;
     try {
       bean = createBeanInstance(beanDefinition);
@@ -187,16 +186,11 @@ public class DefaultBeanFactory implements BeanFactory {
     return bean;
   }
 
-  protected Object createBeanInstance(BeanDefinition beanDefinition) throws Exception {
+  private Object createBeanInstance(BeanDefinition beanDefinition) throws Exception {
     return beanDefinition.getClazz().newInstance();
   }
 
-  protected void resolveDependency(Object bean, BeanDefinition beanDefinition) throws Exception {
-    List<InjectField> fields = beanDefinition.getInjectFields();
-    if (TypeUtil.isEmpty(fields)) {
-      return;
-    }
-
+  private void resolveDependency(Object bean, BeanDefinition beanDefinition) throws Exception {
     /* 两种情况:
      * 1.没有@Qualifier, 那么根据类型来获取注入对象。多个取第一个
      * 2.用户添加了@Qualifier, 使用@Qualifier的值来获取注入对象
@@ -207,9 +201,7 @@ public class DefaultBeanFactory implements BeanFactory {
       if (StringUtils.isBlank(injectField.getQualifier())) {
         Map<String, Object> matchingBeans = findAutowireCandidates(
             injectField.getType());
-        if (!TypeUtil.isEmpty(matchingBeans)) {
-          value = matchingBeans.entrySet().iterator().next().getValue();
-        }
+        value = matchingBeans.entrySet().iterator().next().getValue();
       } else {
         value = getBean(injectField.getQualifier());
       }
@@ -224,11 +216,7 @@ public class DefaultBeanFactory implements BeanFactory {
     }
   }
 
-  protected void injectPropertyValue(Object bean, BeanDefinition beanDefinition) throws Exception {
-    List<PropertyValue> values = beanDefinition.getPropertyValues();
-    if (values == null) {
-      return;
-    }
+  private void injectPropertyValue(Object bean, BeanDefinition beanDefinition) throws Exception {
 
     for (PropertyValue propertyValue : beanDefinition.getPropertyValues()) {
       Object value = null;
@@ -248,8 +236,8 @@ public class DefaultBeanFactory implements BeanFactory {
     }
   }
 
-  protected Map<String, Object> findAutowireCandidates(Class<?> requiredType) {
-    Map<String, Object> result = null;
+  private Map<String, Object> findAutowireCandidates(Class<?> requiredType) {
+    Map<String, Object> result;
 
     try {
       List<String> candidateNames = getBeanNamesForType(requiredType);
@@ -258,7 +246,7 @@ public class DefaultBeanFactory implements BeanFactory {
         result.put(candidateName, getBean(candidateName));
       }
     } catch (Exception e) {
-      result = null;
+      result = Collections.emptyMap();
     }
 
     return result;

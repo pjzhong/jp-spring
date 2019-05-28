@@ -1,22 +1,29 @@
 package jp.spring.ioc.beans;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
- * Created by Administrator on 12/24/2016.
- */
+ * Bean数据类
+ *
+ * @author ZJP
+ * @since 2019年05月28日 20:38:49
+ **/
 public class BeanDefinition {
 
+  /** 实体对象 */
   private Object bean;
-
+  /** 实力类 */
   private Class<?> clazz;
+  /** 配置字段 */
+  private List<PropertyValue> propertyValues;
+  /** 装配字段 */
+  private List<InjectField> injectFields;
 
-  private List<PropertyValue> propertyValues = null;
-
-  private List<InjectField> injectFields = null;
-
-  public BeanDefinition() {
+  public BeanDefinition(Class<?> clazz) {
+    this.clazz = clazz;
   }
 
   public BeanDefinition(Class<?> clazz, Object bean) {
@@ -32,14 +39,9 @@ public class BeanDefinition {
     return clazz;
   }
 
-  public void setClazz(Class<?> clazz) {
-    this.clazz = clazz;
-  }
-
   public String getBeanClassName() {
     return clazz.getName();
   }
-
 
   public Object getBean() {
     return bean;
@@ -61,11 +63,11 @@ public class BeanDefinition {
   }
 
   public List<PropertyValue> getPropertyValues() {
-    return propertyValues;
+    return ObjectUtils.defaultIfNull(propertyValues, Collections.emptyList());
   }
 
   public List<InjectField> getInjectFields() {
-    return injectFields;
+    return ObjectUtils.defaultIfNull(injectFields, Collections.emptyList());
   }
 
   @Override

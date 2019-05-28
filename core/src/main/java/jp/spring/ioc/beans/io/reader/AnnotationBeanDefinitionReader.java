@@ -68,8 +68,7 @@ public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader
   protected BeanDefinition parseClass(Class<?> beanClass) {
     BeanDefinition definition = null;
     if (TypeUtil.isAnnotated(beanClass, Component.class)) {
-      definition = new BeanDefinition();
-      definition.setClazz(beanClass);
+      definition = new BeanDefinition(beanClass);
 
       parseFields(definition, beanClass);
 

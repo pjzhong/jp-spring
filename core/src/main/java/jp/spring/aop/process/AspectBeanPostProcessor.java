@@ -30,14 +30,10 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
     public void postProcessBeforeInitialization() throws Exception {
         List<String> beanNames = beanFactory.getBeanNamByAnnotation(Aspect.class);
 
-        BeanDefinition beanDefinition;
+
         for(String name : beanNames) {
-            beanDefinition = new BeanDefinition();
             BaseAspect aspect = new ExecutionAspectProxy(beanFactory.getType(name), beanFactory.getBean(name));
-
-            beanDefinition.setClazz(aspect.getClass());
-            beanDefinition.setBean(aspect);
-
+            BeanDefinition beanDefinition = new BeanDefinition(aspect.getClass(), aspect);
             beanFactory.registerBeanDefinition(name + ".proxy", beanDefinition);
         }
     }
