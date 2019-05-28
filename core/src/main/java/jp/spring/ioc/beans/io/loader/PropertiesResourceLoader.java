@@ -19,9 +19,8 @@ public class PropertiesResourceLoader implements ResourceLoader {
     String[] locations = strLocation.split(";");
 
     List<PropertiesResource> propertiesResources = new ArrayList<>();
-    List<File> temp = null;
     for (String location : locations) {
-      temp = FileUtils.findFiles(location, ".properties");
+      List<File> temp = FileUtils.findFiles(location, ".properties");
       for (File file : temp) {
         propertiesResources.add(new PropertiesResource(file));
       }

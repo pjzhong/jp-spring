@@ -4,7 +4,6 @@ package jp.spring.ioc.scan.scan;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
@@ -51,20 +50,20 @@ public class Scanner {
     //  filtered the same classes but occurs in difference file(s)
     //  (remove the second and subsequent), use an other way to do this, give up maskFiles method
     //
-    long maskStart = System.currentTimeMillis();
-    List<ClasspathElement> classpathOrder = rawClassPathElements.stream()
-        .map(elementMap::get)
-        .filter(Objects::nonNull)
-        .collect(Collectors.toList());
-    logger.info("mask done cost:{}", System.currentTimeMillis() - maskStart);
+    //long maskStart = System.currentTimeMillis();
+    //List<ClasspathElement> classpathOrder = rawClassPathElements.stream()
+    //    .map(elementMap::get)
+    //    .filter(Objects::nonNull)
+    //    .collect(Collectors.toList());
+    //logger.info("mask done cost:{}", System.currentTimeMillis() - maskStart);
 
     // start to read the files found in the runtime context
     long parseStart = System.currentTimeMillis();
     ClassFileBinaryParser parser = new ClassFileBinaryParser();
-    List<ReadResult> results = classpathOrder.parallelStream()
+    List<ReadResult> results = elementMap.values().parallelStream()
         .map(c -> c.read(parser))// Scanning
         .collect(Collectors.toList());
-    classpathOrder.forEach(ClasspathElement::close);
+    elementMap.values().forEach(ClasspathElement::close);
     logger.info("parsed done cost:{}", System.currentTimeMillis() - parseStart);
 
     // build the classGraph in single-thread

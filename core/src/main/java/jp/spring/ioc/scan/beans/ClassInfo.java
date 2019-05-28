@@ -150,13 +150,8 @@ public class ClassInfo implements Comparable<ClassInfo> {
     Set<ClassInfo> classWithAnnotation = getReachable(Relation.ANNOTATED_CLASSES);
 
     //Is this annotation can be inherited
-    boolean isInherited = false;
-    for (ClassInfo metaAnnotation : getDirectlyRelated(Relation.ANNOTATIONS)) {
-      if (metaAnnotation.className.equals("java.lang.annotation.Inherited")) {
-        isInherited = true;
-        break;
-      }
-    }
+    boolean isInherited = getDirectlyRelated(Relation.ANNOTATIONS).stream()
+        .anyMatch(c -> "java.lang.annotation.Inherited".equals(c.className));
 
     if (isInherited) {
       for (ClassInfo info : classWithAnnotation) {
@@ -172,14 +167,13 @@ public class ClassInfo implements Comparable<ClassInfo> {
       return Collections.emptySet();
     }
 
-    Set<ClassInfo> reachableClasses = getReachable(Relation.CLASSES_IMPLEMENTING);
-
-    final Set<ClassInfo> allImplementingClasses = new HashSet<>();
-    for (ClassInfo implementingClass : reachableClasses) {
-      allImplementingClasses.add(implementingClass);
-      allImplementingClasses.addAll(implementingClass.getReachable(Relation.SUBCLASSES));
+    Set<ClassInfo> reachable = getReachable(Relation.CLASSES_IMPLEMENTING);
+    final Set<ClassInfo> implementing = new HashSet<>();
+    for (ClassInfo clazz : reachable) {
+      implementing.add(clazz);
+      implementing.addAll(clazz.getReachable(Relation.SUBCLASSES));
     }
-    return allImplementingClasses;
+    return implementing;
   }
 
   public Set<ClassInfo> getSuperClasses() {

@@ -20,6 +20,8 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * 默认对象工厂
  *
+ * TODO THE WHOLE FACTORY NEED TO REWRITE
+ *
  * @author ZJP
  * @since 2019年05月28日 20:52:39
  **/
@@ -195,9 +197,9 @@ public class DefaultBeanFactory implements BeanFactory {
      * 1.没有@Qualifier, 那么根据类型来获取注入对象。多个取第一个
      * 2.用户添加了@Qualifier, 使用@Qualifier的值来获取注入对象
      */
-    Object value = null;
-    for (InjectField injectField : beanDefinition.getInjectFields()) {
 
+    for (InjectField injectField : beanDefinition.getInjectFields()) {
+      Object value;
       if (StringUtils.isBlank(injectField.getQualifier())) {
         Map<String, Object> matchingBeans = findAutowireCandidates(
             injectField.getType());
@@ -237,18 +239,11 @@ public class DefaultBeanFactory implements BeanFactory {
   }
 
   private Map<String, Object> findAutowireCandidates(Class<?> requiredType) {
-    Map<String, Object> result;
-
-    try {
-      List<String> candidateNames = getBeanNamesForType(requiredType);
-      result = new LinkedHashMap<>(candidateNames.size());
-      for (String candidateName : candidateNames) {
-        result.put(candidateName, getBean(candidateName));
-      }
-    } catch (Exception e) {
-      result = Collections.emptyMap();
+    List<String> candidateNames = getBeanNamesForType(requiredType);
+    Map<String, Object> result = new LinkedHashMap<>(candidateNames.size());
+    for (String candidateName : candidateNames) {
+      result.put(candidateName, getBean(candidateName));
     }
-
     return result;
   }
 }
