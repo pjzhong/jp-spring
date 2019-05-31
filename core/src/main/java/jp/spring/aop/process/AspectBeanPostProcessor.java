@@ -14,6 +14,7 @@ import jp.spring.ioc.beans.BeanDefinition;
 import jp.spring.ioc.stereotype.Aspect;
 import jp.spring.ioc.stereotype.Component;
 import jp.spring.ioc.util.TypeUtil;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Created by Administrator on 1/19/2017.
@@ -58,7 +59,7 @@ public class AspectBeanPostProcessor implements BeanPostProcessor , BeanFactoryA
             }
         }
 
-        if(!TypeUtil.isEmpty(proxies)) {
+        if(ObjectUtils.isNotEmpty(proxies)) {
             bean = ProxyFactory.getInstance().createProxy(bean, proxies);
         }
 

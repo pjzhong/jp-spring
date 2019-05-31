@@ -1,4 +1,4 @@
-package jp.spring.ioc.beans.io.reader;
+package jp.spring.ioc.beans.factory;
 
 
 import java.lang.annotation.Annotation;
@@ -10,73 +10,41 @@ import jp.spring.ioc.beans.PropertyValue;
 import jp.spring.ioc.beans.factory.annotation.Autowired;
 import jp.spring.ioc.beans.factory.annotation.Qualifier;
 import jp.spring.ioc.beans.factory.annotation.Value;
-import jp.spring.ioc.beans.io.ResourceLoader;
-import jp.spring.ioc.beans.io.loader.ClassResourceLoader;
-import jp.spring.ioc.beans.io.resources.ClassResource;
+import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.stereotype.Component;
 import jp.spring.ioc.util.TypeUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Created by Administrator on 1/8/2017.
- */
-public class AnnotationBeanDefinitionReader extends AbstractBeanDefinitionReader {
+ * BEAN构造者
+ *
+ * @author ZJP
+ * @since 2019年05月31日 20:23:42
+ **/
+public class BeanDefinitionBuilder {
 
-  private AnnotationBeanDefinitionReader(ResourceLoader resourceLoader) {
-    super(resourceLoader);
+  private BeanDefinitionBuilder() {
   }
 
-  public static AnnotationBeanDefinitionReader getInstance() {
-    return new AnnotationBeanDefinitionReader(new ClassResourceLoader());
-  }
-
-  @Override
-  public void loadBeanDefinitions(String strLocation) throws Exception {
-    if (StringUtils.isBlank(strLocation)) {
-      return;
-    }
-
-    if (getResourceLoader() instanceof ClassResourceLoader) {
-      String[] locations = strLocation.split("\\s*;\\s*");
-      for (String location : locations) {
-        ClassResource[] classResources = (ClassResource[]) getResourceLoader()
-            .getResource(location);
-        for (ClassResource classResource : classResources) {
-          doLoadBeanDefinitions(classResource);
-        }
-      }
-    }
-  }
-
-  @Override
-  public BeanDefinition loadBeanDefinition(Class<?> beanClass) {
-    return parseClass(beanClass);
-  }
-
-  protected void doLoadBeanDefinitions(ClassResource classResource) {
+  public void build(ClassInfo info) {
     try {
-      String className = classResource.getClassName();
-      Class<?> beanClass = AnnotationBeanDefinitionReader.class.getClassLoader()
+      String className = info.getClassName();
+      Class<?> beanClass = BeanDefinitionBuilder.class.getClassLoader()
           .loadClass(className);
-      parseClass(beanClass);
+      parseClass(beanClass, info);
     } catch (ClassNotFoundException e) {
       //Simply skip
     }
   }
 
-  protected BeanDefinition parseClass(Class<?> beanClass) {
-    BeanDefinition definition = null;
-    if (TypeUtil.isAnnotated(beanClass, Component.class)) {
+  private void parseClass(Class<?> beanClass, ClassInfo info) {
+    if (!info.hasAnnotation(Component.class)) {
+      BeanDefinition definition = null;
       definition = new BeanDefinition(beanClass);
-
       parseFields(definition, beanClass);
-
       String name = determinedName(beanClass);
-      getRegistry().put(name, definition);
     }
-
-    return definition;
   }
 
   /**

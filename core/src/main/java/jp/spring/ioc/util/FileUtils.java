@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Created by Administrator on 1/10/2017.
@@ -40,7 +41,7 @@ public class FileUtils {
           }
 
           File[] targetFiles = dir.listFiles(f -> f.getName().endsWith(fileExtension));
-          if (!TypeUtil.isEmpty(targetFiles)) {
+          if (ObjectUtils.isNotEmpty(targetFiles)) {
             files.addAll(Arrays.asList(targetFiles));
           }
         }

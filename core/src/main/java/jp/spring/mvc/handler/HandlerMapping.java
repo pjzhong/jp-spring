@@ -10,10 +10,10 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import jp.spring.ioc.beans.factory.DefaultBeanFactory;
 import jp.spring.ioc.stereotype.Controller;
-import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.Intercept;
 import jp.spring.mvc.annotation.RequestMethod;
 import jp.spring.mvc.interceptor.InterceptMatch;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -184,7 +184,7 @@ public class HandlerMapping {
   private static List<InterceptMatch> buildInterceptMatch(DefaultBeanFactory beanFactory) {
     List<String> interceptorNames = beanFactory.getBeanNamByAnnotation(Intercept.class);
     List<InterceptMatch> interceptors = Collections.emptyList();
-    if (!TypeUtil.isEmpty(interceptorNames)) {
+    if (ObjectUtils.isNotEmpty(interceptorNames)) {
       interceptors = new ArrayList<>();
       InterceptMatch interceptMatch;
       for (String name : interceptorNames) {

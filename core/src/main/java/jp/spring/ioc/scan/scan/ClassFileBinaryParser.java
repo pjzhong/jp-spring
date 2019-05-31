@@ -290,6 +290,7 @@ class ClassFileBinaryParser {
       name = intern(names.get(0));
     }
 
+    // TODO SKIP ANNOTATION VALUE
     int size = stream.readUnsignedShort();
     Map<String, ParamValue> values = new HashMap<>();
     for (int i = 0; i < size; i++) {

@@ -68,7 +68,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     }
   }
 
-  private void registerBeanPostProcessors(DefaultBeanFactory beanFactory) throws Exception {
+  private void registerBeanPostProcessors(DefaultBeanFactory beanFactory) {
     //TODO refactor this
     List<BeanPostProcessor> beanPostProcessors = beanFactory
         .getBeansByType(BeanPostProcessor.class);
@@ -88,7 +88,7 @@ public class DefaultApplicationContext implements ApplicationContext {
   }
 
   @Override
-  public void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception {
+  public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
     beanFactory.registerBeanDefinition(name, beanDefinition);
   }
 
@@ -97,6 +97,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     logger.info("Found package:{}", config.getPackages());
     logger.info("Found loaders:{}", config.getLoaders());
 
+    // TODO 这里是开始点， 全部切换到ClassInfo
     PropertiesBeanDefinitionReader reader = new PropertiesBeanDefinitionReader(
         new PropertiesResourceLoader(), config.getPackages());
     reader.loadBeanDefinitions(null);

@@ -10,7 +10,6 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -19,12 +18,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public class TypeUtil {
 
   private static final Map<Class<?>, Object> PRIMITIVE_DEFAULT;
-  private static final Set<Class<?>> SIMPLE_TYPE;
   private static final Map<Class<?>, Function<String, Object>> DEFAULT_PRIMITIVE_PARSER;
 
   static {
@@ -38,20 +38,6 @@ public class TypeUtil {
     defaults.put(Float.TYPE, 0f);
     defaults.put(Double.TYPE, 0d);
     PRIMITIVE_DEFAULT = Collections.unmodifiableMap(defaults);
-
-    Set<Class<?>> wrapper = new HashSet<>(
-        Arrays.asList(
-            Boolean.class,
-            Byte.class,
-            Short.class,
-            Character.class,
-            Integer.class,
-            Long.class,
-            Double.class,
-            String.class
-        )
-    );
-    SIMPLE_TYPE = Collections.unmodifiableSet(wrapper);
 
     Map<Class<?>, Function<String, Object>> primitive_parser = new HashMap<>();
     Function<String, Object> booleanParse = s -> s.equals("1") || s.equals("true");
@@ -73,18 +59,6 @@ public class TypeUtil {
     primitive_parser.put(Double.class, Double::parseDouble);
     primitive_parser.put(Double.TYPE, Double::parseDouble);
     DEFAULT_PRIMITIVE_PARSER = Collections.unmodifiableMap(primitive_parser);
-  }
-
-  public static <K, V> boolean isEmpty(Map<K, V> map) {
-    return map == null || map.isEmpty();
-  }
-
-  public static <T> boolean isEmpty(T[] array) {
-    return array == null || array.length == 0;
-  }
-
-  public static <T> boolean isEmpty(Collection<T> c) {
-    return c == null || c.isEmpty();
   }
 
   public static <A extends Annotation> boolean isAnnotated(Method method, Class<A> annotate) {
@@ -111,7 +85,7 @@ public class TypeUtil {
   }
 
   public static boolean isSimpleType(Class<?> clazz) {
-    return clazz.isPrimitive() || SIMPLE_TYPE.contains(clazz);
+    return ClassUtils.isPrimitiveOrWrapper(clazz) || clazz == String.class;
   }
 
 
@@ -139,8 +113,8 @@ public class TypeUtil {
   public static <A extends Annotation> List<Method> findMethods(Class<?> clazz,
       Class<A> annotation) {
     Method[] methods = clazz.getDeclaredMethods();
-    if (TypeUtil.isEmpty(methods)) {
-      return null;
+    if (ObjectUtils.isEmpty(methods)) {
+      return Collections.emptyList();
     }
     List<Method> list = new LinkedList<>();
     for (Method method : methods) {

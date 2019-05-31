@@ -9,8 +9,11 @@ import jp.spring.ioc.scan.utils.ReflectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
- * Created by Administrator on 10/28/2017.
- */
+ * 字段信息
+ *
+ * @author ZJP
+ * @since 2019年05月31日 17:16:14
+ **/
 public class FieldInfo {
 
   private final String belongToClass;

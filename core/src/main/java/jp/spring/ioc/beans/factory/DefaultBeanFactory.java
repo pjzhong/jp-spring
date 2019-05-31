@@ -15,6 +15,7 @@ import jp.spring.ioc.beans.InjectField;
 import jp.spring.ioc.beans.PropertyValue;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.util.TypeUtil;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -115,13 +116,14 @@ public class DefaultBeanFactory implements BeanFactory {
       return (List<A>) beansByType.get(type);
     }
 
-    List<A> beans = new ArrayList<A>();
+    List<A> beans = new ArrayList<>();
     for (String beanDefinitionName : beanDefinitionIds) {
       if (type.isAssignableFrom(beanNameDefinitionMap.get(beanDefinitionName).getClazz())) {
         beans.add((A) getBean(beanDefinitionName));
       }
     }
-    if (!TypeUtil.isEmpty(beans)) {
+
+    if (ObjectUtils.isNotEmpty(beans)) {
       beansByType.put(type, beans);
     }
     return beans;
@@ -145,9 +147,7 @@ public class DefaultBeanFactory implements BeanFactory {
       }
     }
 
-    if (!TypeUtil.isEmpty(result)) {
-      beanNamesByType.put(targetType, result.toArray(new String[0]));
-    }
+    beanNamesByType.put(targetType, result.toArray(new String[0]));
     return result;
   }
 
@@ -165,9 +165,7 @@ public class DefaultBeanFactory implements BeanFactory {
       }
     }
 
-    if (!TypeUtil.isEmpty(result)) {
-      beanNamesByAnnotation.put(annotation, Collections.unmodifiableList(result));
-    }
+    beanNamesByAnnotation.put(annotation, Collections.unmodifiableList(result));
     return result;
   }
 

@@ -57,7 +57,7 @@ class HandlerBuilder {
     if (TypeUtil.isAnnotated(controller, RequestMapping.class)) {
       clazzUrl = controller.getAnnotation(RequestMapping.class).value();
     }
-    if (TypeUtil.isEmpty(clazzUrl)) {
+    if (ObjectUtils.isEmpty(clazzUrl)) {
       clazzUrl = new String[]{""};
     }
 

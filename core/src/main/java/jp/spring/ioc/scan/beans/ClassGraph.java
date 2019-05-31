@@ -9,8 +9,11 @@ import java.util.stream.Collectors;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
- * Created by Administrator on 11/12/2017.
- */
+ * 类关系图
+ *
+ * @author ZJP
+ * @since 2019年05月31日 17:16:43
+ **/
 public class ClassGraph {
 
   private final Map<String, ClassInfo> classBeans;

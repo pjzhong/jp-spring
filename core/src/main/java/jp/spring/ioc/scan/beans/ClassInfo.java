@@ -1,5 +1,6 @@
 package jp.spring.ioc.scan.beans;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -198,6 +199,10 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
   public boolean isAnnotation() {
     return isAnnotation;
+  }
+
+  public boolean hasAnnotation(Class<? extends Annotation> clazz) {
+    return annotations.containsKey(clazz.getName());
   }
 
   public boolean isStandardClass() {

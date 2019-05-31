@@ -8,8 +8,11 @@ import java.util.Objects;
 import jp.spring.ioc.scan.utils.ReflectionUtils;
 
 /**
- * Created by Administrator on 10/28/2017.
- */
+ * 方法信息
+ *
+ * @author ZJP
+ * @since 2019年05月31日 17:16:04
+ **/
 public class MethodInfo {
 
   private final String className;
