@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -20,7 +21,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   private final String className;
 
   boolean isInterface;
-  boolean isAnnotation;
+  boolean annotation;
   /**
    * True when a class has been scanned(i.e its classFile contents read), as opposed to only being
    * referenced by another class' classFile as a superclass/superInterface/annotation. If
@@ -28,7 +29,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
    * @code isScanned is true, then this also must be a whiteListed (and non-blacklisted) class in a
    * whiteListed(and non-blackListed) package
    */
-  boolean isScanned;
+  boolean scanned;
 
   private List<FieldInfo> fieldInfos = Collections.emptyList();
   private List<MethodInfo> methodInfos = Collections.emptyList();
@@ -87,7 +88,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
   void addAnnotation(AnnotationInfo annotation, ClassInfoBuilder builder) {
     final ClassInfo anno = builder.getClassInfo(annotation.getName());
-    anno.isAnnotation = true;
+    anno.annotation = true;
     anno.related(Relation.ANNOTATED_CLASSES, this);
 
     this.related(Relation.ANNOTATIONS, anno);
@@ -99,7 +100,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
   void addMethodAnnotation(String annotationName, ClassInfoBuilder builder) {
     ClassInfo anno = builder.getClassInfo(annotationName);
-    anno.isAnnotation = true;
+    anno.annotation = true;
 
     anno.related(Relation.CLASSES_WITH_METHOD_ANNOTATED, this);
     this.related(Relation.METHOD_ANNOTATIONS, anno);
@@ -107,7 +108,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
   void addFieldAnnotation(String annotationName, ClassInfoBuilder builder) {
     ClassInfo anno = builder.getClassInfo(annotationName);
-    anno.isAnnotation = true;
+    anno.annotation = true;
     anno.related(Relation.CLASSES_WITH_FIELD_ANNOTATED, this);
 
     this.related(Relation.FIELD_ANNOTATIONS, anno);
@@ -177,6 +178,12 @@ public class ClassInfo implements Comparable<ClassInfo> {
     return implementing;
   }
 
+  public Optional<ClassInfo> getSuperClass() {
+    //Directly SUPERCLASSES has only one element(more cases)
+    Set<ClassInfo> infos = getDirectlyRelated(Relation.SUPERCLASSES);
+    return infos.stream().findFirst();
+  }
+
   public Set<ClassInfo> getSuperClasses() {
     return getReachable(Relation.SUBCLASSES);
   }
@@ -185,8 +192,8 @@ public class ClassInfo implements Comparable<ClassInfo> {
     return getReachable(Relation.SUBCLASSES);
   }
 
-  boolean isScanned() {
-    return isScanned;
+  public boolean isScanned() {
+    return scanned;
   }
 
   public String getClassName() {
@@ -194,19 +201,22 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   public boolean isInterface() {
-    return isInterface && !isAnnotation;
+    return isInterface && !annotation;
   }
 
+
   public boolean isAnnotation() {
-    return isAnnotation;
+    return annotation;
   }
 
   public boolean hasAnnotation(Class<? extends Annotation> clazz) {
-    return annotations.containsKey(clazz.getName());
+    Set<ClassInfo> infos = getReachable(Relation.ANNOTATIONS);
+    String name = clazz.getName();
+    return infos.stream().anyMatch(i -> name.equals(i.getClassName()));
   }
 
   public boolean isStandardClass() {
-    return !(isAnnotation || isInterface);
+    return !(annotation || isInterface);
   }
 
   public List<FieldInfo> getFieldInfos() {
@@ -215,6 +225,10 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
   public List<MethodInfo> getMethodInfos() {
     return Collections.unmodifiableList(methodInfos);
+  }
+
+  public Set<ClassInfo> getAnnotations() {
+    return getDirectlyRelated(Relation.ANNOTATIONS);
   }
 
   @Override
@@ -269,7 +283,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     CLASSES_IMPLEMENTING,
 
     /**
-     * I am a class, and I have a annotation
+     * I am a class, and I have annotation(s)
      */
     ANNOTATIONS,
 

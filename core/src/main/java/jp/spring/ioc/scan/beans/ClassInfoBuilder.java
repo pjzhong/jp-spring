@@ -43,9 +43,9 @@ public class ClassInfoBuilder {
       infoMap.put(className, classInfo = new ClassInfo(className));
     }
 
-    classInfo.isScanned = true;
+    classInfo.scanned = true;
     classInfo.isInterface |= isInterface();
-    classInfo.isAnnotation |= isAnnotation();
+    classInfo.annotation |= isAnnotation();
     return classInfo;
   }
 

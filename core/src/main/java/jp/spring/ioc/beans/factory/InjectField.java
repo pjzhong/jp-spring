@@ -1,4 +1,4 @@
-package jp.spring.ioc.beans;
+package jp.spring.ioc.beans.factory;
 
 import java.lang.reflect.Field;
 import java.util.Objects;

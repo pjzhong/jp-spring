@@ -3,15 +3,11 @@ package jp.spring;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import jp.spring.ioc.beans.BeanDefinition;
+import jp.spring.ioc.beans.factory.BeanDefinition;
+import jp.spring.ioc.beans.factory.BeanDefinitionBuilder;
 import jp.spring.ioc.beans.factory.BeanPostProcessor;
 import jp.spring.ioc.beans.factory.DefaultBeanFactory;
-import jp.spring.ioc.beans.io.loader.PropertiesResourceLoader;
-import jp.spring.ioc.beans.io.reader.AbstractBeanDefinitionReader;
-import jp.spring.ioc.beans.io.reader.AnnotationBeanDefinitionReader;
-import jp.spring.ioc.beans.io.reader.PropertiesBeanDefinitionReader;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.scan.ScanConfig;
@@ -33,39 +29,17 @@ public class DefaultApplicationContext implements ApplicationContext {
   private Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private DefaultBeanFactory beanFactory;
+  private ClassGraph graph;
 
   public DefaultApplicationContext() throws Exception {
     this.beanFactory = new DefaultBeanFactory();
     this.refresh();
   }
 
-
   private void refresh() throws Exception {
     loadBeanDefinitions(beanFactory);
-    //TODO 这两个方法重构
-    loadBeanPostProcessors(beanFactory);
     registerBeanPostProcessors(beanFactory);
-    //TODO 这两个方法重构
     beanFactory.refresh();
-  }
-
-  /**
-   * 主要作用，与其它模块的beanPostProcess进行结合 beanPostProcess的统一注册格式是：继承beanPostProcessor并标记@Component,
-   * 最后放进jp.spring.process包里面
-   */
-  private void loadBeanPostProcessors(DefaultBeanFactory beanFactory) {
-    //TODO refactor this
-    try {
-      AbstractBeanDefinitionReader reader = AnnotationBeanDefinitionReader.getInstance();
-      reader.loadBeanDefinitions("jp.spring.process");
-      for (Map.Entry<String, BeanDefinition> beanDefinitionEntry : reader.getRegistry()
-          .entrySet()) {
-        beanFactory
-            .registerBeanDefinition(beanDefinitionEntry.getKey(), beanDefinitionEntry.getValue());
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("load beanPostProcess filed", e);
-    }
   }
 
   private void registerBeanPostProcessors(DefaultBeanFactory beanFactory) {
@@ -97,15 +71,15 @@ public class DefaultApplicationContext implements ApplicationContext {
     logger.info("Found package:{}", config.getPackages());
     logger.info("Found loaders:{}", config.getLoaders());
 
-    // TODO 这里是开始点， 全部切换到ClassInfo
-    PropertiesBeanDefinitionReader reader = new PropertiesBeanDefinitionReader(
-        new PropertiesResourceLoader(), config.getPackages());
-    reader.loadBeanDefinitions(null);
-    Map<String, BeanDefinition> empty = reader.getRegistry();
-    for (Map.Entry<String, BeanDefinition> beanDefinitionEntry : empty.entrySet()) {
-      beanFactory
-          .registerBeanDefinition(beanDefinitionEntry.getKey(), beanDefinitionEntry.getValue());
-    }
+    // 这里是开始点， 全部切换到ClassInfo
+    //PropertiesBeanDefinitionReader reader = new PropertiesBeanDefinitionReader(
+    //    new PropertiesResourceLoader(), config.getPackages());
+    //reader.loadBeanDefinitions(null);
+    //Map<String, BeanDefinition> empty = reader.getRegistry();
+    //for (Map.Entry<String, BeanDefinition> beanDefinitionEntry : empty.entrySet()) {
+    //  beanFactory
+    //      .registerBeanDefinition(beanDefinitionEntry.getKey(), beanDefinitionEntry.getValue());
+    //}
 
     //FastClassPathScanner
     Scanner scanner = new Scanner(config);
@@ -117,8 +91,12 @@ public class DefaultApplicationContext implements ApplicationContext {
     // graph
     ClassGraph graph = result.getClassGraph();
     Set<ClassInfo> infos = graph.getInfoWithAnnotation(Component.class);
-    logger.info("Found infos:{}", infos.size());
-    infos.forEach(System.out::println);
+    logger.info("Found infos:{}", infos);
+    BeanDefinitionBuilder builder = new BeanDefinitionBuilder(this, infos);
+    Set<BeanDefinition> definitions = builder.build();
+    definitions.forEach(b -> beanFactory.registerBeanDefinition(b.getName(), b));
+
+    this.graph = graph;
   }
 
   /**

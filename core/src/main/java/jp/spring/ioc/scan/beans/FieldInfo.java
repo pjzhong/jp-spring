@@ -1,5 +1,6 @@
 package jp.spring.ioc.scan.beans;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.util.Collections;
 import java.util.List;
@@ -16,16 +17,16 @@ import org.apache.commons.lang3.ObjectUtils;
  **/
 public class FieldInfo {
 
-  private final String belongToClass;
-  private final String fieldName;
+  private final String belongTo;
+  private final String name;
   private final int modifiers;
   private final String typeStr;
   private Object constantValue = null;
   private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
 
-  FieldInfo(String className, String fieldName, String typeDescriptor, int modifiers) {
-    this.belongToClass = className;
-    this.fieldName = fieldName;
+  FieldInfo(String className, String name, String typeDescriptor, int modifiers) {
+    this.belongTo = className;
+    this.name = name;
     this.modifiers = modifiers;
 
     final List<String> typeNames = ReflectionUtils.parseTypeDescriptor(typeDescriptor);
@@ -42,6 +43,10 @@ public class FieldInfo {
 
   void setConstantValue(Object constantValue) {
     this.constantValue = constantValue;
+  }
+
+  public boolean hasAnnotation(Class<? extends Annotation> clazz) {
+    return annotations.containsKey(clazz.getName());
   }
 
   /**
@@ -103,8 +108,8 @@ public class FieldInfo {
   /**
    * Returns the name of the field.
    */
-  public String getFieldName() {
-    return fieldName;
+  public String getName() {
+    return name;
   }
 
   /**
@@ -141,14 +146,14 @@ public class FieldInfo {
       return false;
     }
     FieldInfo fieldInfo = (FieldInfo) o;
-    return Objects.equals(belongToClass, fieldInfo.belongToClass) &&
-        Objects.equals(fieldName, fieldInfo.fieldName) &&
+    return Objects.equals(belongTo, fieldInfo.belongTo) &&
+        Objects.equals(name, fieldInfo.name) &&
         Objects.equals(typeStr, fieldInfo.typeStr);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(belongToClass, fieldName, typeStr);
+    return Objects.hash(belongTo, name, typeStr);
   }
 
   @Override
@@ -156,7 +161,7 @@ public class FieldInfo {
     final StringBuilder buf = new StringBuilder();
 
     getAnnotations().values().forEach(a -> buf.append(a).append(' '));
-    buf.append(getModifiers()).append(' ').append(getTypeStr()).append(' ').append(fieldName);
+    buf.append(getModifiers()).append(' ').append(getTypeStr()).append(' ').append(name);
 
     if (getConstantValue() != null) {
       buf.append(" = ").append(constantValue).append(';');

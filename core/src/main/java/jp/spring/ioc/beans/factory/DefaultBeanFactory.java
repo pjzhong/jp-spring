@@ -10,12 +10,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import jp.spring.ioc.BeansException;
-import jp.spring.ioc.beans.BeanDefinition;
-import jp.spring.ioc.beans.InjectField;
-import jp.spring.ioc.beans.PropertyValue;
 import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.util.TypeUtil;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -123,9 +119,7 @@ public class DefaultBeanFactory implements BeanFactory {
       }
     }
 
-    if (ObjectUtils.isNotEmpty(beans)) {
-      beansByType.put(type, beans);
-    }
+    beansByType.put(type, Collections.unmodifiableList(beans));
     return beans;
   }
 
@@ -227,7 +221,7 @@ public class DefaultBeanFactory implements BeanFactory {
 
       if (value == null && propertyValue.isRequired()) {
         throw new BeansException(String.format("Inject %s to %s failed", propertyValue.getName(),
-            beanDefinition.getBeanClassName()));
+            beanDefinition.getClassName()));
       }
 
       if (value != null) {

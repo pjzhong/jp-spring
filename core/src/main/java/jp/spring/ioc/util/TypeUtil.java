@@ -9,14 +9,11 @@ import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -80,6 +77,7 @@ public class TypeUtil {
     return false;
   }
 
+  @Deprecated
   public static <A extends Annotation> boolean isAnnotated(Field field, Class<A> annotate) {
     return field.getAnnotation(annotate) != null;
   }

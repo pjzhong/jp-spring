@@ -37,7 +37,6 @@
     <dependency>
       <groupId>ch.qos.logback</groupId>
       <artifactId>logback-core</artifactId>
-      <scope>test</scope>
     </dependency>
 
 
