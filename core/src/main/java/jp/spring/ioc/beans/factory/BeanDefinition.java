@@ -13,6 +13,8 @@ import org.apache.commons.lang3.ObjectUtils;
  **/
 public class BeanDefinition {
 
+  /** 名字 */
+  private String name;
   /** 实体对象 */
   private Object bean;
   /** 实力类 */
@@ -22,13 +24,24 @@ public class BeanDefinition {
   /** 装配字段 */
   private List<InjectField> injectFields;
 
+  @Deprecated
   public BeanDefinition(Class<?> clazz) {
     this.clazz = clazz;
   }
 
+  @Deprecated
   public BeanDefinition(Class<?> clazz, Object bean) {
     this.clazz = clazz;
     this.bean = bean;
+  }
+
+  public BeanDefinition(String name, Class<?> clazz,
+      List<PropertyValue> propertyValues,
+      List<InjectField> injectFields) {
+    this.name = name;
+    this.clazz = clazz;
+    this.propertyValues = propertyValues;
+    this.injectFields = injectFields;
   }
 
   public void setBean(Object bean) {
@@ -39,8 +52,12 @@ public class BeanDefinition {
     return clazz;
   }
 
-  public String getBeanClassName() {
+  public String getClassName() {
     return clazz.getName();
+  }
+
+  public String getName() {
+    return name;
   }
 
   public Object getBean() {
