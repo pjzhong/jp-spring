@@ -43,3 +43,4 @@ target/
 
 # Log #
 *.log
+logs/*

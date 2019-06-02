@@ -104,7 +104,7 @@ public class DefaultApplicationContext implements ApplicationContext {
    *
    * 1.where the DefaultApplicationContext is
    *
-   * 2.and the caller of DefaultApplicationContext but not  in the same package as
+   * 2.The caller of DefaultApplicationContext but not  in the same package as
    * DefaultApplicationContext
    *
    * @since 2019年05月25日 15:47:31
