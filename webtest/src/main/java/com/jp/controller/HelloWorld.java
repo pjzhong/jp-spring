@@ -41,6 +41,7 @@ public class HelloWorld {
     map.put("w", someone);
     map.put("a", age);
     map.put("scan", scan);
+    map.put("echo", output.output("echo"));
     return map;
   }
 

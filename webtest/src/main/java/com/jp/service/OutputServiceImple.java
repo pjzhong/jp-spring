@@ -8,8 +8,9 @@ import jp.spring.ioc.stereotype.Service;
 @Service
 public class OutputServiceImple implements OutputService {
 
-    @Override
-    public <T> void output(T text) {
-        System.out.println(text);
-    }
+  @Override
+  public <T> T output(T text) {
+    System.out.println(text);
+    return text;
+  }
 }

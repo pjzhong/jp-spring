@@ -24,35 +24,6 @@ public class FileUtils {
   private FileUtils() {
   }
 
-  public static List<File> findFiles(String path, final String fileExtension) {
-    List<File> files = Collections.emptyList();
-
-    try {
-      //from the root directory
-      URL url = FileUtils.class.getResource(path);
-      if (url != null) {
-        files = new ArrayList<>();
-        String protocol = url.getProtocol();
-        if ("file".equals(protocol)) {
-          String filePath = URLDecoder.decode(url.getFile(), "UTF-8");
-          File dir = new File(filePath);
-          if (!dir.exists() || !dir.isDirectory()) {
-            return files;
-          }
-
-          File[] targetFiles = dir.listFiles(f -> f.getName().endsWith(fileExtension));
-          if (ObjectUtils.isNotEmpty(targetFiles)) {
-            files.addAll(Arrays.asList(targetFiles));
-          }
-        }
-      }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    }
-
-    return files;
-  }
-
   public static void copy(String filePath, OutputStream out) throws IOException {
     File file = new File(filePath);
 

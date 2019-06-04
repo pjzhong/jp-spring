@@ -5,5 +5,5 @@ package com.jp.service;
  */
 public interface OutputService {
 
-    public <T> void output(T text);
+  <T> T output(T text);
 }

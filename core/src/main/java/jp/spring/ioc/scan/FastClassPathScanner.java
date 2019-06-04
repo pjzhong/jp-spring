@@ -4,10 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfo;
-import jp.spring.ioc.scan.scan.ScanResult;
 import jp.spring.ioc.scan.scan.ScanConfig;
+import jp.spring.ioc.scan.scan.ScanResult;
 import jp.spring.ioc.scan.scan.Scanner;
-import org.apache.log4j.helpers.Loader;
 
 
 public class FastClassPathScanner {
