@@ -5,7 +5,7 @@ import jp.spring.aop.annotation.After;
 import jp.spring.aop.annotation.Before;
 import jp.spring.aop.annotation.Pointcut;
 import jp.spring.aop.support.TargetSource;
-import jp.spring.ioc.stereotype.Aspect;
+import jp.spring.aop.annotation.Aspect;
 
 /**
  * Created by Administrator on 1/19/2017.

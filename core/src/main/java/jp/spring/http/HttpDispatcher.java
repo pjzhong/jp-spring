@@ -17,7 +17,7 @@ import io.netty.util.CharsetUtil;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import jp.spring.ioc.beans.factory.BeanFactory;
+import jp.spring.ioc.factory.BeanFactory;
 import jp.spring.mvc.handler.Handler;
 import jp.spring.mvc.handler.HandlerArgResolver;
 import jp.spring.mvc.interceptor.Interceptor;

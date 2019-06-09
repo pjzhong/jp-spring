@@ -9,7 +9,7 @@ import jp.spring.ioc.scan.scan.ClassRelativePath;
 import jp.spring.ioc.scan.scan.ClasspathFinder;
 import jp.spring.ioc.scan.scan.ScanConfig;
 import jp.spring.ioc.stereotype.Component;
-import jp.spring.ioc.stereotype.Controller;
+import jp.spring.mvc.annotation.Controller;
 import jp.spring.ioc.stereotype.Service;
 import org.junit.Test;
 

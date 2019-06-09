@@ -1,4 +1,4 @@
-package jp.spring.ioc.beans.factory.annotation;
+package jp.spring.ioc.factory.annotation;
 
 import java.lang.annotation.*;
 

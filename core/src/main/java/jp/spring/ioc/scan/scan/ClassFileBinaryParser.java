@@ -5,15 +5,11 @@ import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import jp.spring.ioc.scan.beans.AnnotationInfo;
-import jp.spring.ioc.scan.beans.AnnotationInfo.ParamValue;
-import jp.spring.ioc.scan.beans.AnnotationInfo.classRef;
-import jp.spring.ioc.scan.beans.AnnotationInfo.enumRef;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.beans.ClassInfoBuilder;
 import jp.spring.ioc.scan.beans.FieldInfo;
@@ -143,14 +139,14 @@ class ClassFileBinaryParser {
     parseFields(stream, constantPool, infoBuilder);
     parseMethods(stream, constantPool, infoBuilder);
 
-    //Attribute (including class annotations)
+    //Attributes (including class annotations)
     final int attributesCount = stream.readUnsignedShort();
     for (int i = 0; i < attributesCount; i++) {
       final String attributeName = readRefString(stream, constantPool);
       final int attributeLength = stream.readInt();
       if ("RuntimeVisibleAnnotations".equals(attributeName)) {
-        final int annotationCount = stream.readUnsignedShort();
-        for (int j = 0; j < annotationCount; j++) {
+        final int annotations = stream.readUnsignedShort();
+        for (int j = 0; j < annotations; j++) {
           AnnotationInfo info = readAnnotation(stream, constantPool);
           infoBuilder.addAnnotation(info);
         }
@@ -178,54 +174,50 @@ class ClassFileBinaryParser {
       for (int j = 0; j < attributeCount; j++) {
         final String attributeName = readRefString(stream, constantPool);
         final int attributeLength = stream.readInt();
-        switch (attributeName) {
-          case "RuntimeVisibleAnnotations": {
-            final int num_annotations = stream.readUnsignedShort();
-            for (int k = 0; k < num_annotations; k++) {
-              AnnotationInfo info = readAnnotation(stream, constantPool);
-              infoBuilder.addFieldAnnotation(info);
-              fieldBuilder.addAnnotationNames(info);
-            }
+        if ("RuntimeVisibleAnnotations".equals(attributeName)) {
+          final int num_annotations = stream.readUnsignedShort();
+          for (int k = 0; k < num_annotations; k++) {
+            AnnotationInfo info = readAnnotation(stream, constantPool);
+            infoBuilder.addFieldAnnotation(info);
+            fieldBuilder.addAnnotationNames(info);
           }
-          break;
-          case "ConstantValue": {
-            final int valueIndex = stream.readUnsignedShort();
-            Object constantValue;
-            final char firstChar = descriptor.charAt(0);
-            switch (firstChar) {
-              case 'B':
-                constantValue = ((Integer) constantPool[valueIndex]).byteValue();
-                break;
-              case 'C':
-                constantValue = ((char) ((Integer) constantPool[valueIndex]).intValue());
-                break;
-              case 'S':
-                constantValue = ((Integer) constantPool[valueIndex]).shortValue();
-                break;
-              case 'Z':
-                constantValue = ((Integer) constantPool[valueIndex]) != 0;
-                break;
-              case 'I':
-              case 'J':
-              case 'F'://Integer, Long, Float, Double already in correct type
-              case 'D':
-                constantValue = constantPool[valueIndex];
-                break;
-              default: {
-                if (descriptor.equals("Ljava/lang/String;")) {
-                  constantValue = constantPool[(int) constantPool[valueIndex]];
-                } else {
-                  throw new RuntimeException("unknown Constant type:" + descriptor);
-                }
-              }
-              break;
-            }
-            fieldBuilder.setConstantValue(constantValue);
-          }
-          break;
-          default:
-            stream.skipBytes(attributeLength);
-            break;
+          //case "ConstantValue": {
+          //  final int valueIndex = stream.readUnsignedShort();
+          //  Object constantValue;
+          //  final char firstChar = descriptor.charAt(0);
+          //  switch (firstChar) {
+          //    case 'B':
+          //      constantValue = ((Integer) constantPool[valueIndex]).byteValue();
+          //      break;
+          //    case 'C':
+          //      constantValue = ((char) ((Integer) constantPool[valueIndex]).intValue());
+          //      break;
+          //    case 'S':
+          //      constantValue = ((Integer) constantPool[valueIndex]).shortValue();
+          //      break;
+          //    case 'Z':
+          //      constantValue = ((Integer) constantPool[valueIndex]) != 0;
+          //      break;
+          //    case 'I':
+          //    case 'J':
+          //    case 'F'://Integer, Long, Float, Double already in correct type
+          //    case 'D':
+          //      constantValue = constantPool[valueIndex];
+          //      break;
+          //    default: {
+          //      if (descriptor.equals("Ljava/lang/String;")) {
+          //        constantValue = constantPool[(int) constantPool[valueIndex]];
+          //      } else {
+          //        throw new RuntimeException("unknown Constant type:" + descriptor);
+          //      }
+          //    }
+          //    break;
+          //  }
+          //  fieldBuilder.setConstantValue(constantValue);
+          //}
+          //break;
+        } else {
+          stream.skipBytes(attributeLength);
         }
       }
 
@@ -249,24 +241,15 @@ class ClassFileBinaryParser {
       for (int j = 0; j < attributeCount; j++) {
         final String attributeName = readRefString(stream, constantPool);
         final int attributeLength = stream.readInt();
-        switch (attributeName) {
-          case "RuntimeVisibleAnnotations": {
-            final int annotationCount = stream.readUnsignedShort();
-            for (int k = 0; k < annotationCount; k++) {
-              AnnotationInfo info = readAnnotation(stream, constantPool);
-              infoBuilder.addMethodAnnotation(info);
-              methodInfoBuilder.addAnnotationName(info);
-            }
+        if ("RuntimeVisibleAnnotations".equals(attributeName)) {
+          final int num_annotations = stream.readUnsignedShort();
+          for (int k = 0; k < num_annotations; k++) {
+            AnnotationInfo info = readAnnotation(stream, constantPool);
+            infoBuilder.addMethodAnnotation(info);
+            methodInfoBuilder.addAnnotationName(info);
           }
-          break;
-          case "AnnotationDefault": {
-
-            Object defaultValue = parseElementValue(stream, constantPool);
-            methodInfoBuilder.setDefaultValue(defaultValue);
-          }
-          break;
-          default:
-            stream.skipBytes(attributeLength);
+        } else {
+          stream.skipBytes(attributeLength);
         }
       }
 
@@ -285,70 +268,103 @@ class ClassFileBinaryParser {
     List<String> names = ReflectionUtils.parseTypeDescriptor(descriptor);
     if (names.isEmpty() || names.size() > 1) {
       throw new IllegalArgumentException(
-          "Invalid typeDescriptor for annotation" + descriptor);
+          "Invalid typeDescriptor for annotation " + descriptor);
     } else {
       name = intern(names.get(0));
     }
 
-    // TODO SKIP ANNOTATION VALUE
+    // SKIP ANNOTATION VALUE
     int size = stream.readUnsignedShort();
-    Map<String, ParamValue> values = new HashMap<>();
+    // Map<String, ParamValue> values = new HashMap<>();
     for (int i = 0; i < size; i++) {
-      String elementName = readRefString(stream, constantPool);//element_name_index
-      Object value = parseElementValue(stream, constantPool);
-      values.put(elementName, new ParamValue(elementName, value));
+      //String elementName = readRefString(stream, constantPool);//element_name_index
+      //Object value = parseElementValue(stream, constantPool);
+      //values.put(elementName, new ParamValue(elementName, value));
+      stream.skipBytes(Short.BYTES);//element_name_index
+      skipElementValue(stream, constantPool);
     }
 
-    return new AnnotationInfo(name,
-        values.isEmpty() ? Collections.emptyMap() : values);
+    return new AnnotationInfo(name, Collections.emptyMap());
   }
 
-  private Object parseElementValue(final DataInputStream stream, Object[] constantPool)
+  private void skipElementValue(final DataInputStream stream, Object[] constantPool)
       throws IOException {
     final int tag = stream.readUnsignedByte();
     switch (tag) {
       case 'B':
-        return ((Integer) constantPool[stream.readUnsignedShort()]).byteValue();
       case 'C':
-        return (char) ((Integer) constantPool[stream.readUnsignedShort()]).intValue();
       case 'S':
-        return ((Integer) constantPool[stream.readUnsignedShort()]).shortValue();
       case 'Z':
-        return ((Integer) constantPool[stream.readUnsignedShort()]) != 0;
       case 'I'://int
       case 'J'://long
       case 'D'://double
       case 'F'://float
       case 's'://string
-        return constantPool[stream.readUnsignedShort()];//Already in correct type;
-      case '@'://Complex(nested) annotation
-        return readAnnotation(stream, constantPool);
+      case 'c'://class_info_index
+        stream.skipBytes(Short.BYTES);//Already in correct type;
+        break;
+      case '@'://nested annotation
+        readAnnotation(stream, constantPool);
+        break;
       case '[': {//array_value
         final int count = stream.readUnsignedShort();
-        Object[] values = new Object[count];
         for (int i = 0; i < count; i++) {
           //Nested annotation element value
-          values[i] = parseElementValue(stream, constantPool);
+          skipElementValue(stream, constantPool);
         }
-        return values;
       }
-      case 'c': { //class_info_index
-        String typeDescriptor = readRefString(stream, constantPool);
-        return new classRef(typeDescriptor);
-      }
-      case 'e': {//enum_constant_index
-        final String typeDescriptor = readRefString(stream, constantPool);
-        final String fieldName = readRefString(stream, constantPool);
-        List<String> type = ReflectionUtils.parseTypeDescriptor(typeDescriptor);
-        if (type.isEmpty() || type.size() > 1) {
-          throw new RuntimeException(
-              "Illegal element_value enum_constant_index: " + typeDescriptor);
-        }
-        return new enumRef(/*className*/type.get(0), fieldName);
-      }
+      break;
+      case 'e': //enum_constant_index
+        stream.skipBytes(Short.BYTES);
+        stream.skipBytes(Short.BYTES);
+        break;
       default:
-        throw new RuntimeException("Unknown annotation elementValue type" + tag);
+        throw new RuntimeException("Unknown annotation elementValue type " + tag);
     }
+
+    // switch (tag) {
+    //   case 'B':
+    //     return ((Integer) constantPool[stream.readUnsignedShort()]).byteValue();
+    //   case 'C':
+    //     return (char) ((Integer) constantPool[stream.readUnsignedShort()]).intValue();
+    //   case 'S':
+    //     return ((Integer) constantPool[stream.readUnsignedShort()]).shortValue();
+    //   case 'Z':
+    //     return ((Integer) constantPool[stream.readUnsignedShort()]) != 0;
+    //   case 'I'://int
+    //   case 'J'://long
+    //   case 'D'://double
+    //   case 'F'://float
+    //   case 's'://string
+    //     return constantPool[stream.readUnsignedShort()];//Already in correct type;
+    //   case '@'://Complex(nested) annotation
+    //     return readAnnotation(stream, constantPool);
+    //   case '[': {//array_value
+    //     final int count = stream.readUnsignedShort();
+    //     Object[] values = new Object[count];
+    //     for (int i = 0; i < count; i++) {
+    //       //Nested annotation element value
+    //       values[i] = parseElementValue(stream, constantPool);
+    //     }
+    //     return values;
+    //   }
+    //   case 'c': { //class_info_index
+    //     String typeDescriptor = readRefString(stream, constantPool);
+    //     return new classRef(typeDescriptor);
+    //   }
+    //   case 'e': {//enum_constant_index
+    //     final String typeDescriptor = readRefString(stream, constantPool);
+    //     final String fieldName = readRefString(stream, constantPool);
+    //     List<String> type = ReflectionUtils.parseTypeDescriptor(typeDescriptor);
+    //     if (type.isEmpty() || type.size() > 1) {
+    //       throw new RuntimeException(
+    //           "Illegal element_value enum_constant_index: " + typeDescriptor);
+    //     }
+    //     return new enumRef(/*className*/type.get(0), fieldName);
+    //   }
+    //   default:
+    //     throw new RuntimeException("Unknown annotation elementValue type" + tag);
+    // }
   }
 
   private String readRefString(final DataInputStream input, final Object[] constantPool)

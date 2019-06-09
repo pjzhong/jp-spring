@@ -1,6 +1,6 @@
 package jp.spring.ioc.cycle;
 
-import jp.spring.ioc.beans.factory.annotation.Autowired;
+import jp.spring.ioc.factory.annotation.Autowired;
 import jp.spring.ioc.cycle.service.A;
 import jp.spring.ioc.cycle.service.B;
 import jp.spring.ioc.stereotype.Component;

@@ -1,13 +1,15 @@
 package jp.spring;
 
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import jp.spring.ioc.beans.factory.BeanDefinition;
-import jp.spring.ioc.beans.factory.BeanDefinitionBuilder;
-import jp.spring.ioc.beans.factory.BeanPostProcessor;
-import jp.spring.ioc.beans.factory.DefaultBeanFactory;
+import jp.spring.ioc.factory.BeanDefinition;
+import jp.spring.ioc.factory.BeanDefinitionBuilder;
+import jp.spring.ioc.factory.BeanPostProcessor;
+import jp.spring.ioc.factory.DefaultBeanFactory;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.scan.ScanConfig;
@@ -38,17 +40,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
   private void refresh() throws Exception {
     loadBeanDefinitions(beanFactory);
-    registerBeanPostProcessors(beanFactory);
     beanFactory.refresh();
-  }
-
-  private void registerBeanPostProcessors(DefaultBeanFactory beanFactory) {
-    //TODO refactor this
-    List<BeanPostProcessor> beanPostProcessors = beanFactory
-        .getBeansByType(BeanPostProcessor.class);
-    for (Object beanPostProcessor : beanPostProcessors) {
-      beanFactory.addBeanPostProcessor((BeanPostProcessor) beanPostProcessor);
-    }
   }
 
   @Override
@@ -62,6 +54,21 @@ public class DefaultApplicationContext implements ApplicationContext {
   }
 
   @Override
+  public <T> T getBean(Class<T> requiredType) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void registerDependency(Class<?> dependencyType, Object autowiredValue) {
+
+  }
+
+  @Override
   public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
     beanFactory.registerBeanDefinition(name, beanDefinition);
   }
@@ -70,16 +77,6 @@ public class DefaultApplicationContext implements ApplicationContext {
     ScanConfig config = scanConfig();
     logger.info("Found package:{}", config.getPackages());
     logger.info("Found loaders:{}", config.getLoaders());
-
-    // 这里是开始点， 全部切换到ClassInfo
-    //PropertiesBeanDefinitionReader reader = new PropertiesBeanDefinitionReader(
-    //    new PropertiesResourceLoader(), config.getPackages());
-    //reader.loadBeanDefinitions(null);
-    //Map<String, BeanDefinition> empty = reader.getRegistry();
-    //for (Map.Entry<String, BeanDefinition> beanDefinitionEntry : empty.entrySet()) {
-    //  beanFactory
-    //      .registerBeanDefinition(beanDefinitionEntry.getKey(), beanDefinitionEntry.getValue());
-    //}
 
     //FastClassPathScanner
     Scanner scanner = new Scanner(config);

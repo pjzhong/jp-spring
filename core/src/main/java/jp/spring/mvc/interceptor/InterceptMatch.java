@@ -2,7 +2,7 @@ package jp.spring.mvc.interceptor;
 
 
 import java.util.regex.Pattern;
-import jp.spring.ioc.beans.factory.BeanFactory;
+import jp.spring.ioc.factory.BeanFactory;
 import jp.spring.mvc.handler.Router;
 import org.apache.commons.lang3.StringUtils;
 

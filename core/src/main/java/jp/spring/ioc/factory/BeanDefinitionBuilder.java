@@ -1,4 +1,4 @@
-package jp.spring.ioc.beans.factory;
+package jp.spring.ioc.factory;
 
 
 import java.lang.annotation.Annotation;
@@ -10,9 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import jp.spring.ApplicationContext;
-import jp.spring.ioc.beans.factory.annotation.Autowired;
-import jp.spring.ioc.beans.factory.annotation.Qualifier;
-import jp.spring.ioc.beans.factory.annotation.Value;
+import jp.spring.ioc.factory.annotation.Autowired;
+import jp.spring.ioc.factory.annotation.Qualifier;
+import jp.spring.ioc.factory.annotation.Value;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.beans.FieldInfo;
 import jp.spring.ioc.stereotype.Component;
@@ -103,7 +103,9 @@ public class BeanDefinitionBuilder {
             method.setAccessible(true);
             name = (String) method.invoke(annotation, ArrayUtils.EMPTY_OBJECT_ARRAY);
           }
-          break;
+          if (StringUtils.isNotBlank(name)) {
+            break;
+          }
         } catch (Exception e) {
           break;
         }

@@ -1,7 +1,7 @@
 package jp.spring;
 
-import jp.spring.ioc.beans.factory.DefaultBeanFactory;
-import jp.spring.ioc.beans.factory.BeanFactory;
+import jp.spring.ioc.factory.DefaultBeanFactory;
+import jp.spring.ioc.factory.BeanFactory;
 
 /**
  * @author yihua.huang@dianping.com

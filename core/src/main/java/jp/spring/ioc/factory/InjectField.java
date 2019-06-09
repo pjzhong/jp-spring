@@ -1,8 +1,8 @@
-package jp.spring.ioc.beans.factory;
+package jp.spring.ioc.factory;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
-import jp.spring.ioc.beans.factory.annotation.Autowired;
+import jp.spring.ioc.factory.annotation.Autowired;
 
 /**
  * 自动装配字段

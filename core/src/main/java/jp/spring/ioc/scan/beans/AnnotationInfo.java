@@ -49,33 +49,33 @@ public class AnnotationInfo {
     }
   }
 
-  public static class classRef {
+  //public static class classRef {
+//
+  //  private final String typeDescriptor;
+//
+  //  public classRef(String typeDescriptor) {
+  //    this.typeDescriptor = typeDescriptor;
+  //  }
+//
+  //  @Override
+  //  public String toString() {
+  //    return typeDescriptor;
+  //  }
+  //}
 
-    private final String typeDescriptor;
+  //public static class enumRef {
 
-    public classRef(String typeDescriptor) {
-      this.typeDescriptor = typeDescriptor;
-    }
+  //  private final String name;
+  //  private final String field;
 
-    @Override
-    public String toString() {
-      return typeDescriptor;
-    }
-  }
+  //  public enumRef(String name, String field) {
+  //    this.field = field;
+  //    this.name = name;
+  //  }
 
-  public static class enumRef {
-
-    private final String name;
-    private final String field;
-
-    public enumRef(String name, String field) {
-      this.field = field;
-      this.name = name;
-    }
-
-    @Override
-    public String toString() {
-      return name + "." + field;
-    }
-  }
+  //  @Override
+  //  public String toString() {
+  //    return name + "." + field;
+  //  }
+  //}
 }

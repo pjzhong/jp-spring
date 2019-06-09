@@ -1,8 +1,7 @@
-package jp.spring.ioc.beans.factory;
+package jp.spring.ioc.factory;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -10,7 +9,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import jp.spring.ioc.BeansException;
-import jp.spring.ioc.beans.aware.BeanFactoryAware;
 import jp.spring.ioc.util.TypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,19 +22,11 @@ import org.apache.commons.lang3.StringUtils;
  **/
 public class DefaultBeanFactory implements BeanFactory {
 
-  private final Map<String, BeanDefinition> beanNameDefinitionMap = new ConcurrentHashMap<>();
+  private Map<String, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>();
 
-  private final Map<Class<?>, String[]> beanNamesByType = new ConcurrentHashMap<>();
+  private List<BeanPostProcessor> beanPostProcessors = Collections.emptyList();
 
-  private final Map<Class<?>, List<?>> beansByType = new ConcurrentHashMap<>();
-
-  private final Map<Class<? extends Annotation>, List<String>> beanNamesByAnnotation = new ConcurrentHashMap<>();
-
-  private final List<String> beanDefinitionIds = new ArrayList<>();
-
-  private final List<BeanPostProcessor> beanPostProcessors = new ArrayList<>();
-
-  private final Properties properties = new Properties();
+  private Properties properties = new Properties();
 
   public DefaultBeanFactory() {
 
@@ -44,6 +34,12 @@ public class DefaultBeanFactory implements BeanFactory {
 
   public void refresh() {
     try {
+      //TODO register known dependency, like factory and application context
+      // let application context do this job
+      Class<?> clazz = this.getClass();
+      BeanDefinition selfDef = new BeanDefinition(clazz, this);
+      registerBeanDefinition(StringUtils.uncapitalize(clazz.getSimpleName()), selfDef);
+
       beforeInitializeBean();
     } catch (Exception e) {
       throw new RuntimeException("Error Raised when refresh factory", e);
@@ -52,16 +48,15 @@ public class DefaultBeanFactory implements BeanFactory {
 
   @Override
   public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
-    if (beanNameDefinitionMap.containsKey(name)) {
+    if (beanDefinitions.containsKey(name)) {
       throw new IllegalArgumentException("Bean name " + name + " must be unique");
     }
-    beanNameDefinitionMap.put(name, beanDefinition);
-    beanDefinitionIds.add(name);
+    beanDefinitions.put(name, beanDefinition);
   }
 
   @Override
   public Object getBean(String name) {
-    BeanDefinition beanDefinition = beanNameDefinitionMap.get(name);
+    BeanDefinition beanDefinition = beanDefinitions.get(name);
     if (beanDefinition == null) {
       throw new IllegalArgumentException("No bean named " + name + " is defined");
     }
@@ -74,92 +69,81 @@ public class DefaultBeanFactory implements BeanFactory {
     return beanDefinition.getBean();
   }
 
-  public void addBeanPostProcessor(BeanPostProcessor beanPostProcessor) {
-    this.beanPostProcessors.add(beanPostProcessor);
+  @Override
+  public <T> T getBean(Class<T> requiredType) {
+    throw new UnsupportedOperationException();
   }
 
+  @Override
+  public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public void registerDependency(Class<?> dependencyType, Object autowiredValue) {
+    throw new UnsupportedOperationException();
+  }
+
+  @Deprecated
   private void beforeInitializeBean() throws Exception {
-    for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
+    List<BeanPostProcessor> processors = getBeansByType(BeanPostProcessor.class);
+    beanPostProcessors = processors;
+    for (BeanPostProcessor beanPostProcessor : processors) {
       beanPostProcessor.postProcessBeforeInitialization();
     }
   }
 
+  @Deprecated
   private Object afterInitializeBean(Object bean, String name) {
     for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
       bean = beanPostProcessor.postProcessAfterInitialization(bean, name);
     }
 
-    invokeAware(bean);
     return bean;
-  }
-
-  private void invokeAware(Object bean) {
-    if (bean instanceof BeanFactoryAware) {
-      ((BeanFactoryAware) bean).setBeanFactory(this);
-    }
   }
 
   //various getters
   public Class<?> getType(String name) {
-    if (beanNameDefinitionMap.get(name) != null) {
-      return beanNameDefinitionMap.get(name).getClazz();
-    }
-    return null;
+    BeanDefinition definition = beanDefinitions.get(name);
+    return definition != null ? definition.getClazz() : null;
   }
 
   public <A> List<A> getBeansByType(Class<A> type) {
-    if (beansByType.get(type) != null) {
-      return (List<A>) beansByType.get(type);
-    }
-
     List<A> beans = new ArrayList<>();
-    for (String beanDefinitionName : beanDefinitionIds) {
-      if (type.isAssignableFrom(beanNameDefinitionMap.get(beanDefinitionName).getClazz())) {
+    for (String beanDefinitionName : beanDefinitions.keySet()) {
+      if (type.isAssignableFrom(beanDefinitions.get(beanDefinitionName).getClazz())) {
         beans.add((A) getBean(beanDefinitionName));
       }
     }
 
-    beansByType.put(type, Collections.unmodifiableList(beans));
     return beans;
   }
 
   private List<String> getBeanNamesForType(Class<?> targetType) {
     List<String> result = new ArrayList<>();
 
-    String[] temp = beanNamesByType.get(targetType);
-    if (temp != null) {
-      result = Arrays.asList(temp);
-      return result;
-    }
-
     boolean matchFound;
-    for (String beanName : beanDefinitionIds) {
-      BeanDefinition beanDefinition = beanNameDefinitionMap.get(beanName);
+    for (String beanName : beanDefinitions.keySet()) {
+      BeanDefinition beanDefinition = beanDefinitions.get(beanName);
       matchFound = targetType.isAssignableFrom(beanDefinition.getClazz());
       if (matchFound) {
         result.add(beanName);
       }
     }
 
-    beanNamesByType.put(targetType, result.toArray(new String[0]));
     return result;
   }
 
   public List<String> getBeanNamByAnnotation(Class<? extends Annotation> annotation) {
-    if (beanNamesByAnnotation.get(annotation) != null) {
-      return beanNamesByAnnotation.getOrDefault(annotation, Collections.emptyList());
-    }
-
     List<String> result = new ArrayList<>();
     BeanDefinition beanDefinition;
-    for (String beanName : beanDefinitionIds) {
-      beanDefinition = beanNameDefinitionMap.get(beanName);
+    for (String beanName : beanDefinitions.keySet()) {
+      beanDefinition = beanDefinitions.get(beanName);
       if (TypeUtil.isAnnotated(beanDefinition.getClazz(), annotation)) {
         result.add(beanName);
       }
     }
 
-    beanNamesByAnnotation.put(annotation, Collections.unmodifiableList(result));
     return result;
   }
 

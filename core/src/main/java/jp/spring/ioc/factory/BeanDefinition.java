@@ -1,4 +1,4 @@
-package jp.spring.ioc.beans.factory;
+package jp.spring.ioc.factory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -17,7 +17,7 @@ public class BeanDefinition {
   private String name;
   /** 实体对象 */
   private Object bean;
-  /** 实力类 */
+  /** 实体类 */
   private Class<?> clazz;
   /** 配置字段 */
   private List<PropertyValue> propertyValues;
@@ -29,7 +29,6 @@ public class BeanDefinition {
     this.clazz = clazz;
   }
 
-  @Deprecated
   public BeanDefinition(Class<?> clazz, Object bean) {
     this.clazz = clazz;
     this.bean = bean;

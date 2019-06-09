@@ -1,6 +1,6 @@
 package jp.spring.mvc.view;
 
-import jp.spring.ioc.beans.factory.annotation.Value;
+import jp.spring.ioc.factory.annotation.Value;
 
 /**
  * Created by Administrator on 2/12/2017.
