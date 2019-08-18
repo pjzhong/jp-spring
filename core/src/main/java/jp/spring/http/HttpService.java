@@ -59,8 +59,6 @@ public final class HttpService {
       context = new DefaultApplicationContext();
       handlerMapping = HandlerMapping.build(context.getBeanFactory());
 
-      Runtime.getRuntime().addShutdownHook(new Thread(this::stop));
-
       LOG.info("Started HTTP Service {} at address {}", name, bindAddress);
     } catch (Throwable t) {
       stop();
