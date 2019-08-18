@@ -12,50 +12,50 @@ import jp.spring.aop.Pointcut;
  */
 public class ExecutionPointcut implements Pointcut {
 
-    public static final Pattern RULE_PATTERN = Pattern.compile("([a-zA-Z.*]*)\\(\\)");
+  public static final Pattern RULE_PATTERN = Pattern.compile("([a-zA-Z.*]*)\\(\\)");
 
-    private Pattern classNamePattern;
-    private Pattern methodNamePattern;
+  private Pattern classNamePattern;
+  private Pattern methodNamePattern;
 
-    public ExecutionPointcut(String expression) {
-        Matcher rule_matcher = RULE_PATTERN.matcher(expression);
-        if(!rule_matcher.find()) {
-            throw new IllegalArgumentException("Error raised when parsing expression");
-        }
-
-        String aspectExpression = rule_matcher.group(1);
-        int index = aspectExpression.lastIndexOf(".");
-        if(index < 1 || index == aspectExpression.length() - 1) {
-            throw new IllegalArgumentException("Error raised when parsing expression");
-        }
-        String classExp, methodExp;
-        classExp = aspectExpression.substring(0, index);
-        methodExp = aspectExpression.substring(index + 1);
-
-        classExp = classExp.replace("*", "([\\w[^\\.]]*)");
-        classExp = classExp.replace("..", "[\\w\\.]*");
-        methodExp = methodExp.replace("*", "[\\w]*");
-        classNamePattern = Pattern.compile("^" + classExp + "$");
-        methodNamePattern = Pattern.compile(methodExp);
+  public ExecutionPointcut(String expression) {
+    Matcher rule_matcher = RULE_PATTERN.matcher(expression);
+    if (!rule_matcher.find()) {
+      throw new IllegalArgumentException("Error raised when parsing expression");
     }
 
-    @Override
-    public ClassFilter getClassFilter() {
-        return this;
+    String aspectExpression = rule_matcher.group(1);
+    int index = aspectExpression.lastIndexOf(".");
+    if (index < 1 || index == aspectExpression.length() - 1) {
+      throw new IllegalArgumentException("Error raised when parsing expression");
     }
+    String classExp, methodExp;
+    classExp = aspectExpression.substring(0, index);
+    methodExp = aspectExpression.substring(index + 1);
 
-    @Override
-    public MethodMatcher getMethodFilter() {
-        return this;
-    }
+    classExp = classExp.replace("*", "([\\w[^\\.]]*)");
+    classExp = classExp.replace("..", "[\\w\\.]*");
+    methodExp = methodExp.replace("*", "[\\w]*");
+    classNamePattern = Pattern.compile("^" + classExp + "$");
+    methodNamePattern = Pattern.compile(methodExp);
+  }
 
-    @Override
-    public boolean match(Class<?> cls) {
-        return classNamePattern.matcher(cls.getName()).find();
-    }
+  @Override
+  public ClassFilter getClassFilter() {
+    return this;
+  }
 
-    @Override
-    public boolean match(Method method) {
-        return methodNamePattern.matcher(method.getName()).find();
-    }
+  @Override
+  public MethodMatcher getMethodFilter() {
+    return this;
+  }
+
+  @Override
+  public boolean match(Class<?> cls) {
+    return classNamePattern.matcher(cls.getName()).find();
+  }
+
+  @Override
+  public boolean match(Method method) {
+    return methodNamePattern.matcher(method.getName()).find();
+  }
 }

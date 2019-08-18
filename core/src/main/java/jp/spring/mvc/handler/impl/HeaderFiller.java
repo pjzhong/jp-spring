@@ -2,10 +2,10 @@ package jp.spring.mvc.handler.impl;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import java.util.Optional;
-import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.RequestHeader;
 import jp.spring.mvc.handler.Filler;
 import jp.spring.mvc.handler.HandlerArgResolver;
+import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -43,6 +43,6 @@ public class HeaderFiller implements Filler<Object> {
         .ofNullable(args.getRequest())
         .map(FullHttpRequest::headers)
         .map(hs -> hs.get(name));
-    return TypeUtil.convert(headLine.orElse(null), type);
+    return TypeUtil.convertToSimpleType(headLine.orElse(null), type);
   }
 }

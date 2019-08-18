@@ -8,12 +8,11 @@ import jp.spring.aop.ProxyFactory;
 import jp.spring.aop.annotation.Aspect;
 import jp.spring.aop.impl.ExecutionAspectProxy;
 import jp.spring.ioc.factory.BeanDefinition;
-import jp.spring.ioc.factory.BeanFactory;
 import jp.spring.ioc.factory.BeanPostProcessor;
 import jp.spring.ioc.factory.DefaultBeanFactory;
 import jp.spring.ioc.factory.annotation.Autowired;
 import jp.spring.ioc.stereotype.Component;
-import jp.spring.ioc.util.TypeUtil;
+import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
@@ -35,8 +34,9 @@ public class AspectBeanPostProcessor implements BeanPostProcessor {
     for (String name : beanNames) {
       BaseAspect aspect = new ExecutionAspectProxy(beanFactory.getType(name),
           beanFactory.getBean(name));
-      BeanDefinition beanDefinition = new BeanDefinition(aspect.getClass(), aspect);
-      beanFactory.registerBeanDefinition(name + ".proxy", beanDefinition);
+      BeanDefinition definition = new BeanDefinition(name + ".proxy", aspect.getClass(),
+          aspect);
+      beanFactory.registerBeanDefinition(definition);
     }
   }
 
@@ -45,7 +45,7 @@ public class AspectBeanPostProcessor implements BeanPostProcessor {
    */
   @Override
   public Object postProcessAfterInitialization(Object bean, String beanName) {
-    if (!filtrate(bean, beanName)) {
+    if (!filter(bean)) {
       return bean;
     }
 
@@ -70,7 +70,7 @@ public class AspectBeanPostProcessor implements BeanPostProcessor {
    * class annotated by Aspect , subclass of BaseAspect and  subclass of beanPostProcessor a are not
    * the target of this processor
    */
-  private boolean filtrate(Object bean, String beanName) {
+  private boolean filter(Object bean) {
     if (TypeUtil.isAnnotated(bean.getClass(), Aspect.class)
         || bean instanceof BeanPostProcessor
         || bean instanceof BaseAspect

@@ -1,9 +1,9 @@
 package jp.spring.mvc.handler.impl;
 
-import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.PathVariable;
 import jp.spring.mvc.handler.Filler;
 import jp.spring.mvc.handler.HandlerArgResolver;
+import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
 public class PathVariableFiller implements Filler<Object> {
@@ -34,6 +34,6 @@ public class PathVariableFiller implements Filler<Object> {
   @Override
   public Object apply(HandlerArgResolver args) {
     String pathVar = args.getPaths().getOrDefault(name, "");
-    return TypeUtil.convert(pathVar, type);
+    return TypeUtil.convertToSimpleType(pathVar, type);
   }
 }

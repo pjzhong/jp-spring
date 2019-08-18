@@ -14,8 +14,8 @@ import jp.spring.ioc.stereotype.Component;
 @Component
 public @interface Intercept {
 
-    String url() default "";
+  String url() default "";
 
-    String value() default "";
+  String value() default "";
 
 }

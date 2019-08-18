@@ -10,7 +10,7 @@ import jp.spring.aop.annotation.After;
 import jp.spring.aop.annotation.Before;
 import jp.spring.aop.annotation.Error;
 import jp.spring.aop.support.ProxyChain;
-import jp.spring.ioc.util.TypeUtil;
+import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
@@ -72,10 +72,10 @@ public class ExecutionAspectProxy extends BaseAspect implements Proxy {
 
   private void invoke(Object obj, Method method, Object... parameters) {
     try {
-      if (obj != null && method != null) {
-        method.setAccessible(true);
-        method.invoke(obj, parameters);
+      if (obj == null && method == null) {
+        return;
       }
+      method.invoke(obj, parameters);
     } catch (Throwable e) {
       throw new RuntimeException(e);
     }

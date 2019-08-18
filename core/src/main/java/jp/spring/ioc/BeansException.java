@@ -5,16 +5,16 @@ package jp.spring.ioc;
  */
 public class BeansException extends RuntimeException {
 
-    public BeansException(String msg) {
-        super(msg);
-    }
+  public BeansException(String msg) {
+    super(msg);
+  }
 
-    public BeansException(Throwable e) {
-        super(e);
-    }
+  public BeansException(Throwable e) {
+    super(e);
+  }
 
-    public BeansException(String msg, Throwable t) {
-        super(msg, t);
-    }
+  public BeansException(String msg, Throwable t) {
+    super(msg, t);
+  }
 
 }

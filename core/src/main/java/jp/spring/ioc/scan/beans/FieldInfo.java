@@ -46,6 +46,7 @@ public class FieldInfo {
   }
 
   public boolean hasAnnotation(Class<? extends Annotation> clazz) {
+    //TODO IMPLEMENT THIS, USING CLASS GRAPH
     return annotations.containsKey(clazz.getName());
   }
 

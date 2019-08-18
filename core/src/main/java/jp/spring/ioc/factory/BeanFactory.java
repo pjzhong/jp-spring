@@ -49,10 +49,10 @@ public interface BeanFactory {
   void registerDependency(Class<?> dependencyType, Object autowiredValue);
 
   /**
-   * Move this method to subInterface
+   * Register a special dependency type with corresponding  definition
    *
-   * @since 2019年06月09日 09:53:03
+   * @param definition the bean definition
+   * @since 2019年06月09日 10:04:03
    */
-  @Deprecated
-  void registerBeanDefinition(String name, BeanDefinition beanDefinition) throws Exception;
+  void registerBeanDefinition(BeanDefinition definition) throws Exception;
 }

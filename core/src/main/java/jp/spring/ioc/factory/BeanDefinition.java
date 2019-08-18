@@ -1,9 +1,9 @@
 package jp.spring.ioc.factory;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Bean数据类
@@ -19,32 +19,36 @@ public class BeanDefinition {
   private Object bean;
   /** 实体类 */
   private Class<?> clazz;
+  /** 注入后需要调用的方法 */
+  private Method post;
   /** 配置字段 */
   private List<PropertyValue> propertyValues;
   /** 装配字段 */
   private List<InjectField> injectFields;
 
-  @Deprecated
-  public BeanDefinition(Class<?> clazz) {
+  public BeanDefinition(String name, Class<?> clazz) {
+    this.name = name;
     this.clazz = clazz;
+    this.propertyValues = Collections.emptyList();
+    this.injectFields = Collections.emptyList();
   }
 
-  public BeanDefinition(Class<?> clazz, Object bean) {
+  public BeanDefinition(String name, Class<?> clazz, Object bean) {
+    this.name = name;
     this.clazz = clazz;
     this.bean = bean;
+    this.propertyValues = Collections.emptyList();
+    this.injectFields = Collections.emptyList();
   }
 
   public BeanDefinition(String name, Class<?> clazz,
       List<PropertyValue> propertyValues,
-      List<InjectField> injectFields) {
+      List<InjectField> injectFields, Method post) {
     this.name = name;
     this.clazz = clazz;
     this.propertyValues = propertyValues;
     this.injectFields = injectFields;
-  }
-
-  public void setBean(Object bean) {
-    this.bean = bean;
+    this.post = post;
   }
 
   public Class<?> getClazz() {
@@ -78,20 +82,21 @@ public class BeanDefinition {
     propertyValues.add(propertyValue);
   }
 
+  public Method getPost() {
+    return post;
+  }
+
   public List<PropertyValue> getPropertyValues() {
-    return ObjectUtils.defaultIfNull(propertyValues, Collections.emptyList());
+    return propertyValues;
   }
 
   public List<InjectField> getInjectFields() {
-    return ObjectUtils.defaultIfNull(injectFields, Collections.emptyList());
+    return injectFields;
   }
 
   @Override
   public String toString() {
-    return "BeanDefinition{" +
-        "beanClassName='" + clazz.getName() + '\'' +
-        ", propertyValues=" + propertyValues +
-        ", injectFields=" + injectFields +
-        '}';
+    return "BeanDefinition{" + "name='" + name + '\''
+        + '}';
   }
 }

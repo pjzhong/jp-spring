@@ -8,7 +8,6 @@ import java.util.Map;
 import java.util.Set;
 import jp.spring.ioc.factory.BeanDefinition;
 import jp.spring.ioc.factory.BeanDefinitionBuilder;
-import jp.spring.ioc.factory.BeanPostProcessor;
 import jp.spring.ioc.factory.DefaultBeanFactory;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfo;
@@ -40,6 +39,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
   private void refresh() throws Exception {
     loadBeanDefinitions(beanFactory);
+    beanFactory.registerDependency(this.getClass(), this);
     beanFactory.refresh();
   }
 
@@ -65,12 +65,12 @@ public class DefaultApplicationContext implements ApplicationContext {
 
   @Override
   public void registerDependency(Class<?> dependencyType, Object autowiredValue) {
-
+    beanFactory.registerDependency(dependencyType, autowiredValue);
   }
 
   @Override
-  public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
-    beanFactory.registerBeanDefinition(name, beanDefinition);
+  public void registerBeanDefinition(BeanDefinition definition) {
+    beanFactory.registerBeanDefinition(definition);
   }
 
   private void loadBeanDefinitions(DefaultBeanFactory beanFactory) throws Exception {
@@ -87,13 +87,14 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     // graph
     ClassGraph graph = result.getClassGraph();
+    this.graph = graph;
+
     Set<ClassInfo> infos = graph.getInfoWithAnnotation(Component.class);
     logger.info("Found infos:{}", infos);
     BeanDefinitionBuilder builder = new BeanDefinitionBuilder(this, infos);
     Set<BeanDefinition> definitions = builder.build();
-    definitions.forEach(b -> beanFactory.registerBeanDefinition(b.getName(), b));
+    definitions.forEach(beanFactory::registerBeanDefinition);
 
-    this.graph = graph;
   }
 
   /**

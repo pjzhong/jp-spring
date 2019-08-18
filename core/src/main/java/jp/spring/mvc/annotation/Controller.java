@@ -11,12 +11,4 @@ import jp.spring.ioc.stereotype.Component;
 @Component
 public @interface Controller {
 
-  /**
-   * The value may indicate a suggestion for a logical component name, to be turned into a Spring
-   * bean in case of an autodetected component.
-   *
-   * @return the suggested component name, if any
-   */
-  String value() default "";
-
 }

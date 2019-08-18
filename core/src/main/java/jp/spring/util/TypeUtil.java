@@ -1,8 +1,9 @@
-package jp.spring.ioc.util;
+package jp.spring.util;
 
 import java.lang.annotation.Annotation;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -38,15 +39,17 @@ public class TypeUtil {
 
     Map<Class<?>, Function<String, Object>> primitive_parser = new HashMap<>();
     Function<String, Object> booleanParse = s -> s.equals("1") || s.equals("true");
-    Function<String, Object> characterParse = s -> s.isEmpty() ? '\0' : s.charAt(0);
     primitive_parser.put(Boolean.class, booleanParse);
     primitive_parser.put(Boolean.TYPE, booleanParse);
+
+    Function<String, Object> characterParse = s -> s.isEmpty() ? '\0' : s.charAt(0);
+    primitive_parser.put(Character.class, characterParse);
+    primitive_parser.put(Character.TYPE, characterParse);
+
     primitive_parser.put(Byte.class, Byte::parseByte);
     primitive_parser.put(Byte.TYPE, Byte::parseByte);
     primitive_parser.put(Short.class, Short::parseShort);
     primitive_parser.put(Short.TYPE, Short::parseShort);
-    primitive_parser.put(Character.class, characterParse);
-    primitive_parser.put(Character.TYPE, characterParse);
     primitive_parser.put(Integer.class, Integer::parseInt);
     primitive_parser.put(Integer.TYPE, Integer::parseInt);
     primitive_parser.put(Long.class, Long::parseLong);
@@ -58,16 +61,55 @@ public class TypeUtil {
     DEFAULT_PRIMITIVE_PARSER = Collections.unmodifiableMap(primitive_parser);
   }
 
-  public static <A extends Annotation> boolean isAnnotated(Method method, Class<A> annotate) {
-    return method.getAnnotation(annotate) != null;
+  /**
+   * Returns whether the given {@code type} is a string, primitive or primitive wrapper ({@link
+   * Boolean}, {@link Byte}, {@link Character}, {@link Short}, {@link Integer}, {@link Long}, {@link
+   * Double}, {@link Float}).
+   *
+   * @param clazz The class to query or null.
+   * @return true if the given {@code type} is a string, primitive or primitive wrapper ({@link
+   * Boolean}, {@link Byte}, {@link Character}, {@link Short}, {@link Integer}, {@link Long}, {@link
+   * Double}, {@link Float}).
+   * @since 3.1
+   */
+  public static boolean isSimpleType(Class<?> clazz) {
+    return ClassUtils.isPrimitiveOrWrapper(clazz) || clazz == String.class;
   }
 
-  public static <A extends Annotation> boolean isAnnotated(Class<?> clazz, Class<A> annotate) {
-    if (clazz.getAnnotation(annotate) != null) {
+  /**
+   * convertToSimpleType a String {@code value} to String, primitive or primitive wrapper ({@link
+   * Boolean}, {@link Byte}, {@link Character}, {@link Short}, {@link Integer}, {@link Long}, {@link
+   * Double}, {@link Float})
+   *
+   * @return the converted value
+   */
+  public static Object convertToSimpleType(String value, Class<?> target) {
+    Exception exception = null;
+    try {
+      if (String.class == target) {//String just return
+        return value;
+      } else if (target.isPrimitive()) {//primitive
+        Function<String, Object> parse = DEFAULT_PRIMITIVE_PARSER.get(target);
+        return StringUtils.isBlank(value) ? PRIMITIVE_DEFAULT.get(target) : parse.apply(value);
+      } else if (ClassUtils.isPrimitiveWrapper(target)) {
+        Function<String, Object> parse = DEFAULT_PRIMITIVE_PARSER.get(target);
+        return (ObjectUtils.isEmpty(parse) || StringUtils.isBlank(value)) ? null
+            : parse.apply(value);
+      }
+    } catch (Exception e) {
+      exception = e;
+    }
+    throw new IllegalArgumentException(
+        String.format("converted [%s] to %s failed", value, target), exception);
+  }
+
+  public static <A extends Annotation> boolean isAnnotated(AnnotatedElement method,
+      Class<A> annotate) {
+    if (method.getAnnotation(annotate) != null) {
       return true;
     }
 
-    Annotation[] annotations = clazz.getAnnotations();
+    Annotation[] annotations = method.getAnnotations();
     for (Annotation annotation : annotations) {
       if (annotation.annotationType().getAnnotation(annotate) != null) {
         return true;
@@ -77,37 +119,15 @@ public class TypeUtil {
     return false;
   }
 
-  @Deprecated
-  public static <A extends Annotation> boolean isAnnotated(Field field, Class<A> annotate) {
-    return field.getAnnotation(annotate) != null;
-  }
-
-  public static boolean isSimpleType(Class<?> clazz) {
-    return ClassUtils.isPrimitiveOrWrapper(clazz) || clazz == String.class;
-  }
-
-
   /**
-   * convert a String to primitive or wrapper value
+   * find all methods on the give {@code class} with the given {@code annotation} which
+   * RetentionPolicy much include {@link RetentionPolicy#RUNTIME}, including public, protected,
+   * default (package) access, and private methods, but excluding inherited methods.
+   *
+   * @return the List of {@code Method} objects representing all the methods with the given {@code
+   * annotation} of this class
+   * @since 2019年08月18日 22:38:16
    */
-  public static Object convert(String value, Class<?> targetClass) {
-    try {
-      if (targetClass == null) {//No target
-        return null;
-      } else if (String.class == targetClass) {//String just return
-        return value;
-      } else if (targetClass.isPrimitive()) {//primitive
-        Function<String, Object> parse = DEFAULT_PRIMITIVE_PARSER.get(targetClass);
-        return StringUtils.isBlank(value) ? PRIMITIVE_DEFAULT.get(targetClass) : parse.apply(value);
-      } else {//Wrapper value
-        Function<String, Object> parse = DEFAULT_PRIMITIVE_PARSER.get(targetClass);
-        return StringUtils.isBlank(value) || parse == null ? null : parse.apply(value);
-      }
-    } catch (Exception e) {
-      throw new RuntimeException("Covert failed", e);
-    }
-  }
-
   public static <A extends Annotation> List<Method> findMethods(Class<?> clazz,
       Class<A> annotation) {
     Method[] methods = clazz.getDeclaredMethods();
@@ -123,19 +143,15 @@ public class TypeUtil {
     return list;
   }
 
-
-  public static Method findMethod(Class<?> clazz, String name) {
-    if (clazz != null && name != null) {
-      Method[] methods = (clazz.isInterface() ? clazz.getMethods() : clazz.getDeclaredMethods());
-      for (Method method : methods) {
-        if (name.equals(method.getName())) {
-          return method;
-        }
-      }
-    }
-
-    return null;
+  /**
+   * get the name of the given class, the first character is uncapitalize
+   *
+   * @return the name
+   */
+  public static String determinedName(Class<?> beanClass) {
+    return StringUtils.uncapitalize(beanClass.getSimpleName());
   }
+
 
   /**
    * Returns the raw class of the given type.

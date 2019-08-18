@@ -3,10 +3,10 @@ package jp.spring.mvc.handler.impl;
 import java.net.HttpCookie;
 import java.util.Map;
 import java.util.Optional;
-import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.CookieValue;
 import jp.spring.mvc.handler.Filler;
 import jp.spring.mvc.handler.HandlerArgResolver;
+import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.StringUtils;
 
 public class CookieFiller implements Filler<Object> {
@@ -37,6 +37,6 @@ public class CookieFiller implements Filler<Object> {
     Map<String, HttpCookie> cookies = args.getCookies();
     Optional<String> value = Optional.ofNullable(cookies.get(name))
         .map(HttpCookie::getValue);
-    return TypeUtil.convert(value.orElse(""), type);
+    return TypeUtil.convertToSimpleType(value.orElse(""), type);
   }
 }

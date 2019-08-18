@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.CookieValue;
 import jp.spring.mvc.annotation.PathVariable;
 import jp.spring.mvc.annotation.RequestHeader;
@@ -27,6 +26,7 @@ import jp.spring.mvc.handler.impl.RequestFiller;
 import jp.spring.mvc.handler.impl.RequestParamFiller;
 import jp.spring.mvc.handler.impl.ResponseFiller;
 import jp.spring.mvc.interceptor.InterceptMatch;
+import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
 /**
@@ -158,7 +158,7 @@ public class Handler {
   }
 
   private static Filler<Object> createConverter(Annotation a, Type type, Parameter p) {
-    // create convert
+    // create convertToSimpleType
     Class<? extends Annotation> aType = a.annotationType();
     String pName = p.getName();
     if (PathVariable.class.isAssignableFrom(aType)) {

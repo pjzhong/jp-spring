@@ -1,4 +1,4 @@
-package jp.spring.http;
+package jp.spring.mvc.handler;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -8,12 +8,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import jp.spring.mvc.handler.Router;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class RequestRouterTest {
+public class RouterTest {
 
   @Test
   public void testPathRouting() {
@@ -108,11 +107,12 @@ public class RequestRouterTest {
     );
 
     Method m = this.getClass().getMethod("a", Integer.class);
-    for(Parameter p : m.getParameters()) {
+    for (Parameter p : m.getParameters()) {
       System.out.println(wrapper.contains(p.getType()));
     }
   }
 
-  public void a(Integer i) {}
+  public void a(Integer i) {
+  }
 
 }

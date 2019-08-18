@@ -5,5 +5,5 @@ package jp.spring.aop;
  */
 public interface ClassFilter {
 
-    boolean match(Class<?> cls);
+  boolean match(Class<?> cls);
 }

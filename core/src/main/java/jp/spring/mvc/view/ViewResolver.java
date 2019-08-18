@@ -5,9 +5,9 @@ package jp.spring.mvc.view;
  */
 public interface ViewResolver {
 
-    String RESOLVER_NAME = ViewResolver.class + ".root";
+  String RESOLVER_NAME = ViewResolver.class + ".root";
 
-    String DEFAULT_ENCODING = "utf-8";
+  String DEFAULT_ENCODING = "utf-8";
 
-    void toPage(String path) throws Exception;
+  void toPage(String path) throws Exception;
 }

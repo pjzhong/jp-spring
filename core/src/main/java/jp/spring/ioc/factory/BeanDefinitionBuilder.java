@@ -1,7 +1,6 @@
 package jp.spring.ioc.factory;
 
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -9,16 +8,16 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import javax.annotation.PostConstruct;
 import jp.spring.ApplicationContext;
+import jp.spring.ioc.BeansException;
 import jp.spring.ioc.factory.annotation.Autowired;
 import jp.spring.ioc.factory.annotation.Qualifier;
 import jp.spring.ioc.factory.annotation.Value;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.beans.FieldInfo;
 import jp.spring.ioc.stereotype.Component;
-import jp.spring.ioc.util.TypeUtil;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
+import jp.spring.util.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,11 +68,10 @@ public class BeanDefinitionBuilder {
       return null;
     }
 
-    // parseFields(beanClass, info);
     List<InjectField> injects = parseAutowired(beanClass, info);
     List<PropertyValue> values = parseValue(beanClass, info);
+    Method postConstruct = parsePostConstruct(beanClass, info);
 
-    // SuperClass
     Optional<ClassInfo> superOpt = info.getSuperClass().filter(ClassInfo::isScanned);
     while (superOpt.isPresent()) {
       ClassInfo superInfo = superOpt.get();
@@ -83,41 +81,18 @@ public class BeanDefinitionBuilder {
 
       superOpt = superInfo.getSuperClass().filter(ClassInfo::isScanned);
     }
-    String name = determinedName(beanClass);
-    return new BeanDefinition(name, beanClass, values, injects);
+    String name = TypeUtil.determinedName(beanClass);
+    return new BeanDefinition(name, beanClass, values, injects, postConstruct);
   }
+
 
   /**
-   * 获取户提供的名字， 没有就用是首字母字母小写的简单类名(beanClass.getSimpleName())
+   * 解析注入字段
+   *
+   * @param beanClass 目标类
+   * @param info 扫描数据
+   * @since 2019年08月18日 21:33:08
    */
-  private String determinedName(Class<?> beanClass) {
-    Annotation[] as = beanClass.getAnnotations();
-
-    String name = null;
-    for (Annotation annotation : as) {
-      Class<? extends Annotation> type = annotation.annotationType();
-      if (TypeUtil.isAnnotated(type, Component.class)) {
-        try {
-          Method method = TypeUtil.findMethod(type, "value");
-          if (method != null) {
-            method.setAccessible(true);
-            name = (String) method.invoke(annotation, ArrayUtils.EMPTY_OBJECT_ARRAY);
-          }
-          if (StringUtils.isNotBlank(name)) {
-            break;
-          }
-        } catch (Exception e) {
-          break;
-        }
-      }
-    }
-
-    if (StringUtils.isBlank(name)) {
-      name = StringUtils.uncapitalize(beanClass.getSimpleName());
-    }
-    return name;
-  }
-
   private List<InjectField> parseAutowired(Class<?> beanClass, ClassInfo info)
       throws NoSuchFieldException {
 
@@ -140,7 +115,13 @@ public class BeanDefinitionBuilder {
     return injects;
   }
 
-
+  /**
+   * 解析配置注入
+   *
+   * @param beanClass 目标类
+   * @param info 扫描数据
+   * @since 2019年08月18日 21:32:33
+   */
   private List<PropertyValue> parseValue(Class<?> beanClass, ClassInfo info)
       throws NoSuchFieldException {
 
@@ -156,4 +137,36 @@ public class BeanDefinitionBuilder {
     return values;
   }
 
+  private Method parsePostConstruct(Class<?> beanClass, ClassInfo info) {
+    if (beanClass == null || beanClass == Object.class) {
+      return null;
+    }
+
+    Method[] methods = beanClass.getMethods();
+    List<Method> target = new ArrayList<>();
+    for (Method m : methods) {
+      if (TypeUtil.isAnnotated(m, PostConstruct.class)) {
+        target.add(m);
+      }
+    }
+
+    if (target.isEmpty()) {
+      Class<?> superClazz = beanClass.getSuperclass();
+      return parsePostConstruct(superClazz, info);
+    } else {
+      if (1 < target.size()) {
+        throw new BeansException(
+            "postConstruct method has more than one in " + info.getClassName());
+      }
+
+      Method method = target.get(0);
+      if (0 < method.getParameters().length) {
+        throw new BeansException(
+            "postConstruct method should has zero parameter in " + info.getClassName());
+      }
+      method.setAccessible(true);
+      return method;
+    }
+
+  }
 }

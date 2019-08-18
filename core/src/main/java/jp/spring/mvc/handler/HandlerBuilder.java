@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 import jp.spring.ioc.factory.DefaultBeanFactory;
 import jp.spring.mvc.annotation.Controller;
-import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.RequestMapping;
 import jp.spring.mvc.annotation.RequestMethod;
 import jp.spring.mvc.interceptor.InterceptMatch;
+import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.ObjectUtils;
 
 class HandlerBuilder {

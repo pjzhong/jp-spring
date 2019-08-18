@@ -6,11 +6,11 @@ import jp.spring.ioc.stereotype.Service;
 @Service
 public class AImpl implements A {
 
-    @Autowired
-    B b;
+  @Autowired
+  B b;
 
-    @Override
-    public B getB() {
-        return b;
-    }
+  @Override
+  public B getB() {
+    return b;
+  }
 }

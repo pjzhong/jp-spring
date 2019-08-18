@@ -6,39 +6,41 @@ import jp.spring.ioc.factory.annotation.Value;
  * Created by Administrator on 2/12/2017.
  */
 public abstract class AbstractViewResolver implements ViewResolver {
-    @Value(value = "page.folder", required = true)
-    private String folder = "/";
 
-    @Value(value = "page.extension", required = true)
-    private String extension = ".jsp";
+  @Value(value = "page.folder", required = true)
+  private String folder = "/";
 
-    public String getPagePath(String pagePath) {
-        return getFolder() + (pagePath.startsWith("/") ? pagePath.substring(1): pagePath) + getExtension();
+  @Value(value = "page.extension", required = true)
+  private String extension = ".jsp";
+
+  public String getPagePath(String pagePath) {
+    return getFolder() + (pagePath.startsWith("/") ? pagePath.substring(1) : pagePath)
+        + getExtension();
+  }
+
+  public String getFolder() {
+    return folder;
+  }
+
+  public void setFolder(String folder) {
+    if (!folder.endsWith("/")) {
+      folder = folder + "/";
     }
 
-    public String getFolder() {
-        return folder;
+    if (!folder.startsWith("/")) {
+      folder = "/" + folder;
     }
+    this.folder = folder;
+  }
 
-    public void setFolder(String folder) {
-        if(!folder.endsWith("/")) {
-            folder = folder + "/";
-        }
+  public String getExtension() {
+    return extension;
+  }
 
-        if(!folder.startsWith("/")) {
-            folder = "/" + folder;
-        }
-        this.folder = folder;
+  public void setExtension(String extension) {
+    if (!extension.startsWith(".")) {
+      extension = "." + extension;
     }
-
-    public String getExtension() {
-        return extension;
-    }
-
-    public void setExtension(String extension) {
-        if(!extension.startsWith(".")) {
-            extension = "." + extension;
-        }
-        this.extension = extension;
-    }
+    this.extension = extension;
+  }
 }

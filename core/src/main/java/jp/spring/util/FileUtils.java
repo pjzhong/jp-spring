@@ -1,18 +1,11 @@
-package jp.spring.ioc.util;
+package jp.spring.util;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
-import java.net.URLDecoder;
 import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Created by Administrator on 1/10/2017.

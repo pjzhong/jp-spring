@@ -1,15 +1,17 @@
 package jp.spring.ioc.factory;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import jp.spring.ioc.BeansException;
-import jp.spring.ioc.util.TypeUtil;
+import jp.spring.util.TypeUtil;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -22,23 +24,19 @@ import org.apache.commons.lang3.StringUtils;
  **/
 public class DefaultBeanFactory implements BeanFactory {
 
-  private Map<String, BeanDefinition> beanDefinitions = new ConcurrentHashMap<>();
+  private Map<String, BeanDefinition> definitions = new ConcurrentHashMap<>();
+  private Map<String, Object> beans = new ConcurrentHashMap<>();
 
   private List<BeanPostProcessor> beanPostProcessors = Collections.emptyList();
 
   private Properties properties = new Properties();
 
   public DefaultBeanFactory() {
-
   }
 
   public void refresh() {
     try {
-      //TODO register known dependency, like factory and application context
-      // let application context do this job
-      Class<?> clazz = this.getClass();
-      BeanDefinition selfDef = new BeanDefinition(clazz, this);
-      registerBeanDefinition(StringUtils.uncapitalize(clazz.getSimpleName()), selfDef);
+      registerDependency(this.getClass(), this);
 
       beforeInitializeBean();
     } catch (Exception e) {
@@ -47,31 +45,124 @@ public class DefaultBeanFactory implements BeanFactory {
   }
 
   @Override
-  public void registerBeanDefinition(String name, BeanDefinition beanDefinition) {
-    if (beanDefinitions.containsKey(name)) {
-      throw new IllegalArgumentException("Bean name " + name + " must be unique");
+  public void registerBeanDefinition(BeanDefinition definition) {
+    boolean dup = definitions.putIfAbsent(definition.getName(), definition) != null;
+    if (dup) {
+      throw new IllegalArgumentException("Bean name " + definition.getName() + " must be unique");
     }
-    beanDefinitions.put(name, beanDefinition);
   }
 
   @Override
   public Object getBean(String name) {
-    BeanDefinition beanDefinition = beanDefinitions.get(name);
-    if (beanDefinition == null) {
+    if (StringUtils.isBlank(name)) {
+      throw new BeansException("Bean Name Can't not be blank");
+    }
+
+    Object res = beans.get(name);
+    if (res != null) {
+      return res;
+    }
+
+    BeanDefinition definition = definitions.get(name);
+    if (definition == null) {
       throw new IllegalArgumentException("No bean named " + name + " is defined");
     }
-    Object bean = beanDefinition.getBean();
-    if (bean == null) {
-      bean = doCreateBean(beanDefinition);
-      bean = afterInitializeBean(bean, name);
-      beanDefinition.setBean(bean);
+    res = definition.getBean();
+    if (res == null) {
+      synchronized (definition) {
+        Object bean = doCreateBean(definition);
+        bean = afterInitializeBean(bean, name);
+        res = bean;
+      }
     }
-    return beanDefinition.getBean();
+    return res;
   }
 
   @Override
   public <T> T getBean(Class<T> requiredType) {
     throw new UnsupportedOperationException();
+  }
+
+  private Object doCreateBean(BeanDefinition definition) {
+    Object bean = null;
+    try {
+      bean = definition.getClazz().newInstance();
+      //TODO IT SOLVED CIRCLE DEPENDENCY, But Also public not-full-construct object to outside
+      beans.put(definition.getName(), bean);
+
+      resolveDependency(bean, definition);
+      injectPropertyValue(bean, definition);
+      postConstruct(bean, definition);
+    } catch (Exception e) {
+      throw new BeansException(e);
+    }
+    return bean;
+  }
+
+  private void resolveDependency(Object bean, BeanDefinition beanDefinition) throws Exception {
+    /* 两种情况:
+     * 1.没有@Qualifier, 那么根据类型来获取注入对象。多个取第一个
+     * 2.用户添加了@Qualifier, 使用@Qualifier的值来获取注入对象
+     */
+
+    for (InjectField injectField : beanDefinition.getInjectFields()) {
+      Object value = null;
+      if (StringUtils.isNotBlank(injectField.getQualifier())) {
+        value = getBean(injectField.getQualifier());
+      } else {
+        Class<?> type = injectField.getType();
+        String name = definitions.values().stream()
+            .filter(def -> type.isAssignableFrom(def.getClazz()))
+            .map(BeanDefinition::getName)
+            .findFirst().orElse(null);
+        if (StringUtils.isNotBlank(name)) {
+          value = getBean(name);
+        }
+      }
+
+      if (value == null && injectField.isRequired()) {
+        throw new BeansException(String
+            .format("Inject %s to %s failed", injectField.getType(),
+                beanDefinition.getClazz()));
+      }
+
+      injectField.inject(bean, value);
+    }
+  }
+
+  /**
+   * Handle value annotation
+   *
+   * @param bean the object
+   * @param definition the object configuration
+   * @since 2019年06月16日 14:35:57
+   */
+  private void injectPropertyValue(Object bean, BeanDefinition definition) throws Exception {
+
+    for (PropertyValue propertyValue : definition.getPropertyValues()) {
+      Object value = null;
+      String strValue = getProperties().getProperty(propertyValue.getName());
+      if ((strValue != null) && TypeUtil.isSimpleType(propertyValue.getField().getType())) {
+        value = TypeUtil.convertToSimpleType(strValue, propertyValue.getField().getType());
+      }
+
+      if (value == null && propertyValue.isRequired()) {
+        throw new BeansException(String.format("Inject %s to %s failed", propertyValue.getName(),
+            definition.getClassName()));
+      }
+
+      if (value != null) {
+        propertyValue.inject(bean, value);
+      }
+    }
+  }
+
+  private void postConstruct(Object bean, BeanDefinition definition)
+      throws InvocationTargetException, IllegalAccessException {
+    Method post = definition.getPost();
+    if (post != null) {
+      post.invoke(bean, ArrayUtils.EMPTY_OBJECT_ARRAY);
+    }
   }
 
   @Override
@@ -81,7 +172,13 @@ public class DefaultBeanFactory implements BeanFactory {
 
   @Override
   public void registerDependency(Class<?> dependencyType, Object autowiredValue) {
-    throw new UnsupportedOperationException();
+    String name = StringUtils.uncapitalize(dependencyType.getSimpleName());
+    boolean dup = beans.putIfAbsent(name, autowiredValue) != null;
+    if (dup) {
+      throw new IllegalArgumentException("Bean name " + name + " must be unique");
+    }
+    BeanDefinition definition = new BeanDefinition(name, dependencyType, autowiredValue);
+    definitions.put(definition.getName(), definition);
   }
 
   @Deprecated
@@ -104,41 +201,26 @@ public class DefaultBeanFactory implements BeanFactory {
 
   //various getters
   public Class<?> getType(String name) {
-    BeanDefinition definition = beanDefinitions.get(name);
+    BeanDefinition definition = definitions.get(name);
     return definition != null ? definition.getClazz() : null;
   }
 
   public <A> List<A> getBeansByType(Class<A> type) {
-    List<A> beans = new ArrayList<>();
-    for (String beanDefinitionName : beanDefinitions.keySet()) {
-      if (type.isAssignableFrom(beanDefinitions.get(beanDefinitionName).getClazz())) {
-        beans.add((A) getBean(beanDefinitionName));
+    List<Object> beans = new ArrayList<>();
+    for (BeanDefinition definition : definitions.values()) {
+      if (type.isAssignableFrom(definition.getClazz())) {
+        beans.add(getBean(definition.getName()));
       }
     }
 
-    return beans;
-  }
-
-  private List<String> getBeanNamesForType(Class<?> targetType) {
-    List<String> result = new ArrayList<>();
-
-    boolean matchFound;
-    for (String beanName : beanDefinitions.keySet()) {
-      BeanDefinition beanDefinition = beanDefinitions.get(beanName);
-      matchFound = targetType.isAssignableFrom(beanDefinition.getClazz());
-      if (matchFound) {
-        result.add(beanName);
-      }
-    }
-
-    return result;
+    return (List<A>) beans;
   }
 
   public List<String> getBeanNamByAnnotation(Class<? extends Annotation> annotation) {
     List<String> result = new ArrayList<>();
     BeanDefinition beanDefinition;
-    for (String beanName : beanDefinitions.keySet()) {
-      beanDefinition = beanDefinitions.get(beanName);
+    for (String beanName : definitions.keySet()) {
+      beanDefinition = definitions.get(beanName);
       if (TypeUtil.isAnnotated(beanDefinition.getClazz(), annotation)) {
         result.add(beanName);
       }
@@ -149,77 +231,5 @@ public class DefaultBeanFactory implements BeanFactory {
 
   public Properties getProperties() {
     return properties;
-  }
-
-  private Object doCreateBean(BeanDefinition beanDefinition) {
-    Object bean = null;
-    try {
-      bean = createBeanInstance(beanDefinition);
-      beanDefinition.setBean(bean);
-      resolveDependency(bean, beanDefinition);
-      injectPropertyValue(bean, beanDefinition);
-    } catch (Exception e) {
-      e.printStackTrace();
-    }
-    return bean;
-  }
-
-  private Object createBeanInstance(BeanDefinition beanDefinition) throws Exception {
-    return beanDefinition.getClazz().newInstance();
-  }
-
-  private void resolveDependency(Object bean, BeanDefinition beanDefinition) throws Exception {
-    /* 两种情况:
-     * 1.没有@Qualifier, 那么根据类型来获取注入对象。多个取第一个
-     * 2.用户添加了@Qualifier, 使用@Qualifier的值来获取注入对象
-     */
-
-    for (InjectField injectField : beanDefinition.getInjectFields()) {
-      Object value;
-      if (StringUtils.isBlank(injectField.getQualifier())) {
-        Map<String, Object> matchingBeans = findAutowireCandidates(
-            injectField.getType());
-        value = matchingBeans.entrySet().iterator().next().getValue();
-      } else {
-        value = getBean(injectField.getQualifier());
-      }
-
-      if (value == null && injectField.isRequired()) {
-        throw new BeansException(String
-            .format("Inject %s to %s failed", injectField.getType(),
-                beanDefinition.getClazz()));
-      }
-
-      injectField.inject(bean, value);
-    }
-  }
-
-  private void injectPropertyValue(Object bean, BeanDefinition beanDefinition) throws Exception {
-
-    for (PropertyValue propertyValue : beanDefinition.getPropertyValues()) {
-      Object value = null;
-      String strValue = getProperties().getProperty(propertyValue.getName());
-      if ((strValue != null) && TypeUtil.isSimpleType(propertyValue.getField().getType())) {
-        value = TypeUtil.convert(strValue, propertyValue.getField().getType());
-      }
-
-      if (value == null && propertyValue.isRequired()) {
-        throw new BeansException(String.format("Inject %s to %s failed", propertyValue.getName(),
-            beanDefinition.getClassName()));
-      }
-
-      if (value != null) {
-        propertyValue.inject(bean, value);
-      }
-    }
-  }
-
-  private Map<String, Object> findAutowireCandidates(Class<?> requiredType) {
-    List<String> candidateNames = getBeanNamesForType(requiredType);
-    Map<String, Object> result = new LinkedHashMap<>(candidateNames.size());
-    for (String candidateName : candidateNames) {
-      result.put(candidateName, getBean(candidateName));
-    }
-    return result;
   }
 }

@@ -7,5 +7,5 @@ import jp.spring.aop.support.ProxyChain;
  */
 public interface Proxy {
 
-    void doProxy(ProxyChain proxyChain);
+  void doProxy(ProxyChain proxyChain);
 }

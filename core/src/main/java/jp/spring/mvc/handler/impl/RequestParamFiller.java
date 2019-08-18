@@ -11,10 +11,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import jp.spring.ioc.util.TypeUtil;
 import jp.spring.mvc.annotation.RequestParam;
 import jp.spring.mvc.handler.Filler;
 import jp.spring.mvc.handler.HandlerArgResolver;
+import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
@@ -52,7 +52,7 @@ public class RequestParamFiller implements Filler<Object> {
 
     Class<?> rawType = TypeUtil.getRawClass(type);
     if (TypeUtil.isSimpleType(rawType)) {
-      return TypeUtil.convert(values.isEmpty() ? "" : values.get(0), rawType);
+      return TypeUtil.convertToSimpleType(values.isEmpty() ? "" : values.get(0), rawType);
     } else if (rawType.isArray()) {
       return apply(values, rawType);
     } else {
@@ -70,7 +70,7 @@ public class RequestParamFiller implements Filler<Object> {
     Object result = Array.newInstance(compType, strings.size());
 
     for (int i = 0, size = strings.size(); i < size; i++) {
-      Array.set(result, i, TypeUtil.convert(strings.get(i), compType));
+      Array.set(result, i, TypeUtil.convertToSimpleType(strings.get(i), compType));
     }
     return result;
   }
@@ -113,7 +113,7 @@ public class RequestParamFiller implements Filler<Object> {
     }
 
     for (int i = 0, size = strings.size(); i < size; i++) {
-      collection.add(TypeUtil.convert(strings.get(i), elementType));
+      collection.add(TypeUtil.convertToSimpleType(strings.get(i), elementType));
     }
 
     return collection;

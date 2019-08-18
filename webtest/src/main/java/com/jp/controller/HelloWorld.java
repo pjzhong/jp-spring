@@ -8,9 +8,12 @@ import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.util.CharsetUtil;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
+import javax.annotation.PostConstruct;
 import jp.spring.ioc.factory.annotation.Autowired;
 import jp.spring.ioc.factory.annotation.Value;
 import jp.spring.mvc.annotation.Controller;
@@ -30,6 +33,8 @@ public class HelloWorld {
   @Value(value = "package.scan")
   private String scan;
 
+  private List<String> server = Collections.emptyList();
+
   @RequestMapping(value = {"/hello/{someone}", "/hi/{someone}"}, method = {RequestMethod.GET,
       RequestMethod.POST})
   @ResponseBody
@@ -42,6 +47,7 @@ public class HelloWorld {
     map.put("a", age);
     map.put("scan", scan);
     map.put("echo", output.output("echo"));
+    map.put("server", server);
     return map;
   }
 
@@ -100,4 +106,9 @@ public class HelloWorld {
     throw new UnsupportedOperationException("should be intercepted");
   }
 
+
+  @PostConstruct
+  public void postConstruct() {
+    server = Collections.singletonList("ZJP");
+  }
 }
