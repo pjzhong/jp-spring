@@ -181,41 +181,6 @@ class ClassFileBinaryParser {
             infoBuilder.addFieldAnnotation(info);
             fieldBuilder.addAnnotationNames(info);
           }
-          //case "ConstantValue": {
-          //  final int valueIndex = stream.readUnsignedShort();
-          //  Object constantValue;
-          //  final char firstChar = descriptor.charAt(0);
-          //  switch (firstChar) {
-          //    case 'B':
-          //      constantValue = ((Integer) constantPool[valueIndex]).byteValue();
-          //      break;
-          //    case 'C':
-          //      constantValue = ((char) ((Integer) constantPool[valueIndex]).intValue());
-          //      break;
-          //    case 'S':
-          //      constantValue = ((Integer) constantPool[valueIndex]).shortValue();
-          //      break;
-          //    case 'Z':
-          //      constantValue = ((Integer) constantPool[valueIndex]) != 0;
-          //      break;
-          //    case 'I':
-          //    case 'J':
-          //    case 'F'://Integer, Long, Float, Double already in correct type
-          //    case 'D':
-          //      constantValue = constantPool[valueIndex];
-          //      break;
-          //    default: {
-          //      if (descriptor.equals("Ljava/lang/String;")) {
-          //        constantValue = constantPool[(int) constantPool[valueIndex]];
-          //      } else {
-          //        throw new RuntimeException("unknown Constant type:" + descriptor);
-          //      }
-          //    }
-          //    break;
-          //  }
-          //  fieldBuilder.setConstantValue(constantValue);
-          //}
-          //break;
         } else {
           stream.skipBytes(attributeLength);
         }
@@ -275,11 +240,7 @@ class ClassFileBinaryParser {
 
     // SKIP ANNOTATION VALUE
     int size = stream.readUnsignedShort();
-    // Map<String, ParamValue> values = new HashMap<>();
     for (int i = 0; i < size; i++) {
-      //String elementName = readRefString(stream, constantPool);//element_name_index
-      //Object value = parseElementValue(stream, constantPool);
-      //values.put(elementName, new ParamValue(elementName, value));
       stream.skipBytes(Short.BYTES);//element_name_index
       skipElementValue(stream, constantPool);
     }
@@ -321,50 +282,6 @@ class ClassFileBinaryParser {
       default:
         throw new RuntimeException("Unknown annotation elementValue type " + tag);
     }
-
-    // switch (tag) {
-    //   case 'B':
-    //     return ((Integer) constantPool[stream.readUnsignedShort()]).byteValue();
-    //   case 'C':
-    //     return (char) ((Integer) constantPool[stream.readUnsignedShort()]).intValue();
-    //   case 'S':
-    //     return ((Integer) constantPool[stream.readUnsignedShort()]).shortValue();
-    //   case 'Z':
-    //     return ((Integer) constantPool[stream.readUnsignedShort()]) != 0;
-    //   case 'I'://int
-    //   case 'J'://long
-    //   case 'D'://double
-    //   case 'F'://float
-    //   case 's'://string
-    //     return constantPool[stream.readUnsignedShort()];//Already in correct type;
-    //   case '@'://Complex(nested) annotation
-    //     return readAnnotation(stream, constantPool);
-    //   case '[': {//array_value
-    //     final int count = stream.readUnsignedShort();
-    //     Object[] values = new Object[count];
-    //     for (int i = 0; i < count; i++) {
-    //       //Nested annotation element value
-    //       values[i] = parseElementValue(stream, constantPool);
-    //     }
-    //     return values;
-    //   }
-    //   case 'c': { //class_info_index
-    //     String typeDescriptor = readRefString(stream, constantPool);
-    //     return new classRef(typeDescriptor);
-    //   }
-    //   case 'e': {//enum_constant_index
-    //     final String typeDescriptor = readRefString(stream, constantPool);
-    //     final String fieldName = readRefString(stream, constantPool);
-    //     List<String> type = ReflectionUtils.parseTypeDescriptor(typeDescriptor);
-    //     if (type.isEmpty() || type.size() > 1) {
-    //       throw new RuntimeException(
-    //           "Illegal element_value enum_constant_index: " + typeDescriptor);
-    //     }
-    //     return new enumRef(/*className*/type.get(0), fieldName);
-    //   }
-    //   default:
-    //     throw new RuntimeException("Unknown annotation elementValue type" + tag);
-    // }
   }
 
   private String readRefString(final DataInputStream input, final Object[] constantPool)
