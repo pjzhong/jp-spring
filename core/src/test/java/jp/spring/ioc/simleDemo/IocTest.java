@@ -1,13 +1,14 @@
 package jp.spring.ioc.simleDemo;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import jp.spring.ApplicationContext;
 import jp.spring.DefaultApplicationContext;
 import jp.spring.ioc.simleDemo.service.TestService;
 import jp.spring.ioc.simleDemo.service.TestServiceImple;
 import jp.spring.util.TypeUtil;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
 
 public class IocTest {
 

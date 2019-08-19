@@ -22,17 +22,11 @@ import org.apache.commons.lang3.reflect.TypeUtils;
 
 public class RequestParamFiller implements Filler<Object> {
 
-  /**
-   * 参数标记
-   */
+  /** 参数标记 */
   private RequestParam reqParam;
-  /**
-   * 类型
-   */
+  /** 类型 */
   private Type type;
-  /**
-   * 参数名
-   */
+  /** 参数名 */
   private String name;
 
   private RequestParamFiller(RequestParam q, String name, Type type) {

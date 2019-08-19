@@ -2,16 +2,17 @@ package jp.spring.util;
 
 import static jp.spring.util.TypeUtil.convertToSimpleType;
 import static jp.spring.util.TypeUtil.isSimpleType;
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class TypeUtilConvertTest {
 
@@ -121,13 +122,13 @@ public class TypeUtilConvertTest {
     assertThat(null, is(convertToSimpleType(null, Double.class)));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void convertToNotSimpleType() {
-    convertToSimpleType("1", List.class);
+    assertThrows(IllegalArgumentException.class, () -> convertToSimpleType("1", List.class));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test
   public void convertToNull() {
-    convertToSimpleType("1", null);
+    assertThrows(IllegalArgumentException.class, () -> convertToSimpleType("1", null));
   }
 }
