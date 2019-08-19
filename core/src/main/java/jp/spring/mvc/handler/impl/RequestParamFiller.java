@@ -54,14 +54,14 @@ public class RequestParamFiller implements Filler<Object> {
     if (TypeUtil.isSimpleType(rawType)) {
       return TypeUtil.convertToSimpleType(values.isEmpty() ? "" : values.get(0), rawType);
     } else if (rawType.isArray()) {
-      return apply(values, rawType);
+      return convertToArray(values, rawType);
     } else {
-      return apply(values, type);
+      return convertToCollection(values, type);
     }
   }
 
 
-  private Object apply(List<String> strings, Class<?> array) {
+  private Object convertToArray(List<String> strings, Class<?> array) {
     Class<?> compType = (Class<?>) TypeUtils.getArrayComponentType(array);
     if (!TypeUtil.isSimpleType(compType)) {
       return null;
@@ -76,7 +76,7 @@ public class RequestParamFiller implements Filler<Object> {
   }
 
 
-  public Object apply(List<String> strings, Type type) {
+  public Object convertToCollection(List<String> strings, Type type) {
     Class<?> rawType = TypeUtil.getRawClass(type);
     if (!TypeUtils.isAssignable(type, Collection.class)) {
       return null;

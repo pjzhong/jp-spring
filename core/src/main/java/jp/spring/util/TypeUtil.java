@@ -103,15 +103,24 @@ public class TypeUtil {
         String.format("converted [%s] to %s failed", value, target), exception);
   }
 
-  public static <A extends Annotation> boolean isAnnotated(AnnotatedElement method,
-      Class<A> annotate) {
-    if (method.getAnnotation(annotate) != null) {
+
+  /**
+   * check the given {@code element} is annotated with the given {$code annotation}
+   *
+   * @param element the class to query
+   * @param annotation the annotation need to find
+   * @return true if the given {@code element} is annotated with the given @{code annotation}
+   * @since 2019年08月19日 09:26:51
+   */
+  public static <A extends Annotation> boolean isAnnotated(AnnotatedElement element,
+      Class<A> annotation) {
+    if (element.getAnnotation(annotation) != null) {
       return true;
     }
 
-    Annotation[] annotations = method.getAnnotations();
-    for (Annotation annotation : annotations) {
-      if (annotation.annotationType().getAnnotation(annotate) != null) {
+    Annotation[] annotations = element.getAnnotations();
+    for (Annotation a : annotations) {
+      if (a.annotationType().getAnnotation(annotation) != null) {
         return true;
       }
     }
