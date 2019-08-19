@@ -28,7 +28,7 @@
       <scope>test</scope>
     </dependency>
 
-    <!-- WEB -->
+    <!-- netty -->
     <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-buffer</artifactId>
@@ -54,20 +54,6 @@
       <artifactId>netty-codec</artifactId>
     </dependency>
 
-    <dependency>
-      <groupId>javax.servlet</groupId>
-      <artifactId>javax.servlet-api</artifactId>
-      <version>${servler.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.freemarker</groupId>
-      <artifactId>freemarker</artifactId>
-      <version>2.3.20</version>
-      <scope>provided</scope>
-    </dependency>
-
     <!-- AOP -->
     <dependency>
       <groupId>cglib</groupId>
@@ -83,7 +69,6 @@
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <servler.version>3.1.0</servler.version>
     <score>1.8</score>
   </properties>
 
