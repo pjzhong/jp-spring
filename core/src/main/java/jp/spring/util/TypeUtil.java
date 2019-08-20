@@ -118,14 +118,39 @@ public class TypeUtil {
       return true;
     }
 
-    Annotation[] annotations = element.getAnnotations();
-    for (Annotation a : annotations) {
+    for (Annotation a : element.getAnnotations()) {
       if (a.annotationType().getAnnotation(annotation) != null) {
         return true;
       }
     }
 
     return false;
+  }
+
+  /**
+   * Get a single {@link Annotation} of {@code annotationType} from the supplied {@link
+   * AnnotatedElement}, where the annotation is either <em>present</em> or
+   * <em>meta-present</em> on the {@code AnnotatedElement}.
+   * <p>Note that this method supports only a single level of meta-annotations.
+   *
+   * @param annotatedElement the {@code AnnotatedElement} from which to get the annotation
+   * @param annotationType the annotation type to look for, both locally and as a meta-annotation
+   * @return the first matching annotation, or {@code null} if not found
+   * @since 3.1
+   */
+  public static <A extends Annotation> A getAnnotation(AnnotatedElement annotatedElement,
+      Class<A> annotationType) {
+    A annotation = annotatedElement.getAnnotation(annotationType);
+    if (annotation == null) {
+      for (Annotation metaAnn : annotatedElement.getAnnotations()) {
+        annotation = metaAnn.annotationType().getAnnotation(annotationType);
+        if (annotation != null) {
+          break;
+        }
+      }
+    }
+    return annotation;
+
   }
 
   /**
