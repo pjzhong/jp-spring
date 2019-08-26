@@ -4,7 +4,7 @@ import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import jp.spring.ioc.stereotype.Component;
+import jp.spring.ioc.annotation.Component;
 
 /**
  * Created by Administrator on 1/19/2017.

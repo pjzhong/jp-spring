@@ -14,7 +14,7 @@ import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.scan.ScanConfig;
 import jp.spring.ioc.scan.scan.ScanResult;
 import jp.spring.ioc.scan.scan.Scanner;
-import jp.spring.ioc.stereotype.Component;
+import jp.spring.ioc.annotation.Component;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

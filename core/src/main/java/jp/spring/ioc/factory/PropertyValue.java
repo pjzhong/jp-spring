@@ -2,7 +2,7 @@ package jp.spring.ioc.factory;
 
 import java.lang.reflect.Field;
 import java.util.Objects;
-import jp.spring.ioc.factory.annotation.Value;
+import jp.spring.ioc.annotation.Value;
 import org.apache.commons.lang3.StringUtils;
 
 /**

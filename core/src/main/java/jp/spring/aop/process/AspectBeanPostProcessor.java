@@ -10,8 +10,8 @@ import jp.spring.aop.impl.ExecutionAspectProxy;
 import jp.spring.ioc.factory.BeanDefinition;
 import jp.spring.ioc.factory.BeanPostProcessor;
 import jp.spring.ioc.factory.DefaultBeanFactory;
-import jp.spring.ioc.factory.annotation.Autowired;
-import jp.spring.ioc.stereotype.Component;
+import jp.spring.ioc.annotation.Autowired;
+import jp.spring.ioc.annotation.Component;
 import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.ObjectUtils;
 

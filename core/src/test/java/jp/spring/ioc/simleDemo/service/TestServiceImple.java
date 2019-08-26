@@ -1,6 +1,6 @@
 package jp.spring.ioc.simleDemo.service;
 
-import jp.spring.ioc.stereotype.Component;
+import jp.spring.ioc.annotation.Component;
 
 @Component()
 public class TestServiceImple implements TestService {

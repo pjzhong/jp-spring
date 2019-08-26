@@ -2,8 +2,8 @@ package jp.spring.ioc.cycle;
 
 import jp.spring.ioc.cycle.service.A;
 import jp.spring.ioc.cycle.service.B;
-import jp.spring.ioc.factory.annotation.Autowired;
-import jp.spring.ioc.stereotype.Component;
+import jp.spring.ioc.annotation.Autowired;
+import jp.spring.ioc.annotation.Component;
 
 @Component
 public class Both {

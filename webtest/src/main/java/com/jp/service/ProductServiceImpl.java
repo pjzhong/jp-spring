@@ -1,12 +1,10 @@
 package com.jp.service;
 
 import com.jp.Model.Product;
-import jp.spring.ioc.stereotype.Service;
+import jp.spring.ioc.annotation.Service;
 
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by Administrator on 1/17/2017.

@@ -1,6 +1,6 @@
 package com.jp.service;
 
-import jp.spring.ioc.stereotype.Service;
+import jp.spring.ioc.annotation.Service;
 
 /**
  * Created by Administrator on 1/12/2017.
