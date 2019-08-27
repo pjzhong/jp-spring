@@ -1,10 +1,11 @@
 package jp.spring.ioc.scan.beans;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * 类关系图
@@ -14,18 +15,41 @@ import java.util.Set;
  **/
 public class ClassGraph {
 
-  private final Map<String, ClassInfo> classBeans;
+  private Map<String, ClassInfo> clazzs;
 
-  public static ClassGraphBuilder builder(Collection<ClassInfoBuilder> builders) {
-    return new ClassGraphBuilder(builders);
+  public static ClassGraph build() {
+    return build(Collections.emptySet());
   }
 
-  ClassGraph(Map<String, ClassInfo> infoMap) {
-    this.classBeans = infoMap;
+  public static ClassGraph build(Iterable<ClassData> builders) {
+    return new ClassGraph(builders);
+  }
+
+  private ClassGraph(Iterable<ClassData> builders) {
+    clazzs = new ConcurrentHashMap<>();
+    builders.forEach(this::addScannedClass);
+  }
+
+  private ClassInfo addScannedClass(ClassData builder) {
+    ClassInfo classInfo = clazzs.computeIfAbsent(builder.getName(), ClassInfo::new);
+    if (StringUtils.isNotBlank(builder.getSuperclassName())) {
+      classInfo.addSuperclass(classInfo(builder.getSuperclassName()));
+    }
+
+    builder.getImplemented().forEach(i -> classInfo.addImplemented(classInfo(i)));
+    builder.getAnnotations().forEach(a -> classInfo.addAnnotation(classInfo(a)));
+
+    classInfo.scanned = true;
+    classInfo.accessFlag = builder.getAccessFlag();
+    return classInfo;
+  }
+
+  private ClassInfo classInfo(String className) {
+    return clazzs.computeIfAbsent(className, ClassInfo::new);
   }
 
   public Set<ClassInfo> getInfoWithAnnotation(Class<?> targetAnnotation) {
-    final ClassInfo info = classBeans.get(targetAnnotation.getName());
+    final ClassInfo info = clazzs.get(targetAnnotation.getName());
 
     return Optional.ofNullable(info)
         .map(ClassInfo::getClassesWithAnnotation)

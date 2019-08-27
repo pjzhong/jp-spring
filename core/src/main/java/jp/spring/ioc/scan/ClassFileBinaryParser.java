@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import jp.spring.ioc.scan.beans.ClassData;
 import jp.spring.ioc.scan.beans.ClassInfo;
-import jp.spring.ioc.scan.beans.ClassInfoBuilder;
 import jp.spring.ioc.scan.utils.ReflectionUtils;
 
 public class ClassFileBinaryParser {
@@ -21,7 +21,7 @@ public class ClassFileBinaryParser {
     internStringMap = new ConcurrentHashMap<>();
   }
 
-  ClassInfoBuilder parse(InputStream inputStream) throws IOException {
+  ClassData parse(InputStream inputStream) throws IOException {
     try {
       final DataInputStream stream = new DataInputStream(new BufferedInputStream(inputStream));
 
@@ -101,7 +101,7 @@ public class ClassFileBinaryParser {
     }
   }
 
-  private ClassInfoBuilder parse(Object[] constantPool, DataInputStream stream)
+  private ClassData parse(Object[] constantPool, DataInputStream stream)
       throws IOException {
 
     //Access flags
@@ -118,7 +118,7 @@ public class ClassFileBinaryParser {
     }
 
     final String superclassName = intern(readRefString(stream, constantPool));
-    final ClassInfoBuilder infoBuilder = ClassInfo.builder(className, accFlag);
+    final ClassData infoBuilder = ClassInfo.data(className, accFlag);
     infoBuilder.addSuperclass(superclassName);
 
     //Interfaces

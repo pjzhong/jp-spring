@@ -12,7 +12,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import jp.spring.ioc.scan.beans.ClassInfoBuilder;
+import jp.spring.ioc.scan.beans.ClassData;
 import jp.spring.ioc.scan.utils.ScanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,11 +80,11 @@ public class ClasspathElementZip implements ClasspathElement {
     ReadResult res = new ReadResult();
 
     // class
-    List<ClassInfoBuilder> builders = new ArrayList<>();
+    List<ClassData> builders = new ArrayList<>();
     for (ZipEntry ze : zips.values()) {
       try {
         InputStream stream = zipFile.getInputStream(ze);
-        ClassInfoBuilder b = parser.parse(stream);
+        ClassData b = parser.parse(stream);
         if (b != null) {
           builders.add(b);
         } else {

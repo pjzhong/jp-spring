@@ -12,10 +12,12 @@ import java.io.InputStream;
 import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
+import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -38,7 +40,7 @@ class ClassBinaryParserTest {
   @Test
   void interfaceParseTest() throws IOException {
     InputStream stream = this.getClass().getResourceAsStream("ExampleInterface.class");
-    ClassInfo info = parser.parse(stream).build(new HashMap<>());
+    ClassInfo info = ClassGraph.build(Collections.singleton(parser.parse(stream)));
 
     assertFalse(info.isStandardClass());
     assertFalse(info.isAnnotation());

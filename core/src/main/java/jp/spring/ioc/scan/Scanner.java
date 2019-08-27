@@ -8,7 +8,7 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import jp.spring.ioc.scan.beans.ClassGraph;
-import jp.spring.ioc.scan.beans.ClassInfoBuilder;
+import jp.spring.ioc.scan.beans.ClassData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -52,11 +52,11 @@ public class Scanner {
 
     // build the classGraph in single-thread
     long buildStart = System.currentTimeMillis();
-    List<ClassInfoBuilder> builders = results.stream()
+    List<ClassData> builders = results.stream()
         .map(ReadResult::getBuilders)
         .flatMap(List::stream)
         .collect(Collectors.toList());
-    ClassGraph classGraph = ClassGraph.builder(builders).build();
+    ClassGraph classGraph = ClassGraph.build(builders);
     logger.info("buildGraph cost:{}", System.currentTimeMillis() - buildStart);
 
     Properties properties = new Properties();

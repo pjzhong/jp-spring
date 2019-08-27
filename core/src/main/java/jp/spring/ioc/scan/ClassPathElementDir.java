@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
-import jp.spring.ioc.scan.beans.ClassInfoBuilder;
+import jp.spring.ioc.scan.beans.ClassData;
 import jp.spring.ioc.scan.utils.ScanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,12 +81,12 @@ class ClassPathElementDir implements ClasspathElement {
     ReadResult result = new ReadResult();
 
     //Scan file
-    List<ClassInfoBuilder> builders = new ArrayList<>();
+    List<ClassData> builders = new ArrayList<>();
     for (File file : files.values()) {
       try {
         InputStream stream = new FileInputStream(file);
 
-        ClassInfoBuilder b = parser.parse(stream);
+        ClassData b = parser.parse(stream);
         if (b != null) {
           builders.add(b);
         } else {

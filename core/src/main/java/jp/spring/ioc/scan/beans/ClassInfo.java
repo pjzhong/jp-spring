@@ -18,8 +18,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   private final Map<Relation, Set<ClassInfo>> relations = new HashMap<>();
   private final String name;
 
-  boolean isInterface;
-  boolean annotation;
+  int accessFlag;
   /**
    * True when a class has been scanned(i.e its classFile contents read), as opposed to only being
    * referenced by another class' classFile as a superclass/superInterface/annotation. If
@@ -29,8 +28,8 @@ public class ClassInfo implements Comparable<ClassInfo> {
    */
   boolean scanned;
 
-  public static ClassInfoBuilder builder(String className, int accessFlag) {
-    return new ClassInfoBuilder(className, accessFlag);
+  public static ClassData data(String className, int accessFlag) {
+    return new ClassData(className, accessFlag);
   }
 
   ClassInfo(String name) {
@@ -71,25 +70,19 @@ public class ClassInfo implements Comparable<ClassInfo> {
     this.related(Relation.SUPERCLASSES, superClass);
   }
 
-  void addImplementedInterface(ClassInfo inter) {
-    inter.isInterface = true;
+  void addImplemented(ClassInfo inter) {
     inter.related(Relation.CLASSES_IMPLEMENTING, this);
 
     this.related(Relation.IMPLEMENTED_INTERFACE, inter);
   }
 
   void addAnnotation(ClassInfo anno) {
-    anno.annotation = true;
     anno.related(Relation.CLASSES_ANNOTATING, this);
 
     this.related(Relation.ANNOTATIONS, anno);
   }
 
   Set<ClassInfo> getClassesWithAnnotation() {
-    if (!isAnnotation()) {
-      return Collections.emptySet();
-    }
-
     Set<ClassInfo> classWithAnnotation = getReachable(Relation.CLASSES_ANNOTATING);
 
     //Is this annotation can be inherited
@@ -128,11 +121,11 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   public boolean isInterface() {
-    return isInterface && !annotation;
+    return !isAnnotation() && ((accessFlag & 0x0200) != 0);
   }
 
   public boolean isAnnotation() {
-    return annotation;
+    return (accessFlag & 0x2000) != 0;
   }
 
   public boolean hasAnnotation(Class<? extends Annotation> clazz) {
@@ -142,7 +135,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   public boolean isStandardClass() {
-    return !(annotation || isInterface);
+    return !(isAnnotation() || isInterface());
   }
 
   @Override

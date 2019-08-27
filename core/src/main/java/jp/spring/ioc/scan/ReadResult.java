@@ -2,7 +2,7 @@ package jp.spring.ioc.scan;
 
 import java.util.List;
 import java.util.Properties;
-import jp.spring.ioc.scan.beans.ClassInfoBuilder;
+import jp.spring.ioc.scan.beans.ClassData;
 
 /**
  * 类路径读取结果
@@ -13,15 +13,15 @@ import jp.spring.ioc.scan.beans.ClassInfoBuilder;
 class ReadResult {
 
   /** 类信息构造器 */
-  private List<ClassInfoBuilder> builders;
+  private List<ClassData> builders;
   /** 配置文件信息 */
   private Properties properties;
 
-  List<ClassInfoBuilder> getBuilders() {
+  List<ClassData> getBuilders() {
     return builders;
   }
 
-  ReadResult setBuilders(List<ClassInfoBuilder> builders) {
+  ReadResult setBuilders(List<ClassData> builders) {
     this.builders = builders;
     return this;
   }
