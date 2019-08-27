@@ -11,12 +11,11 @@ import java.util.Set;
 import javax.annotation.PostConstruct;
 import jp.spring.ApplicationContext;
 import jp.spring.ioc.BeansException;
-import jp.spring.ioc.annotation.Autowired;
-import jp.spring.ioc.annotation.Qualifier;
-import jp.spring.ioc.annotation.Value;
+import jp.spring.ioc.factory.annotation.Autowired;
+import jp.spring.ioc.factory.annotation.Qualifier;
+import jp.spring.ioc.factory.annotation.Value;
 import jp.spring.ioc.scan.beans.ClassInfo;
-import jp.spring.ioc.scan.beans.FieldInfo;
-import jp.spring.ioc.annotation.Component;
+import jp.spring.ioc.stereotype.Component;
 import jp.spring.util.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -93,21 +92,19 @@ public class BeanDefinitionBuilder {
    * @param info 扫描数据
    * @since 2019年08月18日 21:33:08
    */
-  private List<InjectField> parseAutowired(Class<?> beanClass, ClassInfo info)
-      throws NoSuchFieldException {
+  private List<InjectField> parseAutowired(Class<?> beanClass, ClassInfo info) {
 
     List<InjectField> injects = new ArrayList<>();
-    for (FieldInfo f : info.getFieldInfos()) {
-      if (f.hasAnnotation(Autowired.class)) {
-        Field field = beanClass.getDeclaredField(f.getName());
-        Autowired autowired = field.getAnnotation(Autowired.class);
+    for (Field f : beanClass.getDeclaredFields()) {
+      Autowired autowired = TypeUtil.getAnnotation(f, Autowired.class);
+      if (autowired != null) {
         String qualifier = null;
-        if (f.hasAnnotation(Qualifier.class)) {//用户有提供id，没有就让id的属性为空
-          qualifier = field.getAnnotation(Qualifier.class).value();
+        Qualifier qua = TypeUtil.getAnnotation(f, Qualifier.class);
+        if (qua != null) {//用户有提供id，没有就让id的属性为空
+          qualifier = qua.value();
         }
-        InjectField inject = new InjectField(qualifier, field,
+        InjectField inject = new InjectField(qualifier, f,
             autowired);
-
         injects.add(inject);
       }
     }
@@ -122,15 +119,12 @@ public class BeanDefinitionBuilder {
    * @param info 扫描数据
    * @since 2019年08月18日 21:32:33
    */
-  private List<PropertyValue> parseValue(Class<?> beanClass, ClassInfo info)
-      throws NoSuchFieldException {
-
+  private List<PropertyValue> parseValue(Class<?> beanClass, ClassInfo info) {
     List<PropertyValue> values = new ArrayList<>();
-    for (FieldInfo f : info.getFieldInfos()) {
-      if (f.hasAnnotation(Value.class)) {
-        Field field = beanClass.getDeclaredField(f.getName());
-        Value value = field.getAnnotation(Value.class);
-        values.add(new PropertyValue(field, value));
+    for (Field f : beanClass.getDeclaredFields()) {
+      Value v = TypeUtil.getAnnotation(f, Value.class);
+      if (v != null) {
+        values.add(new PropertyValue(f, v));
       }
     }
 
