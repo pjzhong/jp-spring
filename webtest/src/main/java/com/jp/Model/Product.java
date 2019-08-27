@@ -1,80 +1,76 @@
 package com.jp.Model;
 
 
-/*
-import jp.spring.orm.annotation.Table;
-import jp.spring.orm.base.BaseBean;
-*/
-
 /**
  * Created by Administrator on 1/17/2017.
  */
-/*@Table("product")*/
-public class Product /*extends BaseBean*/ {
-    private int id;
-    private long productTypeId;
-    private String name;
-    private String code;
-    private int price;
-    private String description;
 
-    public int getId() {
-        return id;
-    }
+public class Product {
 
-    public void setId(int id) {
-        this.id = id;
-    }
+  private int id;
+  private long productTypeId;
+  private String name;
+  private String code;
+  private int price;
+  private String description;
 
-    public long getProductTypeId() {
-        return productTypeId;
-    }
+  public int getId() {
+    return id;
+  }
 
-    public void setProductTypeId(long productTypeId) {
-        this.productTypeId = productTypeId;
-    }
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    public String getName() {
-        return name;
-    }
+  public long getProductTypeId() {
+    return productTypeId;
+  }
 
-    public void setName(String name) {
-        this.name = name;
-    }
+  public void setProductTypeId(long productTypeId) {
+    this.productTypeId = productTypeId;
+  }
 
-    public String getCode() {
-        return code;
-    }
+  public String getName() {
+    return name;
+  }
 
-    public void setCode(String code) {
-        this.code = code;
-    }
+  public void setName(String name) {
+    this.name = name;
+  }
 
-    public int getPrice() {
-        return price;
-    }
+  public String getCode() {
+    return code;
+  }
 
-    public void setPrice(int price) {
-        this.price = price;
-    }
+  public void setCode(String code) {
+    this.code = code;
+  }
 
-    public String getDescription() {
-        return description;
-    }
+  public int getPrice() {
+    return price;
+  }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
+  public void setPrice(int price) {
+    this.price = price;
+  }
 
-    @Override
-    public String toString() {
-        return "Product{" +
-                "id=" + id +
-                ", productTypeId=" + productTypeId +
-                ", name='" + name + '\'' +
-                ", code='" + code + '\'' +
-                ", price=" + price +
-                ", description='" + description + '\'' +
-                '}';
-    }
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
+  }
+
+  @Override
+  public String toString() {
+    return "Product{" +
+        "id=" + id +
+        ", productTypeId=" + productTypeId +
+        ", name='" + name + '\'' +
+        ", code='" + code + '\'' +
+        ", price=" + price +
+        ", description='" + description + '\'' +
+        '}';
+  }
 }

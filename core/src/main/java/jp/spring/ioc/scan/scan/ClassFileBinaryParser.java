@@ -12,10 +12,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import jp.spring.ioc.scan.beans.AnnotationInfo;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.beans.ClassInfoBuilder;
-import jp.spring.ioc.scan.beans.FieldInfo;
-import jp.spring.ioc.scan.beans.FieldInfoBuilder;
-import jp.spring.ioc.scan.beans.MethodInfo;
-import jp.spring.ioc.scan.beans.MethodInfoBuilder;
 import jp.spring.ioc.scan.utils.ReflectionUtils;
 
 /**
@@ -136,8 +132,8 @@ class ClassFileBinaryParser {
       infoBuilder.addImplementedInterface(intern(readRefString(stream, constantPool)));
     }
 
-    parseFields(stream, constantPool, infoBuilder);
-    parseMethods(stream, constantPool, infoBuilder);
+    skipFields(stream, constantPool);
+    parseMethods(stream, constantPool);
 
     //Attributes (including class annotations)
     final int attributesCount = stream.readUnsignedShort();
@@ -158,67 +154,37 @@ class ClassFileBinaryParser {
     return infoBuilder;
   }
 
-  private void parseFields(DataInputStream stream, Object[] constantPool,
-      ClassInfoBuilder infoBuilder) throws IOException {
+  private void skipFields(DataInputStream stream, Object[] constantPool) throws IOException {
     //Fields
     final int fieldCount = stream.readUnsignedShort();
     for (int i = 0; i < fieldCount; i++) {
-      final int accessFlags = stream.readUnsignedShort();
-      final String fieldName = readRefString(stream, constantPool);
-      final String descriptor = readRefString(stream, constantPool);
-
-      FieldInfoBuilder fieldBuilder = FieldInfo
-          .builder(infoBuilder.getClassName(), fieldName, descriptor, accessFlags);
+      stream.readUnsignedShort();
+      readRefString(stream, constantPool);
+      readRefString(stream, constantPool);
 
       final int attributeCount = stream.readUnsignedShort();
       for (int j = 0; j < attributeCount; j++) {
-        final String attributeName = readRefString(stream, constantPool);
+        readRefString(stream, constantPool);
         final int attributeLength = stream.readInt();
-        if ("RuntimeVisibleAnnotations".equals(attributeName)) {
-          final int num_annotations = stream.readUnsignedShort();
-          for (int k = 0; k < num_annotations; k++) {
-            AnnotationInfo info = readAnnotation(stream, constantPool);
-            infoBuilder.addFieldAnnotation(info);
-            fieldBuilder.addAnnotationNames(info);
-          }
-        } else {
-          stream.skipBytes(attributeLength);
-        }
+        stream.skipBytes(attributeLength);
       }
-
-      infoBuilder.addFieldInfo(fieldBuilder.build());
     }
   }
 
-  private void parseMethods(DataInputStream stream, Object[] constantPool,
-      ClassInfoBuilder infoBuilder) throws IOException {
+  private void parseMethods(DataInputStream stream, Object[] constantPool) throws IOException {
     //Methods
     final int methodCount = stream.readUnsignedShort();
     for (int i = 0; i < methodCount; i++) {
-      final int accessFlags = stream.readUnsignedShort();
-      final String methodName = readRefString(stream, constantPool);
-      final String descriptor = readRefString(stream, constantPool);
-
-      MethodInfoBuilder methodInfoBuilder = MethodInfo
-          .builder(infoBuilder.getClassName(), methodName, descriptor, accessFlags);
+      stream.readUnsignedShort();
+      readRefString(stream, constantPool);
+      readRefString(stream, constantPool);
 
       final int attributeCount = stream.readUnsignedShort();
       for (int j = 0; j < attributeCount; j++) {
-        final String attributeName = readRefString(stream, constantPool);
+        readRefString(stream, constantPool);
         final int attributeLength = stream.readInt();
-        if ("RuntimeVisibleAnnotations".equals(attributeName)) {
-          final int num_annotations = stream.readUnsignedShort();
-          for (int k = 0; k < num_annotations; k++) {
-            AnnotationInfo info = readAnnotation(stream, constantPool);
-            infoBuilder.addMethodAnnotation(info);
-            methodInfoBuilder.addAnnotationName(info);
-          }
-        } else {
-          stream.skipBytes(attributeLength);
-        }
+        stream.skipBytes(attributeLength);
       }
-
-      infoBuilder.addMethodInfo(methodInfoBuilder.build());
     }
   }
 

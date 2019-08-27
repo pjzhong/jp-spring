@@ -31,8 +31,6 @@ public class ClassInfo implements Comparable<ClassInfo> {
    */
   boolean scanned;
 
-  private List<FieldInfo> fieldInfos = Collections.emptyList();
-  private List<MethodInfo> methodInfos = Collections.emptyList();
   private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
 
   public static ClassInfoBuilder builder(String className, int accessFlag) {
@@ -96,52 +94,6 @@ public class ClassInfo implements Comparable<ClassInfo> {
       annotations = new HashMap<>();
     }
     annotations.put(annotation.getName(), annotation);
-  }
-
-  void addMethodAnnotation(String annotationName, ClassInfoBuilder builder) {
-    ClassInfo anno = builder.getClassInfo(annotationName);
-    anno.annotation = true;
-
-    anno.related(Relation.CLASSES_WITH_METHOD_ANNOTATED, this);
-    this.related(Relation.METHOD_ANNOTATIONS, anno);
-  }
-
-  void addFieldAnnotation(String annotationName, ClassInfoBuilder builder) {
-    ClassInfo anno = builder.getClassInfo(annotationName);
-    anno.annotation = true;
-    anno.related(Relation.CLASSES_WITH_FIELD_ANNOTATED, this);
-
-    this.related(Relation.FIELD_ANNOTATIONS, anno);
-  }
-
-  /**
-   * Add field info.
-   */
-  void addFieldInfo(final List<FieldInfo> fieldInfoList) {
-    if (this.fieldInfos == Collections.EMPTY_LIST) {
-      this.fieldInfos = new ArrayList<>();
-    }
-
-    this.fieldInfos.addAll(fieldInfoList);
-  }
-
-  /**
-   * Add method info.
-   */
-  void addMethodInfo(final List<MethodInfo> methodInfoList) {
-    if (this.methodInfos == Collections.EMPTY_LIST) {
-      this.methodInfos = new ArrayList<>();
-    }
-
-    this.methodInfos.addAll(methodInfoList);
-  }
-
-  Set<ClassInfo> getClassesWithFieldAnnotation() {
-    return getDirectlyRelated(Relation.CLASSES_WITH_FIELD_ANNOTATED);
-  }
-
-  Set<ClassInfo> getClassesWithMethodAnnotation() {
-    return getDirectlyRelated(Relation.CLASSES_WITH_METHOD_ANNOTATED);
   }
 
   Set<ClassInfo> getClassesWithAnnotation() {
@@ -217,18 +169,6 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
   public boolean isStandardClass() {
     return !(annotation || isInterface);
-  }
-
-  public List<FieldInfo> getFieldInfos() {
-    return Collections.unmodifiableList(fieldInfos);
-  }
-
-  public List<MethodInfo> getMethodInfos() {
-    return Collections.unmodifiableList(methodInfos);
-  }
-
-  public Set<ClassInfo> getAnnotations() {
-    return getDirectlyRelated(Relation.ANNOTATIONS);
   }
 
   @Override

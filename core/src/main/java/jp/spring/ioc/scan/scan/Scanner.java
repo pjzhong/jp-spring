@@ -26,9 +26,6 @@ public class Scanner {
   }
 
   public ScanResult call() {
-    // Get all classpathElements from the runtime-context, have no idea what these is ?
-    // Write a class, and run the code below:
-    //      System.getProperty("java.class.path");
     final List<String> classPathElementStrings = new ClasspathFinder(config)
         .getRawClassPathStrings();
     final List<ClassRelativePath> rawClassPathElements = new ArrayList<>();
@@ -43,19 +40,6 @@ public class Scanner {
         .filter(c -> c.isValidClasspathElement(config))
         .forEach(c -> elementMap.computeIfAbsent(c, this::newClassElement));
     logger.info("scanned done cost:{}", System.currentTimeMillis() - scannedStart);
-
-    //
-    // restore the classpathOrder
-    // TODO
-    //  filtered the same classes but occurs in difference file(s)
-    //  (remove the second and subsequent), use an other way to do this, give up maskFiles method
-    //
-    //long maskStart = System.currentTimeMillis();
-    //List<ClasspathElement> classpathOrder = rawClassPathElements.stream()
-    //    .map(elementMap::get)
-    //    .filter(Objects::nonNull)
-    //    .collect(Collectors.toList());
-    //logger.info("mask done cost:{}", System.currentTimeMillis() - maskStart);
 
     // start to read the files found in the runtime context
     long parseStart = System.currentTimeMillis();

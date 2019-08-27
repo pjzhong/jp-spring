@@ -1,16 +1,12 @@
 package jp.spring.ioc.scan.utils;
 
-import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Created by Administrator on 2017/11/2.
  */
 public class FastPathResolver {
-
-  private static final boolean WINDOWS = File.separatorChar == '\\';
 
   /**
    * Translate backslashes to forward slashes, optionally removing trailing separator.
@@ -41,62 +37,5 @@ public class FastPathResolver {
     StringBuilder builder = new StringBuilder();
     translateSeparator(path, builder);
     return builder.toString();
-  }
-
-  @Deprecated
-  public static String resolve(final String relativePathStr) {
-    if (StringUtils.isBlank(relativePathStr)) {
-      return relativePathStr;
-    }
-
-    // We don't fetch remote classpath entries, although they are theoretically valid if
-    // using a URLClassLoader
-    if (relativePathStr.startsWith("http:") || relativePathStr.startsWith("https:")) {
-      return "";
-    }
-
-    int startIdx = 0;
-    if (relativePathStr.startsWith("jar:", startIdx)) {
-      startIdx += 4;
-    }
-
-    String prefix = "";
-    if (relativePathStr.startsWith("file:", startIdx)) {
-      startIdx += 5;
-      if (WINDOWS) {
-        if (relativePathStr.startsWith("\\\\\\\\", startIdx)
-            || relativePathStr.startsWith("////", startIdx)) {
-          ///Windows UNC URL
-          startIdx += 4;
-          prefix = "//";
-        } else if (relativePathStr.startsWith("\\\\", startIdx)) {
-          startIdx += 2;
-        }
-      }
-      if (relativePathStr.startsWith("//", startIdx)) {
-        startIdx += 2;
-      }
-    } else if (WINDOWS && (relativePathStr.startsWith("//") || relativePathStr.startsWith("\\"))) {
-      startIdx += 2;
-      prefix = "//";
-    }
-
-    //Handle Windows path starting with a drive designation as an absolute path
-    if (WINDOWS) {
-      if (relativePathStr.length() - startIdx > 3
-          && (relativePathStr.charAt(startIdx) == '/' || relativePathStr.charAt(startIdx) == '\\')
-          && Character.isLetter(relativePathStr.charAt(startIdx + 1))
-      ) {
-        startIdx++;
-      }
-    }
-
-    String pathStr = normalizePath(
-        startIdx == 0 ? relativePathStr : relativePathStr.substring(startIdx));
-    if (!prefix.isEmpty()) {
-      pathStr = prefix + pathStr;
-    }
-
-    return pathStr;
   }
 }
