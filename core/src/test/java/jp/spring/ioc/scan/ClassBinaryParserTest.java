@@ -13,8 +13,8 @@ import java.lang.annotation.Annotation;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Stream;
 import jp.spring.ioc.scan.beans.ClassGraph;
@@ -37,10 +37,16 @@ class ClassBinaryParserTest {
     parser = null;
   }
 
+  private Optional<ClassInfo> scan(Class<?> clazz) throws IOException {
+    InputStream stream = this.getClass().getResourceAsStream(clazz.getSimpleName() + ".class");
+    ClassGraph graph = ClassGraph.build(Collections.singleton(parser.parse(stream)));
+
+    return graph.getInfo(clazz.getName());
+  }
+
   @Test
   void interfaceParseTest() throws IOException {
-    InputStream stream = this.getClass().getResourceAsStream("ExampleInterface.class");
-    ClassInfo info = ClassGraph.build(Collections.singleton(parser.parse(stream)));
+    ClassInfo info = scan(ExampleInterface.class).get();
 
     assertFalse(info.isStandardClass());
     assertFalse(info.isAnnotation());
@@ -53,8 +59,7 @@ class ClassBinaryParserTest {
 
   @Test
   void annotationParseTest() throws IOException {
-    InputStream stream = this.getClass().getResourceAsStream("ExampleAnnotation.class");
-    ClassInfo info = parser.parse(stream).build(new HashMap<>());
+    ClassInfo info = scan(ExampleAnnotation.class).get();
 
     assertFalse(info.isStandardClass());
     assertTrue(info.isAnnotation());
@@ -67,8 +72,7 @@ class ClassBinaryParserTest {
 
   @Test
   void classParseTest() throws IOException {
-    InputStream stream = this.getClass().getResourceAsStream("ExampleClass.class");
-    ClassInfo info = parser.parse(stream).build(new HashMap<>());
+    ClassInfo info = scan(ExampleClass.class).get();
 
     assertTrue(info.isStandardClass());
     assertFalse(info.isAnnotation());

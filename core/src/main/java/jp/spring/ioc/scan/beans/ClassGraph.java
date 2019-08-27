@@ -30,7 +30,7 @@ public class ClassGraph {
     builders.forEach(this::addScannedClass);
   }
 
-  private ClassInfo addScannedClass(ClassData builder) {
+  private void addScannedClass(ClassData builder) {
     ClassInfo classInfo = clazzs.computeIfAbsent(builder.getName(), ClassInfo::new);
     if (StringUtils.isNotBlank(builder.getSuperclassName())) {
       classInfo.addSuperclass(classInfo(builder.getSuperclassName()));
@@ -41,11 +41,14 @@ public class ClassGraph {
 
     classInfo.scanned = true;
     classInfo.accessFlag = builder.getAccessFlag();
-    return classInfo;
   }
 
   private ClassInfo classInfo(String className) {
     return clazzs.computeIfAbsent(className, ClassInfo::new);
+  }
+
+  public Optional<ClassInfo> getInfo(String name) {
+    return Optional.ofNullable(clazzs.get(name));
   }
 
   public Set<ClassInfo> getInfoWithAnnotation(Class<?> targetAnnotation) {
