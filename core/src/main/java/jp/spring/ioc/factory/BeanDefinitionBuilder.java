@@ -49,13 +49,13 @@ public class BeanDefinitionBuilder {
 
     for (ClassInfo info : infos) {
       try {
-        Class<?> beanClass = loadClass(info.getClassName());
+        Class<?> beanClass = loadClass(info.getName());
         BeanDefinition definition = parseClass(beanClass, info);
         if (definition != null) {
           res.add(definition);
         }
       } catch (Exception e) {
-        logger.error("load {} error, e:{}", info.getClassName(), e);
+        logger.error("load {} error, e:{}", info.getName(), e);
       }
     }
 
@@ -74,7 +74,7 @@ public class BeanDefinitionBuilder {
     Optional<ClassInfo> superOpt = info.getSuperClass().filter(ClassInfo::isScanned);
     while (superOpt.isPresent()) {
       ClassInfo superInfo = superOpt.get();
-      Class<?> clazz = loadClass(superInfo.getClassName());
+      Class<?> clazz = loadClass(superInfo.getName());
       injects.addAll(parseAutowired(clazz, superInfo));
       values.addAll(parseValue(clazz, superInfo));
 
@@ -150,13 +150,13 @@ public class BeanDefinitionBuilder {
     } else {
       if (1 < target.size()) {
         throw new BeansException(
-            "postConstruct method has more than one in " + info.getClassName());
+            "postConstruct method has more than one in " + info.getName());
       }
 
       Method method = target.get(0);
       if (0 < method.getParameters().length) {
         throw new BeansException(
-            "postConstruct method should has zero parameter in " + info.getClassName());
+            "postConstruct method should has zero parameter in " + info.getName());
       }
       method.setAccessible(true);
       return method;

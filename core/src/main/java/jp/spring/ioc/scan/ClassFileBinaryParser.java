@@ -4,25 +4,20 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import jp.spring.ioc.scan.beans.AnnotationInfo;
 import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.beans.ClassInfoBuilder;
 import jp.spring.ioc.scan.utils.ReflectionUtils;
 
-/**
- * Created by Administrator on 10/15/2017.
- */
-class ClassFileBinaryParser {
+public class ClassFileBinaryParser {
 
   //缓存重复字符串对象
   private Map<String, String> internStringMap;
 
-  ClassFileBinaryParser() {
+  public ClassFileBinaryParser() {
     internStringMap = new ConcurrentHashMap<>();
   }
 
@@ -143,8 +138,8 @@ class ClassFileBinaryParser {
       if ("RuntimeVisibleAnnotations".equals(attributeName)) {
         final int annotations = stream.readUnsignedShort();
         for (int j = 0; j < annotations; j++) {
-          AnnotationInfo info = readAnnotation(stream, constantPool);
-          infoBuilder.addAnnotation(info);
+          String name = readAnnotation(stream, constantPool);
+          infoBuilder.addAnnotation(name);
         }
       } else {
         stream.skipBytes(attributeLength);
@@ -189,10 +184,9 @@ class ClassFileBinaryParser {
   }
 
   /**
-   * try to read a annotation and it's value  from this class, method or field, but ignore nested
-   * annotations
+   * @return just the name of the annotation
    */
-  private AnnotationInfo readAnnotation(final DataInputStream stream, Object[] constantPool)
+  private String readAnnotation(final DataInputStream stream, Object[] constantPool)
       throws IOException {
     final String descriptor = readRefString(stream, constantPool);
     String name;
@@ -211,7 +205,7 @@ class ClassFileBinaryParser {
       skipElementValue(stream, constantPool);
     }
 
-    return new AnnotationInfo(name, Collections.emptyMap());
+    return name;
   }
 
   private void skipElementValue(final DataInputStream stream, Object[] constantPool)

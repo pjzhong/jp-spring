@@ -20,7 +20,7 @@ public class ClassInfoBuilder {
   private final int accessFlag;
   private String superclassName;    // Superclass (can be null if no superclass, or if superclass is blacklisted)
   private List<String> implementedInterfaces = Collections.emptyList();
-  private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
+  private List<String> annotations = Collections.emptyList();
 
   private Map<String, ClassInfo> infoMap; //intense share by all ClassInfoBuilder instance
 
@@ -56,16 +56,17 @@ public class ClassInfoBuilder {
    *
    * @param infoMap for cache all classInfo Instances
    */
-  void build(Map<String, ClassInfo> infoMap) {
+  public ClassInfo build(Map<String, ClassInfo> infoMap) {
     this.infoMap = infoMap;
     final ClassInfo classInfo = addScannedClass(className);
 
     if (StringUtils.isNotBlank(superclassName)) {
-      classInfo.addSuperclass(superclassName, this);
+      classInfo.addSuperclass(getClassInfo(superclassName));
     }
 
-    implementedInterfaces.forEach(s -> classInfo.addImplementedInterface(s, this));
-    annotations.values().forEach(a -> classInfo.addAnnotation(a, this));
+    implementedInterfaces.forEach(s -> classInfo.addImplementedInterface(getClassInfo(s)));
+    annotations.forEach(a -> classInfo.addAnnotation(getClassInfo(a)));
+    return classInfo;
   }
 
   public void addSuperclass(final String superclassName) {
@@ -79,11 +80,11 @@ public class ClassInfoBuilder {
     implementedInterfaces.add(interfaceName);
   }
 
-  public void addAnnotation(AnnotationInfo annotation) {
+  public void addAnnotation(String name) {
     if (annotations.isEmpty()) {
-      annotations = new HashMap<>();
+      annotations = new ArrayList<>();
     }
-    annotations.put(annotation.getName(), annotation);
+    annotations.add(name);
   }
 
   public String getClassName() {

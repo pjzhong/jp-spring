@@ -1,12 +1,10 @@
 package jp.spring.ioc.scan.beans;
 
 import java.lang.annotation.Annotation;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -18,7 +16,7 @@ import java.util.Set;
 public class ClassInfo implements Comparable<ClassInfo> {
 
   private final Map<Relation, Set<ClassInfo>> relations = new HashMap<>();
-  private final String className;
+  private final String name;
 
   boolean isInterface;
   boolean annotation;
@@ -31,14 +29,12 @@ public class ClassInfo implements Comparable<ClassInfo> {
    */
   boolean scanned;
 
-  private Map<String, AnnotationInfo> annotations = Collections.emptyMap();
-
   public static ClassInfoBuilder builder(String className, int accessFlag) {
     return new ClassInfoBuilder(className, accessFlag);
   }
 
-  ClassInfo(String className) {
-    this.className = className;
+  ClassInfo(String name) {
+    this.name = name;
   }
 
   private void related(Relation relation, ClassInfo info) {
@@ -69,31 +65,24 @@ public class ClassInfo implements Comparable<ClassInfo> {
     return reachable;
   }
 
-  void addSuperclass(String superclassName, ClassInfoBuilder builder) {
-    ClassInfo superClass = builder.getClassInfo(superclassName);
+  void addSuperclass(ClassInfo superClass) {
     superClass.related(Relation.SUBCLASSES, this);
 
     this.related(Relation.SUPERCLASSES, superClass);
   }
 
-  void addImplementedInterface(String interfaceName, ClassInfoBuilder builder) {
-    ClassInfo inter = builder.getClassInfo(interfaceName);
+  void addImplementedInterface(ClassInfo inter) {
     inter.isInterface = true;
     inter.related(Relation.CLASSES_IMPLEMENTING, this);
 
     this.related(Relation.IMPLEMENTED_INTERFACE, inter);
   }
 
-  void addAnnotation(AnnotationInfo annotation, ClassInfoBuilder builder) {
-    final ClassInfo anno = builder.getClassInfo(annotation.getName());
+  void addAnnotation(ClassInfo anno) {
     anno.annotation = true;
-    anno.related(Relation.ANNOTATED_CLASSES, this);
+    anno.related(Relation.CLASSES_ANNOTATING, this);
 
     this.related(Relation.ANNOTATIONS, anno);
-    if (annotations == Collections.EMPTY_MAP) {
-      annotations = new HashMap<>();
-    }
-    annotations.put(annotation.getName(), annotation);
   }
 
   Set<ClassInfo> getClassesWithAnnotation() {
@@ -101,33 +90,23 @@ public class ClassInfo implements Comparable<ClassInfo> {
       return Collections.emptySet();
     }
 
-    Set<ClassInfo> classWithAnnotation = getReachable(Relation.ANNOTATED_CLASSES);
+    Set<ClassInfo> classWithAnnotation = getReachable(Relation.CLASSES_ANNOTATING);
 
     //Is this annotation can be inherited
     boolean isInherited = getDirectlyRelated(Relation.ANNOTATIONS).stream()
-        .anyMatch(c -> "java.lang.annotation.Inherited".equals(c.className));
+        .anyMatch(c -> "java.lang.annotation.Inherited".equals(c.name));
 
     if (isInherited) {
       for (ClassInfo info : classWithAnnotation) {
-        classWithAnnotation.addAll(info.getSubClasses());
+        classWithAnnotation.addAll(info.getReachable(Relation.SUBCLASSES));
       }
     }
 
     return classWithAnnotation;
   }
 
-  public Set<ClassInfo> getClassesImplementing() {
-    if (!isInterface()) {
-      return Collections.emptySet();
-    }
-
-    Set<ClassInfo> reachable = getReachable(Relation.CLASSES_IMPLEMENTING);
-    final Set<ClassInfo> implementing = new HashSet<>();
-    for (ClassInfo clazz : reachable) {
-      implementing.add(clazz);
-      implementing.addAll(clazz.getReachable(Relation.SUBCLASSES));
-    }
-    return implementing;
+  public Set<ClassInfo> getImplemented() {
+    return getReachable(Relation.IMPLEMENTED_INTERFACE);
   }
 
   public Optional<ClassInfo> getSuperClass() {
@@ -136,26 +115,21 @@ public class ClassInfo implements Comparable<ClassInfo> {
     return infos.stream().findFirst();
   }
 
-  public Set<ClassInfo> getSuperClasses() {
-    return getReachable(Relation.SUBCLASSES);
-  }
-
-  public Set<ClassInfo> getSubClasses() {
-    return getReachable(Relation.SUBCLASSES);
+  public Set<ClassInfo> getAnnotations() {
+    return getReachable(Relation.ANNOTATIONS);
   }
 
   public boolean isScanned() {
     return scanned;
   }
 
-  public String getClassName() {
-    return className;
+  public String getName() {
+    return name;
   }
 
   public boolean isInterface() {
     return isInterface && !annotation;
   }
-
 
   public boolean isAnnotation() {
     return annotation;
@@ -164,7 +138,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   public boolean hasAnnotation(Class<? extends Annotation> clazz) {
     Set<ClassInfo> infos = getReachable(Relation.ANNOTATIONS);
     String name = clazz.getName();
-    return infos.stream().anyMatch(i -> name.equals(i.getClassName()));
+    return infos.stream().anyMatch(i -> name.equals(i.getName()));
   }
 
   public boolean isStandardClass() {
@@ -173,7 +147,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
 
   @Override
   public int compareTo(ClassInfo o) {
-    return this.className.compareTo(o.className);
+    return this.name.compareTo(o.name);
   }
 
   @Override
@@ -185,18 +159,18 @@ public class ClassInfo implements Comparable<ClassInfo> {
       return false;
     }
     ClassInfo classInfo = (ClassInfo) o;
-    return Objects.equals(className, classInfo.className);
+    return Objects.equals(name, classInfo.name);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(className);
+    return Objects.hash(name);
   }
 
   @Override
   public String toString() {
     String name = (isStandardClass() ? "class " : isInterface() ? "interface " : "annotation ")
-        + className;
+        + this.name;
 
     if (!isScanned()) {
       name += " Not Scanned";
@@ -230,7 +204,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
     /**
      * classes that have annotated with this class, if this class is an annotation
      */
-    ANNOTATED_CLASSES,
+    CLASSES_ANNOTATING,
 
     /**
      * This Annotation annotated on method(s) of some class
