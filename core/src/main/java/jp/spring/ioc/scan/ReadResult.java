@@ -1,4 +1,4 @@
-package jp.spring.ioc.scan.scan;
+package jp.spring.ioc.scan;
 
 import java.util.List;
 import java.util.Properties;

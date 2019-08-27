@@ -1,10 +1,8 @@
-package jp.spring.ioc.scan.scan;
+package jp.spring.ioc.scan;
 
 
 import java.util.ArrayList;
 import java.util.List;
-import jp.spring.ioc.scan.ClassLoaderHandler;
-import jp.spring.ioc.scan.URLClassLoaderHandler;
 
 /**
  * Created by Administrator on 2017/10/31. This is class is a toy, refactor it when you know more

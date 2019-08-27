@@ -1,16 +1,16 @@
-package jp.spring.ioc.cycle.service;
+package jp.spring.ioc.factory.cycle.service;
 
 import jp.spring.ioc.annotation.Autowired;
 import jp.spring.ioc.annotation.Service;
 
 @Service
-public class AImpl implements A {
+public class BImpl implements B {
 
   @Autowired
-  B b;
+  A a;
 
   @Override
-  public B getB() {
-    return b;
+  public A getA() {
+    return a;
   }
 }

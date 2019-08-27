@@ -1,4 +1,4 @@
-package jp.spring.ioc.cycle;
+package jp.spring.ioc.factory.cycle;
 
 
 import static org.junit.jupiter.api.Assertions.assertEquals;

@@ -1,4 +1,4 @@
-package jp.spring.ioc.scan.scan;
+package jp.spring.ioc.scan;
 
 import java.io.BufferedInputStream;
 import java.io.DataInputStream;
@@ -32,7 +32,7 @@ class ClassFileBinaryParser {
 
       //Magic number
       if (stream.readInt() != 0xCAFEBABE) {
-        throw new RuntimeException("Not a valid class File");
+        throw new IllegalArgumentException("Not a valid class File");
       }
       stream.readUnsignedShort();//Minor version
       stream.readUnsignedShort();//Major version

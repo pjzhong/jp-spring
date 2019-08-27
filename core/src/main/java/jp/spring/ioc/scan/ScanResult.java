@@ -1,4 +1,4 @@
-package jp.spring.ioc.scan.scan;
+package jp.spring.ioc.scan;
 
 import java.util.Properties;
 import jp.spring.ioc.scan.beans.ClassGraph;

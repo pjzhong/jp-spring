@@ -1,4 +1,4 @@
-package jp.spring.ioc.simleDemo.service;
+package jp.spring.ioc.factory.simleDemo.service;
 
 import jp.spring.ioc.annotation.Component;
 

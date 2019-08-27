@@ -1,7 +1,7 @@
-package jp.spring.ioc.cycle;
+package jp.spring.ioc.factory.cycle;
 
-import jp.spring.ioc.cycle.service.A;
-import jp.spring.ioc.cycle.service.B;
+import jp.spring.ioc.factory.cycle.service.A;
+import jp.spring.ioc.factory.cycle.service.B;
 import jp.spring.ioc.annotation.Autowired;
 import jp.spring.ioc.annotation.Component;
 
