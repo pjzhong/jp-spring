@@ -46,41 +46,44 @@ class ClassBinaryParserTest {
 
   @Test
   void interfaceParseTest() throws IOException {
-    ClassInfo info = scan(ExampleInterface.class).get();
+    Class<?> clazz = ExampleInterface.class;
+    ClassInfo info = scan(clazz).get();
 
     assertFalse(info.isStandardClass());
-    assertFalse(info.isAnnotation());
-    assertTrue(info.isInterface());
+    assertFalse(clazz.isAnnotation() || info.isAnnotation());
+    assertTrue(clazz.isInterface() && info.isInterface());
 
     assertEquals(Object.class.getName(), info.getSuperClass().map(ClassInfo::getName).get());
 
-    commonInfoTest(info, ExampleInterface.class);
+    commonInfoTest(info, clazz);
   }
 
   @Test
   void annotationParseTest() throws IOException {
-    ClassInfo info = scan(ExampleAnnotation.class).get();
+    Class<?> clazz = ExampleAnnotation.class;
+    ClassInfo info = scan(clazz).get();
 
     assertFalse(info.isStandardClass());
-    assertTrue(info.isAnnotation());
-    assertFalse(info.isInterface());
+    assertTrue(clazz.isAnnotation() && info.isAnnotation());
+    assertTrue(clazz.isInterface() && info.isInterface());
 
     assertEquals(Object.class.getName(), info.getSuperClass().map(ClassInfo::getName).get());
 
-    commonInfoTest(info, ExampleAnnotation.class);
+    commonInfoTest(info, clazz);
   }
 
   @Test
   void classParseTest() throws IOException {
-    ClassInfo info = scan(ExampleClass.class).get();
+    Class<?> clazz = ExampleClass.class;
+    ClassInfo info = scan(clazz).get();
 
     assertTrue(info.isStandardClass());
-    assertFalse(info.isAnnotation());
-    assertFalse(info.isInterface());
+    assertFalse(clazz.isAnnotation() || info.isAnnotation());
+    assertFalse(clazz.isInterface() || info.isInterface());
 
     assertEquals(info.getSuperClass().map(ClassInfo::getName).get(), ArrayList.class.getName());
 
-    commonInfoTest(info, ExampleClass.class);
+    commonInfoTest(info, clazz);
   }
 
   private void commonInfoTest(ClassInfo info, Class<?> target) {
@@ -89,9 +92,9 @@ class ClassBinaryParserTest {
       Class<?>[] interfaces = target.getInterfaces();
       Set<ClassInfo> implemented = info.getImplemented();
       assertEquals(interfaces.length, implemented.size());
-      List<String> expectedInterfaces = Stream.of(interfaces).map(Class::getName).sorted()
+      List<String> expectedInterfaces = Stream.of(interfaces).map(Class::getName)
           .collect(toList());
-      List<String> actualInterfaces = implemented.stream().map(ClassInfo::getName).sorted()
+      List<String> actualInterfaces = implemented.stream().map(ClassInfo::getName)
           .collect(toList());
       assertEquals(expectedInterfaces, actualInterfaces);
     }
@@ -103,9 +106,8 @@ class ClassBinaryParserTest {
 
       List<String> expectedAnnotations = Stream.of(annotations)
           .map(a -> a.annotationType().getName())
-          .sorted()
           .collect(toList());
-      List<String> actualAnnotations = annotating.stream().map(ClassInfo::getName).sorted()
+      List<String> actualAnnotations = annotating.stream().map(ClassInfo::getName)
           .collect(toList());
       assertEquals(expectedAnnotations, actualAnnotations);
     }

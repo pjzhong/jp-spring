@@ -12,7 +12,6 @@ import javax.annotation.PostConstruct;
 import jp.spring.ApplicationContext;
 import jp.spring.ioc.BeansException;
 import jp.spring.ioc.annotation.Autowired;
-import jp.spring.ioc.annotation.Component;
 import jp.spring.ioc.annotation.Qualifier;
 import jp.spring.ioc.annotation.Value;
 import jp.spring.ioc.scan.beans.ClassInfo;
@@ -51,9 +50,7 @@ public class BeanDefinitionBuilder {
       try {
         Class<?> beanClass = loadClass(info.getName());
         BeanDefinition definition = parseClass(beanClass, info);
-        if (definition != null) {
-          res.add(definition);
-        }
+        res.add(definition);
       } catch (Exception e) {
         logger.error("load {} error, e:{}", info.getName(), e);
       }
@@ -63,10 +60,6 @@ public class BeanDefinitionBuilder {
   }
 
   private BeanDefinition parseClass(Class<?> beanClass, ClassInfo info) throws Exception {
-    if (!info.hasAnnotation(Component.class)) {
-      return null;
-    }
-
     List<InjectField> injects = parseAutowired(beanClass, info);
     List<PropertyValue> values = parseValue(beanClass, info);
     Method postConstruct = parsePostConstruct(beanClass, info);
@@ -74,11 +67,14 @@ public class BeanDefinitionBuilder {
     Optional<ClassInfo> superOpt = info.getSuperClass().filter(ClassInfo::isScanned);
     while (superOpt.isPresent()) {
       ClassInfo superInfo = superOpt.get();
+      if (superInfo.getName().equals(Object.class.getName())) {
+        break;
+      }
+
       Class<?> clazz = loadClass(superInfo.getName());
       injects.addAll(parseAutowired(clazz, superInfo));
       values.addAll(parseValue(clazz, superInfo));
-
-      superOpt = superInfo.getSuperClass().filter(ClassInfo::isScanned);
+      superOpt = superInfo.getSuperClass();
     }
     String name = TypeUtil.determinedName(beanClass);
     return new BeanDefinition(name, beanClass, values, injects, postConstruct);
