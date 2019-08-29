@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 import jp.spring.ioc.BeansException;
 import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.ArrayUtils;
@@ -26,6 +27,8 @@ public class DefaultBeanFactory implements BeanFactory {
 
   private Map<String, BeanDefinition> definitions = new ConcurrentHashMap<>();
   private Map<String, Object> beans = new ConcurrentHashMap<>();
+  private Map<String, Object> earlyBeans = new ConcurrentHashMap<>();
+  private Map<String, Supplier<?>> beanFactories = new ConcurrentHashMap<>();
 
   private List<BeanPostProcessor> beanPostProcessors = Collections.emptyList();
 
@@ -70,7 +73,7 @@ public class DefaultBeanFactory implements BeanFactory {
     res = definition.getBean();
     if (res == null) {
       synchronized (definition) {
-        Object bean = doCreateBean(definition);
+        Object bean = doGetBean(definition);
         bean = afterInitializeBean(bean, name);
         res = bean;
       }
@@ -83,7 +86,7 @@ public class DefaultBeanFactory implements BeanFactory {
     throw new UnsupportedOperationException();
   }
 
-  private Object doCreateBean(BeanDefinition definition) {
+  private Object doGetBean(BeanDefinition definition) {
     Object bean = null;
     try {
       bean = definition.getClazz().newInstance();
@@ -97,6 +100,25 @@ public class DefaultBeanFactory implements BeanFactory {
       throw new BeansException(e);
     }
     return bean;
+  }
+
+  private <T> T getSinglton(String name) {
+    Object obj = beans.get(name);
+    if (obj == null) {
+      synchronized (this.beans) {
+        obj = earlyBeans.get(name);
+        if (obj == null) {
+          Supplier<?> factory = beanFactories.get(name);
+          if (factory != null) {
+            obj = factory.get();
+            earlyBeans.put(name, obj);
+            beanFactories.remove(name);
+          }
+        }
+      }
+    }
+
+    return (T) obj;
   }
 
   private void resolveDependency(Object bean, BeanDefinition beanDefinition) throws Exception {
