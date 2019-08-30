@@ -3,7 +3,7 @@ package jp.spring.ioc.scan.beans;
 import java.lang.annotation.Annotation;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Objects;
@@ -37,7 +37,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   private void related(Relation relation, ClassInfo info) {
-    relations.computeIfAbsent(relation, k -> new HashSet<>()).add(info);
+    relations.computeIfAbsent(relation, k -> new LinkedHashSet<>()).add(info);
   }
 
   private Set<ClassInfo> getDirectlyRelated(Relation relation) {
@@ -50,7 +50,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
       return related;
     }
 
-    Set<ClassInfo> reachable = new HashSet<>(related);
+    Set<ClassInfo> reachable = new LinkedHashSet<>(related);
     LinkedList<ClassInfo> queue = new LinkedList<>(related);
     while (!queue.isEmpty()) {
       ClassInfo head = queue.poll();
@@ -99,7 +99,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   public Set<ClassInfo> getImplemented() {
-    return getReachable(Relation.IMPLEMENTED_INTERFACE);
+    return getDirectlyRelated(Relation.IMPLEMENTED_INTERFACE);
   }
 
   public Optional<ClassInfo> getSuperClass() {
@@ -109,7 +109,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   public Set<ClassInfo> getAnnotations() {
-    return getReachable(Relation.ANNOTATIONS);
+    return getDirectlyRelated(Relation.ANNOTATIONS);
   }
 
   public boolean isScanned() {
@@ -121,7 +121,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   public boolean isInterface() {
-    return !isAnnotation() && ((accessFlag & 0x0200) != 0);
+    return (accessFlag & 0x0200) != 0;
   }
 
   public boolean isAnnotation() {
@@ -129,7 +129,7 @@ public class ClassInfo implements Comparable<ClassInfo> {
   }
 
   public boolean hasAnnotation(Class<? extends Annotation> clazz) {
-    Set<ClassInfo> infos = getReachable(Relation.ANNOTATIONS);
+    Set<ClassInfo> infos = getDirectlyRelated(Relation.ANNOTATIONS);
     String name = clazz.getName();
     return infos.stream().anyMatch(i -> name.equals(i.getName()));
   }

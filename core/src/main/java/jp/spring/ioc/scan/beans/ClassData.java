@@ -47,7 +47,7 @@ public class ClassData {
   }
 
   public boolean isInterface() {
-    return !isAnnotation() && ((accessFlag & 0x0200) != 0);
+    return (accessFlag & 0x0200) != 0;
   }
 
   public boolean isAnnotation() {
