@@ -7,8 +7,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
-import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassData;
+import jp.spring.ioc.scan.beans.ClassGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,17 +26,13 @@ public class Scanner {
   }
 
   public ScanResult call() {
-    final List<String> classPathElementStrings = new ClasspathFinder(config)
-        .getRawClassPathStrings();
-    final List<ClassRelativePath> rawClassPathElements = new ArrayList<>();
-    for (String classElementStr : classPathElementStrings) {
-      rawClassPathElements.add(new ClassRelativePath(classElementStr));
-    }
+
+    final List<ClassRelativePath> relativePaths = findClassPaths(config);
 
     // split dir and jar file than started to scan them
     long scannedStart = System.currentTimeMillis();
     Map<ClassRelativePath, ClasspathElement> elementMap = new ConcurrentHashMap<>();
-    rawClassPathElements.stream()
+    relativePaths.stream()
         .filter(c -> c.isValidClasspathElement(config))
         .forEach(c -> elementMap.computeIfAbsent(c, this::newClassElement));
     logger.info("scanned done cost:{}", System.currentTimeMillis() - scannedStart);
@@ -72,5 +68,25 @@ public class Scanner {
     } else {
       return new ClasspathElementZip(relativePath, config);
     }
+  }
+
+  private List<ClassRelativePath> findClassPaths(ScanConfig config) {
+    List<String> elementStrs = new ArrayList<>();
+    //for convenient, only handler sun.misc.Launcher$AppClassLoader
+    ClassLoaderHandler handler = new URLClassLoaderHandler();
+    for (ClassLoader loader : config.getLoaders()) {
+      try {
+        elementStrs.addAll(handler.handle(loader));
+      } catch (Exception e) {
+        //todo say something about what happened;
+      }
+    }
+
+    final List<ClassRelativePath> relativePaths = new ArrayList<>();
+    for (String classElementStr : elementStrs) {
+      relativePaths.add(new ClassRelativePath(classElementStr));
+    }
+
+    return relativePaths;
   }
 }
