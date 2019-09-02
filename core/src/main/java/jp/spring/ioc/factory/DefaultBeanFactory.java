@@ -66,11 +66,6 @@ public class DefaultBeanFactory implements BeanFactory {
     return doGetBean(definition);
   }
 
-  @Override
-  public <T> T getBean(Class<T> requiredType) {
-    throw new UnsupportedOperationException();
-  }
-
   private Object doGetBean(BeanDefinition definition) {
     Object bean = null;
     try {
@@ -225,11 +220,6 @@ public class DefaultBeanFactory implements BeanFactory {
     if (post != null) {
       post.invoke(bean, ArrayUtils.EMPTY_OBJECT_ARRAY);
     }
-  }
-
-  @Override
-  public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
-    throw new UnsupportedOperationException();
   }
 
   @Override

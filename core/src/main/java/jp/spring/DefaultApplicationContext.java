@@ -1,10 +1,8 @@
 package jp.spring;
 
-import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import jp.spring.ioc.annotation.Component;
 import jp.spring.ioc.factory.BeanDefinition;
@@ -32,12 +30,12 @@ public class DefaultApplicationContext implements ApplicationContext {
   private DefaultBeanFactory beanFactory;
   private ClassGraph graph;
 
-  public DefaultApplicationContext() throws Exception {
+  public DefaultApplicationContext() {
     this.beanFactory = new DefaultBeanFactory();
     this.refresh();
   }
 
-  private void refresh() throws Exception {
+  private void refresh() {
     loadBeanDefinitions(beanFactory);
     beanFactory.registerDependency(this.getClass(), this);
     beanFactory.refresh();
@@ -54,22 +52,12 @@ public class DefaultApplicationContext implements ApplicationContext {
   }
 
   @Override
-  public <T> T getBean(Class<T> requiredType) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public Map<String, Object> getBeansWithAnnotation(Class<? extends Annotation> annotationType) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
   public void registerDependency(Class<?> dependencyType, Object autowiredValue) {
     beanFactory.registerDependency(dependencyType, autowiredValue);
   }
 
   @Override
-  public void registerBeanDefinition(BeanDefinition definition) throws Exception {
+  public void registerBeanDefinition(BeanDefinition definition) {
     beanFactory.registerBeanDefinition(definition);
   }
 
@@ -78,7 +66,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     beanFactory.registerBeanDefinition(definition, bean);
   }
 
-  private void loadBeanDefinitions(DefaultBeanFactory beanFactory) throws Exception {
+  private void loadBeanDefinitions(DefaultBeanFactory beanFactory) {
     ScanConfig config = scanConfig();
     logger.info("Found package:{}", config.getPackages());
     logger.info("Found loaders:{}", config.getLoaders());
@@ -99,7 +87,6 @@ public class DefaultApplicationContext implements ApplicationContext {
     BeanDefinitionBuilder builder = new BeanDefinitionBuilder(this, infos);
     Set<BeanDefinition> definitions = builder.build();
     definitions.forEach(beanFactory::registerBeanDefinition);
-
   }
 
   /**
