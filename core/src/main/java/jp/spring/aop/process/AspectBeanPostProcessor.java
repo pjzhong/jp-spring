@@ -7,11 +7,11 @@ import jp.spring.aop.Proxy;
 import jp.spring.aop.ProxyFactory;
 import jp.spring.aop.annotation.Aspect;
 import jp.spring.aop.impl.ExecutionAspectProxy;
+import jp.spring.ioc.annotation.Autowired;
+import jp.spring.ioc.annotation.Component;
 import jp.spring.ioc.factory.BeanDefinition;
 import jp.spring.ioc.factory.BeanPostProcessor;
 import jp.spring.ioc.factory.DefaultBeanFactory;
-import jp.spring.ioc.annotation.Autowired;
-import jp.spring.ioc.annotation.Component;
 import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -34,9 +34,8 @@ public class AspectBeanPostProcessor implements BeanPostProcessor {
     for (String name : beanNames) {
       BaseAspect aspect = new ExecutionAspectProxy(beanFactory.getType(name),
           beanFactory.getBean(name));
-      BeanDefinition definition = new BeanDefinition(name + ".proxy", aspect.getClass(),
-          aspect);
-      beanFactory.registerBeanDefinition(definition);
+      BeanDefinition definition = new BeanDefinition(name + ".proxy", aspect.getClass());
+      beanFactory.registerBeanDefinition(definition, aspect);
     }
   }
 

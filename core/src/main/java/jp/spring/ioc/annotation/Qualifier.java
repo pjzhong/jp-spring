@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
 /**
  * Created by Administrator on 1/23/2017.
  */
-@Target(ElementType.FIELD)
+@Target({ElementType.FIELD, ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Qualifier {
 

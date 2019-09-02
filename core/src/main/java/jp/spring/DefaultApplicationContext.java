@@ -6,15 +6,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import jp.spring.ioc.annotation.Component;
 import jp.spring.ioc.factory.BeanDefinition;
 import jp.spring.ioc.factory.BeanDefinitionBuilder;
 import jp.spring.ioc.factory.DefaultBeanFactory;
-import jp.spring.ioc.scan.beans.ClassGraph;
-import jp.spring.ioc.scan.beans.ClassInfo;
 import jp.spring.ioc.scan.ScanConfig;
 import jp.spring.ioc.scan.ScanResult;
 import jp.spring.ioc.scan.Scanner;
-import jp.spring.ioc.annotation.Component;
+import jp.spring.ioc.scan.beans.ClassGraph;
+import jp.spring.ioc.scan.beans.ClassInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,8 +69,13 @@ public class DefaultApplicationContext implements ApplicationContext {
   }
 
   @Override
-  public void registerBeanDefinition(BeanDefinition definition) {
+  public void registerBeanDefinition(BeanDefinition definition) throws Exception {
     beanFactory.registerBeanDefinition(definition);
+  }
+
+  @Override
+  public void registerBeanDefinition(BeanDefinition definition, Object bean) {
+    beanFactory.registerBeanDefinition(definition, bean);
   }
 
   private void loadBeanDefinitions(DefaultBeanFactory beanFactory) throws Exception {

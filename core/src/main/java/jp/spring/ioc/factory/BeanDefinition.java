@@ -15,8 +15,6 @@ public class BeanDefinition {
 
   /** 名字 */
   private String name;
-  /** 实体对象 */
-  private Object bean;
   /** 实体类 */
   private Class<?> clazz;
   /** 注入后需要调用的方法 */
@@ -29,14 +27,6 @@ public class BeanDefinition {
   public BeanDefinition(String name, Class<?> clazz) {
     this.name = name;
     this.clazz = clazz;
-    this.propertyValues = Collections.emptyList();
-    this.injectFields = Collections.emptyList();
-  }
-
-  public BeanDefinition(String name, Class<?> clazz, Object bean) {
-    this.name = name;
-    this.clazz = clazz;
-    this.bean = bean;
     this.propertyValues = Collections.emptyList();
     this.injectFields = Collections.emptyList();
   }
@@ -61,10 +51,6 @@ public class BeanDefinition {
 
   public String getName() {
     return name;
-  }
-
-  public Object getBean() {
-    return bean;
   }
 
   public void add(InjectField injectField) {

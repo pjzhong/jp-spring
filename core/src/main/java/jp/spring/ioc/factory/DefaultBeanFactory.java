@@ -25,10 +25,10 @@ import org.apache.commons.lang3.StringUtils;
  **/
 public class DefaultBeanFactory implements BeanFactory {
 
-  private Map<String, BeanDefinition> definitions = new ConcurrentHashMap<>();
-  private Map<String, Object> beans = new ConcurrentHashMap<>();
-  private Map<String, Object> earlyBeans = new ConcurrentHashMap<>();
-  private Map<String, Supplier<?>> beanFactories = new ConcurrentHashMap<>();
+  private final Map<String, Object> beans = new ConcurrentHashMap<>();
+  private final Map<String, Object> earlyBeans = new ConcurrentHashMap<>();
+  private final Map<String, Supplier<?>> beanFactories = new ConcurrentHashMap<>();
+  private final Map<String, BeanDefinition> definitions = new ConcurrentHashMap<>();
 
   private List<BeanPostProcessor> beanPostProcessors = Collections.emptyList();
 
@@ -47,13 +47,6 @@ public class DefaultBeanFactory implements BeanFactory {
     }
   }
 
-  @Override
-  public void registerBeanDefinition(BeanDefinition definition) {
-    boolean dup = definitions.putIfAbsent(definition.getName(), definition) != null;
-    if (dup) {
-      throw new IllegalArgumentException("Bean name " + definition.getName() + " must be unique");
-    }
-  }
 
   @Override
   public Object getBean(String name) {
@@ -70,15 +63,7 @@ public class DefaultBeanFactory implements BeanFactory {
     if (definition == null) {
       throw new IllegalArgumentException("No bean named " + name + " is defined");
     }
-    res = definition.getBean();
-    if (res == null) {
-      synchronized (definition) {
-        Object bean = doGetBean(definition);
-        bean = afterInitializeBean(bean, name);
-        res = bean;
-      }
-    }
-    return res;
+    return doGetBean(definition);
   }
 
   @Override
@@ -89,20 +74,18 @@ public class DefaultBeanFactory implements BeanFactory {
   private Object doGetBean(BeanDefinition definition) {
     Object bean = null;
     try {
-      bean = definition.getClazz().newInstance();
-      //TODO IT SOLVED CIRCLE DEPENDENCY, But Also public not-full-construct object to outside
-      beans.put(definition.getName(), bean);
-
-      resolveDependency(bean, definition);
-      injectPropertyValue(bean, definition);
-      postConstruct(bean, definition);
+      String name = definition.getName();
+      bean = getSingleton(name);
+      if (bean == null) {
+        bean = getSingleton(name, () -> createBean(definition));
+      }
     } catch (Exception e) {
       throw new BeansException(e);
     }
     return bean;
   }
 
-  private <T> T getSinglton(String name) {
+  private Object getSingleton(String name) {
     Object obj = beans.get(name);
     if (obj == null) {
       synchronized (this.beans) {
@@ -111,14 +94,71 @@ public class DefaultBeanFactory implements BeanFactory {
           Supplier<?> factory = beanFactories.get(name);
           if (factory != null) {
             obj = factory.get();
-            earlyBeans.put(name, obj);
             beanFactories.remove(name);
           }
         }
       }
     }
 
-    return (T) obj;
+    return obj;
+  }
+
+  private Object getSingleton(String name, Supplier<?> factory) {
+    synchronized (this.beans) {
+      Object singletonObject = this.beans.get(name);
+      boolean newSingleton = false;
+      if (singletonObject == null) {
+        try {
+          singletonObject = factory.get();
+          newSingleton = true;
+        } catch (Exception e) {
+          singletonObject = this.beans.get(name);
+          if (singletonObject == null) {
+            throw e;
+          }
+        }
+        if (newSingleton) {
+          addSingleton(name, singletonObject);
+        }
+      }
+      return singletonObject;
+    }
+  }
+
+  private void addSingleton(String name, Object singleton) {
+    synchronized (this.beans) {
+      this.beans.put(name, singleton);
+      this.earlyBeans.remove(name);
+      this.beanFactories.remove(name);
+    }
+  }
+
+  private Object createBean(BeanDefinition definition) throws BeansException {
+    try {
+      Object bean = instantBean(definition);
+
+      resolveDependency(bean, definition);
+      injectPropertyValue(bean, definition);
+      postConstruct(bean, definition);
+      bean = afterInitializeBean(bean, definition.getName());
+      return bean;
+    } catch (Exception e) {
+      throw new BeansException(e);
+    }
+  }
+
+  private Object instantBean(BeanDefinition definition)
+      throws IllegalAccessException, InstantiationException {
+    Object obj = beans.get(definition.getName());
+    if (obj == null) {
+      synchronized (this.beans) {
+        obj = definition.getClazz().newInstance();
+        this.earlyBeans.put(definition.getName(), obj);
+        this.beans.remove(definition.getName());
+        this.beanFactories.remove(definition.getName());
+      }
+    }
+    return obj;
   }
 
   private void resolveDependency(Object bean, BeanDefinition beanDefinition) throws Exception {
@@ -199,8 +239,25 @@ public class DefaultBeanFactory implements BeanFactory {
     if (dup) {
       throw new IllegalArgumentException("Bean name " + name + " must be unique");
     }
-    BeanDefinition definition = new BeanDefinition(name, dependencyType, autowiredValue);
+    BeanDefinition definition = new BeanDefinition(name, dependencyType);
     definitions.put(definition.getName(), definition);
+  }
+
+  @Override
+  public void registerBeanDefinition(BeanDefinition definition, Object bean) {
+    boolean dup = definitions.putIfAbsent(definition.getName(), definition) != null;
+    if (dup) {
+      throw new IllegalArgumentException("Bean name " + definition.getName() + " must be unique");
+    }
+    this.beans.put(definition.getName(), bean);
+  }
+
+  @Override
+  public void registerBeanDefinition(BeanDefinition definition) {
+    boolean dup = definitions.putIfAbsent(definition.getName(), definition) != null;
+    if (dup) {
+      throw new IllegalArgumentException("Bean name " + definition.getName() + " must be unique");
+    }
   }
 
   @Deprecated
@@ -212,7 +269,6 @@ public class DefaultBeanFactory implements BeanFactory {
     }
   }
 
-  @Deprecated
   private Object afterInitializeBean(Object bean, String name) {
     for (BeanPostProcessor beanPostProcessor : beanPostProcessors) {
       bean = beanPostProcessor.postProcessAfterInitialization(bean, name);

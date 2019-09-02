@@ -55,4 +55,13 @@ public interface BeanFactory {
    * @since 2019年06月09日 10:04:03
    */
   void registerBeanDefinition(BeanDefinition definition) throws Exception;
+
+
+  /**
+   * Register a special dependency bean with corresponding  definition
+   *
+   * @param definition the bean definition
+   * @since 2019年06月09日 10:04:03
+   */
+  void registerBeanDefinition(BeanDefinition definition, Object bean) throws Exception;
 }
