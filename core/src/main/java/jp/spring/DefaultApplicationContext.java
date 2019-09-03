@@ -13,6 +13,7 @@ import jp.spring.ioc.scan.ScanResult;
 import jp.spring.ioc.scan.Scanner;
 import jp.spring.ioc.scan.beans.ClassGraph;
 import jp.spring.ioc.scan.beans.ClassInfo;
+import jp.spring.util.TypeUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +38,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
   private void refresh() {
     loadBeanDefinitions(beanFactory);
-    beanFactory.registerDependency(this.getClass(), this);
+    beanFactory.registerDependency(TypeUtil.simpleClassName(this.getClass()), this);
     beanFactory.refresh();
   }
 
@@ -52,8 +53,8 @@ public class DefaultApplicationContext implements ApplicationContext {
   }
 
   @Override
-  public void registerDependency(Class<?> dependencyType, Object autowiredValue) {
-    beanFactory.registerDependency(dependencyType, autowiredValue);
+  public void registerDependency(String name, Object autowiredValue) {
+    beanFactory.registerDependency(name, autowiredValue);
   }
 
   @Override
@@ -61,10 +62,6 @@ public class DefaultApplicationContext implements ApplicationContext {
     beanFactory.registerBeanDefinition(definition);
   }
 
-  @Override
-  public void registerBeanDefinition(BeanDefinition definition, Object bean) {
-    beanFactory.registerBeanDefinition(definition, bean);
-  }
 
   private void loadBeanDefinitions(DefaultBeanFactory beanFactory) {
     ScanConfig config = scanConfig();

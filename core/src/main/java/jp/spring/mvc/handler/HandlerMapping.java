@@ -159,7 +159,7 @@ public class HandlerMapping {
   }
 
   private static Router<Handler> buildHandlerMapping(DefaultBeanFactory beanFactory) {
-    List<String> controllerNames = beanFactory.getBeanNamByAnnotation(Controller.class);
+    List<String> controllerNames = beanFactory.getNamesByAnnotation(Controller.class);
 
     Router<Handler> router = Router.create(DEFAULT_MAX_PARTS);
 
@@ -182,7 +182,7 @@ public class HandlerMapping {
    * 为了每一个interceptor创建一个匹配器
    */
   private static List<InterceptMatch> buildInterceptMatch(DefaultBeanFactory beanFactory) {
-    List<String> interceptorNames = beanFactory.getBeanNamByAnnotation(Intercept.class);
+    List<String> interceptorNames = beanFactory.getNamesByAnnotation(Intercept.class);
     List<InterceptMatch> interceptors = Collections.emptyList();
     if (ObjectUtils.isNotEmpty(interceptorNames)) {
       interceptors = new ArrayList<>();

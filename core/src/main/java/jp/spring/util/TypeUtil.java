@@ -182,10 +182,9 @@ public class TypeUtil {
    *
    * @return the name
    */
-  public static String determinedName(Class<?> beanClass) {
+  public static String simpleClassName(Class<?> beanClass) {
     return StringUtils.uncapitalize(beanClass.getSimpleName());
   }
-
 
   /**
    * Returns the raw class of the given type.

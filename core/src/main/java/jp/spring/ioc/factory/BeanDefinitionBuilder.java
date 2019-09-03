@@ -76,7 +76,7 @@ public class BeanDefinitionBuilder {
       values.addAll(parseValue(clazz, superInfo));
       superOpt = superInfo.getSuperClass();
     }
-    String name = TypeUtil.determinedName(beanClass);
+    String name = TypeUtil.simpleClassName(beanClass);
     return new BeanDefinition(name, beanClass, values, injects, postConstruct);
   }
 

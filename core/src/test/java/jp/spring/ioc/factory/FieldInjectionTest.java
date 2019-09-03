@@ -16,7 +16,7 @@ public class FieldInjectionTest {
   void fieldInjected() {
     BeanFactory factory = new DefaultApplicationContext();
 
-    Target target = (Target) factory.getBean(TypeUtil.determinedName(Target.class));
+    Target target = (Target) factory.getBean(TypeUtil.simpleClassName(Target.class));
     assertNotNull(target);
     assertTrue(Target.class.isAssignableFrom(target.getClass()));
     assertNotNull(target.a);

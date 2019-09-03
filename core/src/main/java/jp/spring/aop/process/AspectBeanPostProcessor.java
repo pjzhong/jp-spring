@@ -29,13 +29,12 @@ public class AspectBeanPostProcessor implements BeanPostProcessor {
    */
   @Override
   public void postProcessBeforeInitialization() throws Exception {
-    List<String> beanNames = beanFactory.getBeanNamByAnnotation(Aspect.class);
+    List<String> beanNames = beanFactory.getNamesByAnnotation(Aspect.class);
 
     for (String name : beanNames) {
       BaseAspect aspect = new ExecutionAspectProxy(beanFactory.getType(name),
           beanFactory.getBean(name));
-      BeanDefinition definition = new BeanDefinition(name + ".proxy", aspect.getClass());
-      beanFactory.registerBeanDefinition(definition, aspect);
+      beanFactory.registerDependency(name + ".proxy", aspect);
     }
   }
 

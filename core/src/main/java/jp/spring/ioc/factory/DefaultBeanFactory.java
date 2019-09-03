@@ -39,7 +39,7 @@ public class DefaultBeanFactory implements BeanFactory {
 
   public void refresh() {
     try {
-      registerDependency(this.getClass(), this);
+      registerDependency(TypeUtil.simpleClassName(this.getClass()), this);
 
       beforeInitializeBean();
     } catch (Exception e) {
@@ -61,9 +61,22 @@ public class DefaultBeanFactory implements BeanFactory {
 
     BeanDefinition definition = definitions.get(name);
     if (definition == null) {
-      throw new IllegalArgumentException("No bean named " + name + " is defined");
+      throw new BeansException("No bean named " + name + " is defined");
     }
     return doGetBean(definition);
+  }
+
+  @Override
+  public void registerDependency(String name, Object object) {
+    synchronized (this.beans) {
+      Object oldObject = this.beans.get(name);
+      if (oldObject != null && definitions.containsKey(name)) {
+        throw new IllegalArgumentException("Could not register object [" + object +
+            "] under bean name '" + name + "': because it's already registers");
+      }
+      addSingleton(name, object);
+      definitions.put(name, new BeanDefinition(name, object.getClass()));
+    }
   }
 
   private Object doGetBean(BeanDefinition definition) {
@@ -175,6 +188,7 @@ public class DefaultBeanFactory implements BeanFactory {
         if (StringUtils.isNotBlank(name)) {
           value = getBean(name);
         }
+
       }
 
       if (value == null && injectField.isRequired()) {
@@ -222,31 +236,12 @@ public class DefaultBeanFactory implements BeanFactory {
     }
   }
 
-  @Override
-  public void registerDependency(Class<?> dependencyType, Object autowiredValue) {
-    String name = StringUtils.uncapitalize(dependencyType.getSimpleName());
-    boolean dup = beans.putIfAbsent(name, autowiredValue) != null;
-    if (dup) {
-      throw new IllegalArgumentException("Bean name " + name + " must be unique");
-    }
-    BeanDefinition definition = new BeanDefinition(name, dependencyType);
-    definitions.put(definition.getName(), definition);
-  }
-
-  @Override
-  public void registerBeanDefinition(BeanDefinition definition, Object bean) {
-    boolean dup = definitions.putIfAbsent(definition.getName(), definition) != null;
-    if (dup) {
-      throw new IllegalArgumentException("Bean name " + definition.getName() + " must be unique");
-    }
-    this.beans.put(definition.getName(), bean);
-  }
 
   @Override
   public void registerBeanDefinition(BeanDefinition definition) {
     boolean dup = definitions.putIfAbsent(definition.getName(), definition) != null;
     if (dup) {
-      throw new IllegalArgumentException("Bean name " + definition.getName() + " must be unique");
+      throw new IllegalArgumentException("Bean name [" + definition.getName() + "] is duplicated");
     }
   }
 
@@ -284,7 +279,7 @@ public class DefaultBeanFactory implements BeanFactory {
     return (List<A>) beans;
   }
 
-  public List<String> getBeanNamByAnnotation(Class<? extends Annotation> annotation) {
+  public List<String> getNamesByAnnotation(Class<? extends Annotation> annotation) {
     List<String> result = new ArrayList<>();
     BeanDefinition beanDefinition;
     for (String beanName : definitions.keySet()) {

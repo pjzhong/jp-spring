@@ -19,11 +19,11 @@ public interface BeanFactory {
   /**
    * Register a special dependency type with corresponding autowired value.
    *
-   * @param dependencyType the dependency type to register.
+   * @param name the name to register.
    * @param autowiredValue the corresponding autowired value.
    * @since 2019年06月09日 10:04:03
    */
-  void registerDependency(Class<?> dependencyType, Object autowiredValue);
+ void registerDependency(String name, Object autowiredValue);
 
   /**
    * Register a special dependency type with corresponding  definition
@@ -32,13 +32,4 @@ public interface BeanFactory {
    * @since 2019年06月09日 10:04:03
    */
   void registerBeanDefinition(BeanDefinition definition) throws Exception;
-
-
-  /**
-   * Register a special dependency bean with corresponding  definition
-   *
-   * @param definition the bean definition
-   * @since 2019年06月09日 10:04:03
-   */
-  void registerBeanDefinition(BeanDefinition definition, Object bean) throws Exception;
 }

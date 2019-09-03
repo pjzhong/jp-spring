@@ -94,27 +94,4 @@ public class RouterTest {
 
   }
 
-  @Test
-  public void test() throws NoSuchMethodException {
-    Set<Class<?>> wrapper = new HashSet<>(
-        Arrays.asList(
-            Boolean.class,
-            Byte.class,
-            Short.class,
-            Character.class,
-            Integer.class,
-            Long.class,
-            Double.class
-        )
-    );
-
-    Method m = this.getClass().getMethod("a", Integer.class);
-    for (Parameter p : m.getParameters()) {
-      System.out.println(wrapper.contains(p.getType()));
-    }
-  }
-
-  public void a(Integer i) {
-  }
-
 }

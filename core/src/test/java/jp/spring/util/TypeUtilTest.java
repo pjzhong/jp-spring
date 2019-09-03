@@ -1,6 +1,6 @@
 package jp.spring.util;
 
-import static jp.spring.util.TypeUtil.determinedName;
+import static jp.spring.util.TypeUtil.simpleClassName;
 import static jp.spring.util.TypeUtil.isAnnotated;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -28,11 +28,11 @@ public class TypeUtilTest {
 
   @Test
   public void determinedNameTest() {
-    assertEquals("list", determinedName(List.class));
-    assertEquals("typeUtilTest", determinedName(this.getClass()));
+    assertEquals("list", simpleClassName(List.class));
+    assertEquals("typeUtilTest", simpleClassName(this.getClass()));
 
-    assertNotEquals("Map", determinedName(Map.class));
-    assertNotEquals("HashMap", determinedName(HashMap.class));
+    assertNotEquals("Map", simpleClassName(Map.class));
+    assertNotEquals("HashMap", simpleClassName(HashMap.class));
   }
 
   @Test

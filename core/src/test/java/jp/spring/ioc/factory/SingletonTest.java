@@ -13,8 +13,8 @@ class SingletonTest {
   @Test
   void singletonTest() {
     BeanFactory factory = new DefaultApplicationContext();
-    SingletonObj a = (SingletonObj) factory.getBean(TypeUtil.determinedName(SingletonObj.class));
-    SingletonObj b = (SingletonObj) factory.getBean(TypeUtil.determinedName(SingletonObj.class));
+    SingletonObj a = (SingletonObj) factory.getBean(TypeUtil.simpleClassName(SingletonObj.class));
+    SingletonObj b = (SingletonObj) factory.getBean(TypeUtil.simpleClassName(SingletonObj.class));
 
     assertNotNull(a);
     assertNotNull(b);
