@@ -1,7 +1,8 @@
 package jp.spring.util;
 
-import static jp.spring.util.TypeUtil.simpleClassName;
 import static jp.spring.util.TypeUtil.isAnnotated;
+import static jp.spring.util.TypeUtil.resolveClassName;
+import static jp.spring.util.TypeUtil.simpleClassName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -16,6 +17,7 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jp.spring.ioc.annotation.Named;
 import jp.spring.mvc.annotation.Controller;
 import jp.spring.util.TypeUtilTest.AnnotatedParentClass.AnnotatedChildClass;
 import org.junit.jupiter.api.AfterEach;
@@ -25,6 +27,21 @@ import org.junit.jupiter.api.Test;
 
 
 public class TypeUtilTest {
+
+  @Test
+  void resolvedName_with_annotation_Test() {
+    assertEquals("named", resolveClassName(NamedClass.class));
+  }
+
+  @Named("named")
+  private static class NamedClass {
+
+  }
+
+  @Test
+  void resolvedName_without_annotation_Test() {
+    assertEquals("list", resolveClassName(List.class));
+  }
 
   @Test
   public void determinedNameTest() {

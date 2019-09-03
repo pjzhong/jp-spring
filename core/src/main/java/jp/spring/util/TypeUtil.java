@@ -16,6 +16,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
+import jp.spring.ioc.annotation.Named;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -184,6 +185,22 @@ public class TypeUtil {
    */
   public static String simpleClassName(Class<?> beanClass) {
     return StringUtils.uncapitalize(beanClass.getSimpleName());
+  }
+
+  /**
+   * resolved the name of the given {@code clazz} using {@code Named} annotation, if this annotation
+   * do not exists, get the name of the given class, the first character is uncapitalize
+   *
+   * @param clazz the target class
+   * @since 2019年09月03日 20:03:08
+   */
+  public static String resolveClassName(Class<?> clazz) {
+    Named name = getAnnotation(clazz, Named.class);
+    if (name != null) {
+      return name.value();
+    } else {
+      return simpleClassName(clazz);
+    }
   }
 
   /**
