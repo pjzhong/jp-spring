@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import jp.spring.ioc.BeansException;
+import jp.spring.ioc.NoUniqueBeansException;
 import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -87,8 +89,8 @@ public class DefaultBeanFactory implements BeanFactory {
       if (bean == null) {
         bean = getSingleton(name, () -> createBean(definition));
       }
-    } catch (Exception e) {
-      throw new BeansException(e);
+    } catch (RuntimeException e) {
+      throw e;
     }
     return bean;
   }
@@ -150,17 +152,20 @@ public class DefaultBeanFactory implements BeanFactory {
       postConstruct(bean, definition);
       bean = afterInitializeBean(bean, definition.getName());
       return bean;
-    } catch (Exception e) {
-      throw new BeansException(e);
+    } catch (RuntimeException e) {
+      throw e;
     }
   }
 
-  private Object instantBean(BeanDefinition definition)
-      throws IllegalAccessException, InstantiationException {
+  private Object instantBean(BeanDefinition definition) {
     Object obj = beans.get(definition.getName());
     if (obj == null) {
       synchronized (this.beans) {
-        obj = definition.getClazz().newInstance();
+        try {
+          obj = definition.getClazz().newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+          throw new RuntimeException(e);
+        }
         this.earlyBeans.put(definition.getName(), obj);
         this.beans.remove(definition.getName());
         this.beanFactories.remove(definition.getName());
@@ -169,35 +174,38 @@ public class DefaultBeanFactory implements BeanFactory {
     return obj;
   }
 
-  private void resolveDependency(Object bean, BeanDefinition beanDefinition) throws Exception {
-    /* 两种情况:
-     * 1.没有@Qualifier, 那么根据类型来获取注入对象。多个取第一个
-     * 2.用户添加了@Qualifier, 使用@Qualifier的值来获取注入对象
-     */
-
+  private void resolveDependency(Object bean, BeanDefinition beanDefinition)
+      throws RuntimeException {
     for (InjectField injectField : beanDefinition.getInjectFields()) {
       Object value = null;
       if (StringUtils.isNotBlank(injectField.getQualifier())) {
         value = getBean(injectField.getQualifier());
       } else {
         Class<?> type = injectField.getType();
-        String name = definitions.values().stream()
+        List<String> names = definitions.values().stream()
             .filter(def -> type.isAssignableFrom(def.getClazz()))
             .map(BeanDefinition::getName)
-            .findFirst().orElse(null);
-        if (StringUtils.isNotBlank(name)) {
-          value = getBean(name);
+            .collect(Collectors.toList());
+
+        if (names.isEmpty() && injectField.isRequired()) {
+          throw new BeansException(String
+              .format("Inject %s to %s failed, no such bean exists", injectField.getType(),
+                  beanDefinition.getClazz()));
         }
 
+        if (names.size() > 1) {
+          throw new NoUniqueBeansException(
+              String.format("type:%s is not Unique, found:%s", injectField.getType(), names));
+        }
+
+        value = getBean(names.get(0));
       }
 
-      if (value == null && injectField.isRequired()) {
-        throw new BeansException(String
-            .format("Inject %s to %s failed", injectField.getType(),
-                beanDefinition.getClazz()));
+      try {
+        injectField.inject(bean, value);
+      } catch (Exception e) {
+        throw new BeansException(e);
       }
-
-      injectField.inject(bean, value);
     }
   }
 
@@ -208,7 +216,7 @@ public class DefaultBeanFactory implements BeanFactory {
    * @param definition the object configuration
    * @since 2019年06月16日 14:35:57
    */
-  private void injectPropertyValue(Object bean, BeanDefinition definition) throws Exception {
+  private void injectPropertyValue(Object bean, BeanDefinition definition) throws RuntimeException {
 
     for (PropertyValue propertyValue : definition.getPropertyValues()) {
       Object value = null;
@@ -223,16 +231,23 @@ public class DefaultBeanFactory implements BeanFactory {
       }
 
       if (value != null) {
-        propertyValue.inject(bean, value);
+        try {
+          propertyValue.inject(bean, value);
+        } catch (IllegalAccessException e) {
+          throw new RuntimeException(e);
+        }
       }
     }
   }
 
-  private void postConstruct(Object bean, BeanDefinition definition)
-      throws InvocationTargetException, IllegalAccessException {
+  private void postConstruct(Object bean, BeanDefinition definition) {
     Method post = definition.getPost();
     if (post != null) {
-      post.invoke(bean, ArrayUtils.EMPTY_OBJECT_ARRAY);
+      try {
+        post.invoke(bean, ArrayUtils.EMPTY_OBJECT_ARRAY);
+      } catch (IllegalAccessException | InvocationTargetException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 

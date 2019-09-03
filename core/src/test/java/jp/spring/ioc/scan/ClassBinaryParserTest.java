@@ -114,7 +114,7 @@ class ClassBinaryParserTest {
   }
 
   @Test
-  void not_class_test() {
+  void notClassTest() {
     byte[] s = "Not a class".getBytes(StandardCharsets.UTF_8);
     InputStream stream = new ByteArrayInputStream(s);
 

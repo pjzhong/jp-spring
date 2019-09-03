@@ -9,6 +9,7 @@ import java.util.List;
 import jp.spring.DefaultApplicationContext;
 import jp.spring.ioc.BeansException;
 import jp.spring.ioc.annotation.Component;
+import jp.spring.ioc.annotation.Named;
 import jp.spring.util.TypeUtil;
 import org.junit.jupiter.api.Test;
 
@@ -16,23 +17,23 @@ import org.junit.jupiter.api.Test;
 class DependencyTest {
 
   @Test
-  void no_bean_test() {
+  void noBeanTest() {
     assertThrows(BeansException.class, () -> {
       BeanFactory factory = new DefaultApplicationContext();
 
-      factory.getBean(TypeUtil.simpleClassName(List.class));
+      factory.getBean("No Such Bean");
     });
   }
 
   @Test
-  void register_get_test() {
+  void registerGetTest() {
     BeanFactory factory = new DefaultApplicationContext();
     factory.registerDependency(TypeUtil.simpleClassName(List.class), Collections.emptyList());
     assertEquals(Collections.emptyList(), factory.getBean(TypeUtil.simpleClassName(List.class)));
   }
 
   @Test
-  void get_test() {
+  void getTest() {
     BeanFactory context = new DefaultApplicationContext();
     TestService service = (TestService) context
         .getBean(TypeUtil.simpleClassName(TestServiceImple.class));
@@ -40,9 +41,27 @@ class DependencyTest {
     assertEquals("Hello World!", service.say("Hello World!"));
   }
 
+  @Test
+  void namedTest() {
+    BeanFactory context = new DefaultApplicationContext();
+    NamedClass service = (NamedClass) context
+        .getBean("hello,world");
+    assertNotNull(service);
+    assertEquals("hello,world", service.hi());
+  }
+
   public interface TestService {
 
     String say(String hi);
+  }
+
+  @Named("hello,world")
+  @Component
+  public static class NamedClass {
+
+    public String hi() {
+      return "hello,world";
+    }
   }
 
   @Component
