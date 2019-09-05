@@ -55,17 +55,7 @@ public class DefaultBeanFactory implements BeanFactory {
     if (StringUtils.isBlank(name)) {
       throw new BeansException("Bean Name Can't not be blank");
     }
-
-    Object res = beans.get(name);
-    if (res != null) {
-      return res;
-    }
-
-    BeanDefinition definition = definitions.get(name);
-    if (definition == null) {
-      throw new BeansException("No bean named " + name + " is defined");
-    }
-    return doGetBean(definition);
+    return doGetBean(name);
   }
 
   @Override
@@ -81,16 +71,16 @@ public class DefaultBeanFactory implements BeanFactory {
     }
   }
 
-  private Object doGetBean(BeanDefinition definition) {
-    Object bean = null;
-    try {
-      String name = definition.getName();
-      bean = getSingleton(name);
-      if (bean == null) {
-        bean = getSingleton(name, () -> createBean(definition));
+  private Object doGetBean(String name) {
+    Object bean;
+    bean = getSingleton(name);
+    if (bean == null) {
+      BeanDefinition definition = definitions.get(name);
+      if (definition == null) {
+        throw new BeansException("No bean " + name + " is defined");
       }
-    } catch (RuntimeException e) {
-      throw e;
+
+      bean = getSingleton(name, () -> createBean(definition));
     }
     return bean;
   }
@@ -144,17 +134,13 @@ public class DefaultBeanFactory implements BeanFactory {
   }
 
   private Object createBean(BeanDefinition definition) throws BeansException {
-    try {
-      Object bean = instantBean(definition);
+    Object bean = instantBean(definition);
 
-      resolveDependency(bean, definition);
-      injectPropertyValue(bean, definition);
-      postConstruct(bean, definition);
-      bean = afterInitializeBean(bean, definition.getName());
-      return bean;
-    } catch (RuntimeException e) {
-      throw e;
-    }
+    resolveDependency(bean, definition);
+    injectPropertyValue(bean, definition);
+    postConstruct(bean, definition);
+    bean = afterInitializeBean(bean, definition.getName());
+    return bean;
   }
 
   private Object instantBean(BeanDefinition definition) {
@@ -177,7 +163,7 @@ public class DefaultBeanFactory implements BeanFactory {
   private void resolveDependency(Object bean, BeanDefinition beanDefinition)
       throws RuntimeException {
     for (InjectField injectField : beanDefinition.getInjectFields()) {
-      Object value = null;
+      Object value;
       if (StringUtils.isNotBlank(injectField.getQualifier())) {
         value = getBean(injectField.getQualifier());
       } else {
