@@ -64,8 +64,8 @@ public class HttpDispatcher extends SimpleChannelInboundHandler<FullHttpRequest>
         response.headers().set(HttpHeaderNames.CONTENT_TYPE, MIME.APPLICATION_JSON.type());
         response.content().writeBytes(JSON.toJSONString(result).getBytes(CharsetUtil.UTF_8));
       }
-      intercepts.forEach(i -> i.afterHandle(request, response, handler));
     }
+    intercepts.forEach(i -> i.afterHandle(request, response, handler));
     ctx.channel().writeAndFlush(resolver.getResponse());
   }
 
