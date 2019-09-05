@@ -10,7 +10,7 @@ import jp.spring.mvc.interceptor.Interceptor;
 /**
  * Created by Administrator on 1/27/2017.
  */
-@Intercept(url = "/hello/**")
+@Intercept("/hello/**")
 public class HelloInterceptor implements Interceptor {
 
   @Override

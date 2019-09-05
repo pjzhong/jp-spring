@@ -14,8 +14,6 @@ import jp.spring.ioc.annotation.Component;
 @Component
 public @interface Intercept {
 
-  String url() default "";
-
   String value() default "";
 
 }

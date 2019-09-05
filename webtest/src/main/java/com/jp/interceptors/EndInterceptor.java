@@ -11,7 +11,7 @@ import jp.spring.mvc.interceptor.Interceptor;
 /**
  * Created by Administrator on 1/27/2017.
  */
-@Intercept(url = "/end")
+@Intercept("/end")
 public class EndInterceptor implements Interceptor {
 
   @Override

@@ -188,7 +188,7 @@ public class HandlerMapping {
       interceptors = new ArrayList<>();
       InterceptMatch interceptMatch;
       for (String name : interceptorNames) {
-        String expression = beanFactory.getType(name).getAnnotation(Intercept.class).url();
+        String expression = beanFactory.getType(name).getAnnotation(Intercept.class).value();
         interceptMatch = new InterceptMatch(name, expression);
         interceptors.add(interceptMatch);
       }
