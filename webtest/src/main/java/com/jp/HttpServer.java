@@ -1,6 +1,6 @@
 package com.jp;
 
-import jp.spring.http.HttpService;
+import jp.spring.web.HttpService;
 
 public class HttpServer {
 

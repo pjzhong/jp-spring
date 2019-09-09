@@ -4,9 +4,9 @@ package com.jp.interceptors;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.HttpResponseStatus;
-import jp.spring.mvc.annotation.Intercept;
-import jp.spring.mvc.handler.Handler;
-import jp.spring.mvc.interceptor.Interceptor;
+import jp.spring.web.annotation.Intercept;
+import jp.spring.web.handler.Handler;
+import jp.spring.web.interceptor.Interceptor;
 
 /**
  * Created by Administrator on 1/27/2017.

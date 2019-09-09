@@ -16,13 +16,13 @@ import java.util.Map;
 import javax.annotation.PostConstruct;
 import jp.spring.ioc.annotation.Autowired;
 import jp.spring.ioc.annotation.Value;
-import jp.spring.mvc.annotation.Controller;
-import jp.spring.mvc.annotation.PathVariable;
-import jp.spring.mvc.annotation.RequestHeader;
-import jp.spring.mvc.annotation.RequestMapping;
-import jp.spring.mvc.annotation.RequestMethod;
-import jp.spring.mvc.annotation.RequestParam;
-import jp.spring.mvc.annotation.ResponseBody;
+import jp.spring.web.annotation.Controller;
+import jp.spring.web.annotation.PathVariable;
+import jp.spring.web.annotation.RequestHeader;
+import jp.spring.web.annotation.RequestMapping;
+import jp.spring.web.annotation.RequestMethod;
+import jp.spring.web.annotation.RequestParam;
+import jp.spring.web.annotation.ResponseBody;
 
 @Controller
 public class HelloWorld {

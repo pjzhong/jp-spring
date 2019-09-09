@@ -17,8 +17,8 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import jdk.nashorn.internal.ir.annotations.Immutable;
 import jp.spring.ioc.annotation.Named;
-import jp.spring.mvc.annotation.Controller;
 import jp.spring.util.TypeUtilTest.AnnotatedParentClass.AnnotatedChildClass;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Disabled;
@@ -63,19 +63,17 @@ public class TypeUtilTest {
 
   @Test
   public void isAnnotated_classTest() {
-    assertTrue(isAnnotated(AnnotatedChildClass.class, Controller.class));
-    assertTrue(isAnnotated(AnnotatedParentClass.class, Controller.class));
+    assertTrue(isAnnotated(AnnotatedChildClass.class, Tag.class));
     assertFalse(isAnnotated(AnnotatedChildClass.class, Deprecated.class));
     assertFalse(isAnnotated(AnnotatedParentClass.class, Deprecated.class));
   }
 
-  @Controller
-  static class AnnotatedParentClass {
+  public static class AnnotatedParentClass {
 
     public void fromParent() {
     }
 
-    @Controller
+    @Tag("2")
     @Disabled
     final static class AnnotatedChildClass extends AnnotatedParentClass {
 
