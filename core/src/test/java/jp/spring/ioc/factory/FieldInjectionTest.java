@@ -35,4 +35,38 @@ public class FieldInjectionTest {
 
   }
 
+  @Component
+  public static class B {
+
+  }
+
+  @Test
+  void parentFieldInjected() {
+    BeanFactory factory = new DefaultApplicationContext();
+
+    Child child = (Child) factory.getBean(TypeUtil.simpleClassName(Child.class));
+    assertNotNull(child);
+    assertTrue(Child.class.isAssignableFrom(child.getClass()));
+
+    assertNotNull(child.a);
+    assertEquals(child.a.getClass(), A.class);
+
+    assertNotNull(child.b);
+    assertEquals(child.b.getClass(), B.class);
+  }
+
+  public static class Parent {
+
+    @Autowired
+    public A a;
+  }
+
+  @Component
+  public static class Child extends Parent {
+
+    @Autowired
+    public B b;
+  }
+
+
 }
