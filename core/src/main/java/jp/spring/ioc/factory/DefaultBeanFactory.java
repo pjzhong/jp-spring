@@ -106,19 +106,15 @@ public class DefaultBeanFactory implements BeanFactory {
   private Object getSingleton(String name, Supplier<?> factory) {
     synchronized (this.beans) {
       Object singletonObject = this.beans.get(name);
-      boolean newSingleton = false;
       if (singletonObject == null) {
         try {
           singletonObject = factory.get();
-          newSingleton = true;
+          addSingleton(name, singletonObject);
         } catch (Exception e) {
           singletonObject = this.beans.get(name);
           if (singletonObject == null) {
             throw e;
           }
-        }
-        if (newSingleton) {
-          addSingleton(name, singletonObject);
         }
       }
       return singletonObject;
