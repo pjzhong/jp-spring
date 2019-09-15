@@ -11,32 +11,29 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import jp.spring.web.annotation.RequestParam;
-import jp.spring.web.handler.Filler;
-import jp.spring.web.handler.HandlerArgResolver;
 import jp.spring.util.TypeUtil;
+import jp.spring.web.annotation.RequestParam;
+import jp.spring.web.handler.Adapter;
+import jp.spring.web.handler.HandlerArgResolver;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
-public class RequestParamFiller implements Filler<Object> {
+public class RequestParamAdapter implements Adapter<Object> {
 
-  /** 参数标记 */
-  private RequestParam reqParam;
   /** 类型 */
   private Type type;
   /** 参数名 */
   private String name;
 
-  private RequestParamFiller(RequestParam q, String name, Type type) {
+  private RequestParamAdapter(RequestParam q, String name, Type type) {
     this.type = type;
-    this.reqParam = q;
     this.name = StringUtils.isBlank(q.value()) ? name : q.value();
   }
 
-  public static RequestParamFiller of(RequestParam q, String name, Type type) {
-    return new RequestParamFiller(q, name, type);
+  public static RequestParamAdapter of(RequestParam q, String name, Type type) {
+    return new RequestParamAdapter(q, name, type);
   }
 
   @Override

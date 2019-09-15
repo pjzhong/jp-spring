@@ -1,6 +1,6 @@
 package jp.spring.web.handler.impl;
 
-import jp.spring.web.handler.Filler;
+import jp.spring.web.handler.Adapter;
 import jp.spring.web.handler.HandlerArgResolver;
 
 /**
@@ -9,11 +9,11 @@ import jp.spring.web.handler.HandlerArgResolver;
  * @author ZJP
  * @since 2019年04月23日 11:16:05
  **/
-public class NullFiller implements Filler<Object> {
+public class NullAdapter implements Adapter<Object> {
 
-  public static NullFiller NULL = new NullFiller();
+  public static NullAdapter NULL = new NullAdapter();
 
-  private NullFiller() {
+  private NullAdapter() {
   }
 
   /**

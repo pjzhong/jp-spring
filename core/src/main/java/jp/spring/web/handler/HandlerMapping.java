@@ -64,14 +64,14 @@ public class HandlerMapping {
       RequestMethod method,
       String requestUri) {
 
-    Iterable<String> reqIterator = splitAndOmitEmpty(requestUri, '/');
+    Iterable<String> reqIterator = splitAndOmitEmpty(requestUri);
     List<Pair<Handler, Map<String, String>>> result = new ArrayList<>();
 
     long maxScore = 0;
     for (Pair<Handler, Map<String, String>> p : routers) {
       Handler handler = p.getLeft();
-      if (handler.getHttpMethods().contains(method)) {
-        long score = calcMatchScore(reqIterator, splitAndOmitEmpty(handler.getUrl(), '/'));
+      if (handler.hasMethod(method)) {
+        long score = calcMatchScore(reqIterator, splitAndOmitEmpty(handler.getUrl()));
         if (maxScore < score) {
           maxScore = score;
           result.clear();
@@ -110,7 +110,7 @@ public class HandlerMapping {
     return score;
   }
 
-  private static Iterable<String> splitAndOmitEmpty(String str, char split) {
+  private static Iterable<String> splitAndOmitEmpty(String str) {
     return () -> new Iterator<String>() {
       int startIdx = 0;
       String next = null;
@@ -118,7 +118,7 @@ public class HandlerMapping {
       @Override
       public boolean hasNext() {
         while (next == null && startIdx < str.length()) {
-          int idx = str.indexOf(split, startIdx);
+          int idx = str.indexOf('/', startIdx);
           if (idx == startIdx) {
             startIdx++;
             continue;

@@ -1,34 +1,25 @@
 package jp.spring.web.handler.impl;
 
-import jp.spring.web.annotation.PathVariable;
-import jp.spring.web.handler.Filler;
-import jp.spring.web.handler.HandlerArgResolver;
 import jp.spring.util.TypeUtil;
+import jp.spring.web.annotation.PathVariable;
+import jp.spring.web.handler.Adapter;
+import jp.spring.web.handler.HandlerArgResolver;
 import org.apache.commons.lang3.StringUtils;
 
-public class PathVariableFiller implements Filler<Object> {
+public class PathParamAdapter implements Adapter<Object> {
 
-  /**
-   * 参数标记
-   */
-  private PathVariable path;
-  /**
-   * 目标类型
-   */
+  /** 目标类型 */
   private Class<?> type;
-  /**
-   * 名字
-   */
+  /** 名字 */
   private String name;
 
-  private PathVariableFiller(PathVariable path, String name, Class<?> type) {
+  private PathParamAdapter(PathVariable path, String name, Class<?> type) {
     this.type = type;
-    this.path = path;
     this.name = StringUtils.isBlank(path.value()) ? name : path.value();
   }
 
-  public static PathVariableFiller of(PathVariable path, String name, Class<?> type) {
-    return new PathVariableFiller(path, name, type);
+  public static PathParamAdapter of(PathVariable path, String name, Class<?> type) {
+    return new PathParamAdapter(path, name, type);
   }
 
   @Override

@@ -60,6 +60,7 @@ public final class HttpService {
   public synchronized void stop() {
     bootstrap.config().group().shutdownGracefully().awaitUninterruptibly();
     bootstrap.config().childGroup().shutdownGracefully().awaitUninterruptibly();
+    bootstrap = null;
     LOG.info("{} shutdown success", name);
   }
 

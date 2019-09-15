@@ -2,39 +2,30 @@ package jp.spring.web.handler.impl;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import java.util.Optional;
-import jp.spring.web.annotation.RequestHeader;
-import jp.spring.web.handler.Filler;
-import jp.spring.web.handler.HandlerArgResolver;
 import jp.spring.util.TypeUtil;
+import jp.spring.web.annotation.RequestHeader;
+import jp.spring.web.handler.Adapter;
+import jp.spring.web.handler.HandlerArgResolver;
 import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author ZJP
  * @since 2019年04月23日 11:55:04
  **/
-public class HeaderFiller implements Filler<Object> {
+public class HeaderAdapter implements Adapter<Object> {
 
-  /**
-   * 参数名
-   */
+  /** 参数名 */
   private String name;
-  /**
-   * 参数标记
-   */
-  private RequestHeader reqHeader;
-  /**
-   * 目标类型
-   */
+  /** 目标类型 */
   private Class<?> type;
 
-  private HeaderFiller(RequestHeader reqHeader, String name, Class<?> type) {
+  private HeaderAdapter(RequestHeader reqHeader, String name, Class<?> type) {
     this.type = type;
-    this.reqHeader = reqHeader;
     this.name = StringUtils.isBlank(reqHeader.value()) ? name : reqHeader.value();
   }
 
-  public static HeaderFiller of(RequestHeader reqHeader, String name, Class<?> type) {
-    return new HeaderFiller(reqHeader, name, type);
+  public static HeaderAdapter of(RequestHeader reqHeader, String name, Class<?> type) {
+    return new HeaderAdapter(reqHeader, name, type);
   }
 
   @Override

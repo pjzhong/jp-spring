@@ -29,7 +29,6 @@ public class DefaultApplicationContext implements ApplicationContext {
   private Logger logger = LoggerFactory.getLogger(this.getClass());
 
   private DefaultBeanFactory beanFactory;
-  private ClassGraph graph;
 
   public DefaultApplicationContext() {
     this.beanFactory = new DefaultBeanFactory();
@@ -77,7 +76,6 @@ public class DefaultApplicationContext implements ApplicationContext {
 
     // graph
     ClassGraph graph = result.getClassGraph();
-    this.graph = graph;
 
     Set<ClassInfo> infos = graph.getInfoWithAnnotation(Component.class);
     logger.info("Found infos:{}", infos);

@@ -3,33 +3,27 @@ package jp.spring.web.handler.impl;
 import java.net.HttpCookie;
 import java.util.Map;
 import java.util.Optional;
-import jp.spring.web.annotation.CookieParam;
-import jp.spring.web.handler.Filler;
-import jp.spring.web.handler.HandlerArgResolver;
 import jp.spring.util.TypeUtil;
+import jp.spring.web.annotation.CookieParam;
+import jp.spring.web.handler.Adapter;
+import jp.spring.web.handler.HandlerArgResolver;
 import org.apache.commons.lang3.StringUtils;
 
-public class CookieFiller implements Filler<Object> {
+public class CookieAdapter implements Adapter<Object> {
 
 
-  private CookieParam cookie;
-  /**
-   * 参数类型
-   */
+  /** 参数类型 */
   private Class<?> type;
-  /**
-   * 参数名
-   */
+  /** 参数名 */
   private String name;
 
-  private CookieFiller(CookieParam c, String name, Class<?> type) {
+  private CookieAdapter(CookieParam c, String name, Class<?> type) {
     this.type = type;
-    this.cookie = c;
     this.name = StringUtils.isBlank(c.value()) ? name : c.value();
   }
 
-  public static CookieFiller of(CookieParam c, String name, Class<?> type) {
-    return new CookieFiller(c, name, type);
+  public static CookieAdapter of(CookieParam c, String name, Class<?> type) {
+    return new CookieAdapter(c, name, type);
   }
 
   @Override

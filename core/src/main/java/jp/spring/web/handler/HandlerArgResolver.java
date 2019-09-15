@@ -37,13 +37,6 @@ public class HandlerArgResolver {
   /** Hanlder所需参数 */
   private Object[] args;
 
-  private HandlerArgResolver() {
-    this.paths = Collections.emptyMap();
-    this.cookies = Collections.emptyMap();
-    this.params = Collections.emptyMap();
-    this.args = ArrayUtils.EMPTY_OBJECT_ARRAY;
-  }
-
   private HandlerArgResolver(Pair<Handler, Map<String, String>> routed,
       FullHttpRequest request, FullHttpResponse response) {
     this.handler = routed.getLeft();
@@ -76,7 +69,7 @@ public class HandlerArgResolver {
     this.params = Collections.unmodifiableMap(parameters);
   }
 
-  private synchronized void parseCookie() {
+  private void parseCookie() {
     if (this.cookies != null) {
       return;
     }
@@ -88,7 +81,7 @@ public class HandlerArgResolver {
         .unmodifiableMap(cookies.stream().collect(Collectors.toMap(HttpCookie::getName, h -> h)));
   }
 
-  private synchronized void parseArgs() {
+  private void parseArgs() {
     if (args != null) {
       return;
     }

@@ -6,9 +6,9 @@ package jp.spring.web.handler;
 public class MethodParameter {
 
   private Class<?> type;
-  private Filler<Object> converter;
+  private Adapter<?> converter;
 
-  public MethodParameter(Class<?> type, Filler<Object> converter) {
+  public MethodParameter(Class<?> type, Adapter<?> converter) {
     this.type = type;
     this.converter = converter;
   }
@@ -18,7 +18,7 @@ public class MethodParameter {
   }
 
 
-  public Filler<Object> getConverter() {
+  public Adapter<?> getConverter() {
     return converter;
   }
 }

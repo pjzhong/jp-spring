@@ -1,14 +1,14 @@
 package jp.spring.web.handler.impl;
 
 import io.netty.handler.codec.http.FullHttpResponse;
-import jp.spring.web.handler.Filler;
+import jp.spring.web.handler.Adapter;
 import jp.spring.web.handler.HandlerArgResolver;
 
-public class ResponseFiller implements Filler<Object> {
+public class ResponseAdapter implements Adapter<FullHttpResponse> {
 
-  public static ResponseFiller response = new ResponseFiller();
+  public static ResponseAdapter response = new ResponseAdapter();
 
-  private ResponseFiller() {
+  private ResponseAdapter() {
   }
 
   @Override

@@ -12,21 +12,21 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import jp.spring.util.TypeUtil;
 import jp.spring.web.annotation.CookieParam;
 import jp.spring.web.annotation.PathVariable;
 import jp.spring.web.annotation.RequestHeader;
 import jp.spring.web.annotation.RequestMethod;
 import jp.spring.web.annotation.RequestParam;
 import jp.spring.web.annotation.ResponseBody;
-import jp.spring.web.handler.impl.CookieFiller;
-import jp.spring.web.handler.impl.HeaderFiller;
-import jp.spring.web.handler.impl.NullFiller;
-import jp.spring.web.handler.impl.PathVariableFiller;
-import jp.spring.web.handler.impl.RequestFiller;
-import jp.spring.web.handler.impl.RequestParamFiller;
-import jp.spring.web.handler.impl.ResponseFiller;
+import jp.spring.web.handler.impl.CookieAdapter;
+import jp.spring.web.handler.impl.HeaderAdapter;
+import jp.spring.web.handler.impl.NullAdapter;
+import jp.spring.web.handler.impl.PathParamAdapter;
+import jp.spring.web.handler.impl.RequestAdapter;
+import jp.spring.web.handler.impl.RequestParamAdapter;
+import jp.spring.web.handler.impl.ResponseAdapter;
 import jp.spring.web.interceptor.InterceptMatch;
-import jp.spring.util.TypeUtil;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
 /**
@@ -45,10 +45,10 @@ public class Handler {
   private final String beanName;
   private final Method method;
   private final String url;
-  private final Set<RequestMethod> httpMethods;
-  private Set<Class<? extends Annotation>> annotations = Collections.emptySet();
+  private final RequestMethod[] httpMethods;
+  private Set<Class<? extends Annotation>> annotations;
   private List<MethodParameter> parameters = null;
-  private List<InterceptMatch> interceptors = Collections.emptyList();
+  private List<InterceptMatch> interceptors;
 
   public Handler(String url, RequestMethod[] httpMethods, Method method, String beanName,
       List<InterceptMatch> interceptors) {
@@ -56,7 +56,7 @@ public class Handler {
     this.method = method;
     this.beanName = beanName;
     this.interceptors = interceptors;
-    this.httpMethods = Collections.unmodifiableSet(new HashSet<>(Arrays.asList(httpMethods)));
+    this.httpMethods = httpMethods;
 
     Set<Class<? extends Annotation>> anns = new HashSet<>();
     for (Annotation a : method.getAnnotations()) {
@@ -96,8 +96,17 @@ public class Handler {
     return interceptors;
   }
 
-  public Set<RequestMethod> getHttpMethods() {
+  public RequestMethod[] getHttpMethods() {
     return httpMethods;
+  }
+
+  public boolean hasMethod(RequestMethod method) {
+    for (RequestMethod m : httpMethods) {
+      if (m == method) {
+        return true;
+      }
+    }
+    return false;
   }
 
   public boolean isResponseBody() {
@@ -133,7 +142,7 @@ public class Handler {
       boolean standard = TypeUtils.isAssignable(rawClass, FullHttpRequest.class) || TypeUtils
           .isAssignable(rawClass, FullHttpResponse.class);
 
-      Filler<Object> filler = NullFiller.NULL;
+      Adapter<?> filler = NullAdapter.NULL;
       if (standard) {
         filler = createStandard(type);
       } else {
@@ -157,40 +166,38 @@ public class Handler {
     return Collections.unmodifiableList(result);
   }
 
-  private static Filler<Object> createConverter(Annotation a, Type type, Parameter p) {
+  private static Adapter<Object> createConverter(Annotation a, Type type, Parameter p) {
     // create convertToSimpleType
     Class<? extends Annotation> aType = a.annotationType();
     String pName = p.getName();
     if (PathVariable.class.isAssignableFrom(aType)) {
-      return PathVariableFiller.of((PathVariable) a, pName, (Class<?>) type);
+      return PathParamAdapter.of((PathVariable) a, pName, (Class<?>) type);
     } else if (RequestParam.class.isAssignableFrom(aType)) {
-      return RequestParamFiller.of((RequestParam) a, pName, type);
+      return RequestParamAdapter.of((RequestParam) a, pName, type);
     } else if (RequestHeader.class.isAssignableFrom(aType)) {
-      return HeaderFiller.of((RequestHeader) a, pName, (Class<?>) type);
+      return HeaderAdapter.of((RequestHeader) a, pName, (Class<?>) type);
     } else if (CookieParam.class.isAssignableFrom(aType)) {
-      return CookieFiller.of((CookieParam) a, pName, (Class<?>) type);
+      return CookieAdapter.of((CookieParam) a, pName, (Class<?>) type);
     } else {
-      return NullFiller.NULL;
+      return NullAdapter.NULL;
     }
   }
 
-  private static Filler<Object> createStandard(Type type) {
+  private static Adapter<?> createStandard(Type type) {
     if (TypeUtils.isAssignable(type, FullHttpRequest.class)) {
-      return RequestFiller.request;
+      return RequestAdapter.request;
     } else if (TypeUtils.isAssignable(type, FullHttpResponse.class)) {
-      return ResponseFiller.response;
+      return ResponseAdapter.response;
     } else {
-      return NullFiller.NULL;
+      return NullAdapter.NULL;
     }
   }
 
   @Override
   public String toString() {
-    final StringBuilder sb = new StringBuilder("Handler{");
-    sb.append(", url='").append(url).append('\'');
-    sb.append("method=").append(method);
-    sb.append(", beanName='").append(beanName).append('\'');
-    sb.append('}');
-    return sb.toString();
+    return "Handler{" + ", url='" + url + '\''
+        + "method=" + method
+        + ", beanName='" + beanName + '\''
+        + '}';
   }
 }

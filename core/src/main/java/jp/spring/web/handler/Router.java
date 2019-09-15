@@ -25,7 +25,7 @@ public class Router<T> {
   public static final Pattern CLEAN_PATH = Pattern.compile("/+");
 
   private final int maxPathParts;
-  private List<Pair<Pattern, Pair<T, List<String>>>> patternRouteList;
+  private List<Destination> patternRouteList;
 
   public static <T> Router<T> create(int maxParts) {
     return new Router<>(maxParts);
@@ -78,7 +78,7 @@ public class Router<T> {
     Pattern pattern = Pattern.compile(sb.toString());
     // if names is Empty, replace it with emptyList(for memory usage)
     groupNames = groupNames.isEmpty() ? Collections.emptyList() : groupNames;
-    patternRouteList.add(Pair.of(pattern, Pair.of(destination, groupNames)));
+    patternRouteList.add(new Destination(pattern, groupNames, destination));
   }
 
   /**
@@ -91,9 +91,9 @@ public class Router<T> {
         (path.endsWith("/") && path.length() > 1) ? path.substring(0, path.length() - 1) : path;
 
     List<Pair<T, Map<String, String>>> result = new ArrayList<>();
-    patternRouteList.forEach(pattern -> {
-      Matcher matcher = pattern.getLeft().matcher(cleanPath);
-      List<String> groupName = pattern.getRight().getRight();
+    patternRouteList.forEach(d -> {
+      Matcher matcher = d.getPattern().matcher(cleanPath);
+      List<String> groupName = d.getNames();
       if (matcher.matches()) {
         Map<String, String> nameValues =
             groupName.isEmpty() ? Collections.emptyMap() : new HashMap<>();
@@ -102,10 +102,35 @@ public class Router<T> {
           nameValues.put(name, matcher.group(matchIdx));
           matchIdx++;
         }
-        result.add(Pair.of(pattern.getRight().getLeft(), nameValues));
+        result.add(Pair.of(d.getTarget(), nameValues));
       }
     });
 
     return result;
+  }
+
+  private class Destination {
+
+    private Pattern pattern;
+    private List<String> names;
+    private T target;
+
+    Destination(Pattern pattern, List<String> names, T target) {
+      this.pattern = pattern;
+      this.names = names;
+      this.target = target;
+    }
+
+    public Pattern getPattern() {
+      return pattern;
+    }
+
+    public List<String> getNames() {
+      return names;
+    }
+
+    public T getTarget() {
+      return target;
+    }
   }
 }

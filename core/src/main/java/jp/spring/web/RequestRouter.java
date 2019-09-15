@@ -16,12 +16,8 @@ import java.util.Map;
 import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerMapping;
 import org.apache.commons.lang3.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class RequestRouter extends ChannelInboundHandlerAdapter {
-
-  private static final Logger LOG = LoggerFactory.getLogger(RequestRouter.class);
 
   private final HandlerMapping handlerMapping;
   private final int chunkLimit;
