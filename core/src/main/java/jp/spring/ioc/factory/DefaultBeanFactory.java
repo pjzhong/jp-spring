@@ -201,22 +201,21 @@ public class DefaultBeanFactory implements BeanFactory {
   private void injectPropertyValue(Object bean, BeanDefinition definition) throws RuntimeException {
 
     for (PropertyValue propertyValue : definition.getPropertyValues()) {
-      Object value = null;
       String strValue = getProperties().getProperty(propertyValue.getName());
-      if ((strValue != null) && TypeUtil.isSimpleType(propertyValue.getField().getType())) {
-        value = TypeUtil.convertToSimpleType(strValue, propertyValue.getField().getType());
+      if (strValue == null && propertyValue.isRequired()) {
+        throw new BeansException(
+            String.format("Create %s failed, property %s exists", definition.getClassName(),
+                propertyValue.getName()));
       }
 
-      if (value == null && propertyValue.isRequired()) {
-        throw new BeansException(String.format("Inject %s to %s failed", propertyValue.getName(),
-            definition.getClassName()));
-      }
-
-      if (value != null) {
+      if (strValue != null) {
         try {
+          Object value = TypeUtil.convertToSimpleType(strValue, propertyValue.getField().getType());
           propertyValue.inject(bean, value);
-        } catch (IllegalAccessException e) {
-          throw new RuntimeException(e);
+        } catch (Exception e) {
+          throw new BeansException(
+              String.format("Inject property %s to %s failed", propertyValue.getName(),
+                  definition.getClassName()), e.getCause());
         }
       }
     }
