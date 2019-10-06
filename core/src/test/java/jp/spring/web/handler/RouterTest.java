@@ -38,7 +38,7 @@ public class RouterTest {
 
     List<Route<String>> routes = Collections.emptyList();
 
-    routes = router.getDestinations("//////clean//////////path");
+    routes = router.getDestinations("//////clean//////////path//////////");
     assertEquals(1, routes.size());
     assertEquals("cleanPath", routes.get(0).getTarget());
     assertTrue(routes.get(0).getPathParams().isEmpty());

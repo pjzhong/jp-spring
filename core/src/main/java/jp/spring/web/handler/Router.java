@@ -25,7 +25,11 @@ public class Router<T> {
   static final Pattern GROUP_PATTERN = Pattern.compile("\\{(.*?)}");
 
   private final int maxPathParts;
-  private List<Destination<T>> patternRouteList;
+
+  /** 路径 -> 终点 */
+  private Map<String, Destination<T>> routes;
+  /** 正则终点(s) */
+  private List<Destination<T>> patternRoutes;
 
   static <T> Router<T> create(int maxParts) {
     return new Router<>(maxParts);
@@ -34,7 +38,8 @@ public class Router<T> {
 
   private Router(int maxPathParts) {
     this.maxPathParts = maxPathParts;
-    this.patternRouteList = new ArrayList<>();
+    this.patternRoutes = new ArrayList<>();
+    this.routes = new HashMap<>();
   }
 
   /**
@@ -70,14 +75,19 @@ public class Router<T> {
       }
       sb.append("/");
     }
-
     //Ignore the last "/"
     sb.setLength(sb.length() - 1);
 
-    Pattern pattern = Pattern.compile(sb.toString());
-    // if names is Empty, replace it with emptyList(for memory usage)
-    groupNames = groupNames.isEmpty() ? Collections.emptyList() : groupNames;
-    patternRouteList.add(new Destination<>(pattern, groupNames, destination));
+    String finalPath = sb.toString();
+    boolean simplePath = finalPath.equals(path);
+    if (simplePath) {
+      routes.put(sb.toString(), new Destination<>(destination));
+    } else {
+      Pattern pattern = Pattern.compile(finalPath);
+      // if names is Empty, replace it with emptyList(for memory usage)
+      groupNames = groupNames.isEmpty() ? Collections.emptyList() : groupNames;
+      patternRoutes.add(new Destination<>(pattern, groupNames, destination));
+    }
   }
 
   /**
@@ -88,20 +98,24 @@ public class Router<T> {
   public List<Route<T>> getDestinations(String path) {
     String cleanPath = cleanPath(path);
 
-    List<Route<T>> result = new ArrayList<>();
-    patternRouteList.forEach(d -> {
-      Matcher matcher = d.getPattern().matcher(cleanPath);
-      if (matcher.matches()) {
-        result.add(new Route<>(d, matcher));
-      }
-    });
-    return result;
+    Destination<T> target = routes.get(cleanPath);
+    if (target != null) {
+      return Collections.singletonList(new Route<>(target));
+    } else {
+      List<Route<T>> result = new ArrayList<>();
+      patternRoutes.forEach(d -> {
+        Matcher matcher = d.getPattern().matcher(cleanPath);
+        if (matcher.matches()) {
+          result.add(new Route<>(d, matcher));
+        }
+      });
+      return result;
+    }
   }
 
   public static String cleanPath(String path) {
     path = CLEAN_PATH.matcher(path).replaceAll("/");
-    path =
-        (path.endsWith("/") && path.length() > 1) ? path.substring(0, path.length() - 1) : path;
+    path = (path.endsWith("/") && path.length() > 1) ? path.substring(0, path.length() - 1) : path;
     return path;
   }
 
@@ -113,11 +127,17 @@ public class Router<T> {
    **/
   private static class Destination<T> {
 
+    /** 正则匹配 */
     private Pattern pattern;
     /** 路径参数名 */
     private List<String> names;
     /** 目的地 */
     private T target;
+
+    Destination(T target) {
+      this.target = target;
+      this.names = Collections.emptyList();
+    }
 
     Destination(Pattern pattern, List<String> names, T target) {
       this.pattern = pattern;
@@ -150,6 +170,11 @@ public class Router<T> {
     private Destination<T> destination;
     private Matcher matcher;
     private Map<String, String> pathParams;
+
+    private Route(Destination<T> d) {
+      this.destination = d;
+      this.pathParams = Collections.emptyMap();
+    }
 
     private Route(Destination<T> d, Matcher matcher) {
       this.destination = d;
