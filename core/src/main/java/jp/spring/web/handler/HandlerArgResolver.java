@@ -12,10 +12,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 import jp.spring.web.MIME;
+import jp.spring.web.handler.Router.Route;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * Simple Handler Args Resolver
@@ -37,15 +37,15 @@ public class HandlerArgResolver {
   /** Hanlder所需参数 */
   private Object[] args;
 
-  private HandlerArgResolver(Pair<Handler, Map<String, String>> routed,
+  private HandlerArgResolver(Route<Handler> routed,
       FullHttpRequest request, FullHttpResponse response) {
-    this.handler = routed.getLeft();
-    this.paths = routed.getRight();
+    this.handler = routed.getTarget();
+    this.paths = routed.getPathParams();
     this.request = request;
     this.response = response;
   }
 
-  public static HandlerArgResolver resolve(Pair<Handler, Map<String, String>> routed,
+  public static HandlerArgResolver resolve(Route<Handler> routed,
       FullHttpRequest request, FullHttpResponse response) {
     return new HandlerArgResolver(routed, request, response);
   }

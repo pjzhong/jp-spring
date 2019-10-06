@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.tuple.Pair;
 
 /**
  * @link https://github.com/cdapio/netty-http/blob/develop/src/main/java/io/cdap/http/internal/RequestRouter.java
@@ -15,21 +14,23 @@ import org.apache.commons.lang3.tuple.Pair;
  **/
 public class Router<T> {
 
-  //GROUP_PATTERN is used for named wild card pattern in paths which is specified within braces.
-  //Example: {id}
-  public static final Pattern GROUP_PATTERN = Pattern.compile("\\{(.*?)\\}");
 
   // non-greedy wild card match.
   public static final Pattern WILD_CARD_PATTERN = Pattern.compile("\\*\\*");
   // for remove duplicated '/'
   public static final Pattern CLEAN_PATH = Pattern.compile("/+");
 
-  private final int maxPathParts;
-  private List<Destination> patternRouteList;
+  //GROUP_PATTERN is used for named wild card pattern in paths which is specified within braces.
+  //Example: {id}
+  static final Pattern GROUP_PATTERN = Pattern.compile("\\{(.*?)}");
 
-  public static <T> Router<T> create(int maxParts) {
+  private final int maxPathParts;
+  private List<Destination<T>> patternRouteList;
+
+  static <T> Router<T> create(int maxParts) {
     return new Router<>(maxParts);
   }
+
 
   private Router(int maxPathParts) {
     this.maxPathParts = maxPathParts;
@@ -78,7 +79,7 @@ public class Router<T> {
     Pattern pattern = Pattern.compile(sb.toString());
     // if names is Empty, replace it with emptyList(for memory usage)
     groupNames = groupNames.isEmpty() ? Collections.emptyList() : groupNames;
-    patternRouteList.add(new Destination(pattern, groupNames, destination));
+    patternRouteList.add(new Destination<>(pattern, groupNames, destination));
   }
 
   /**
@@ -86,33 +87,32 @@ public class Router<T> {
    * @return [TARGET, GROUP_NAME<KEY, VALUE>]
    * @since 2019年04月17日 16:58:26
    */
-  public List<Pair<T, Map<String, String>>> getDestinations(String path) {
+  public List<Route<T>> getDestinations(String path) {
     String cleanPath =
         (path.endsWith("/") && path.length() > 1) ? path.substring(0, path.length() - 1) : path;
 
-    List<Pair<T, Map<String, String>>> result = new ArrayList<>();
+    List<Route<T>> result = new ArrayList<>();
     patternRouteList.forEach(d -> {
       Matcher matcher = d.getPattern().matcher(cleanPath);
-      List<String> groupName = d.getNames();
       if (matcher.matches()) {
-        Map<String, String> nameValues =
-            groupName.isEmpty() ? Collections.emptyMap() : new HashMap<>();
-        int matchIdx = 1;
-        for (String name : groupName) {
-          nameValues.put(name, matcher.group(matchIdx));
-          matchIdx++;
-        }
-        result.add(Pair.of(d.getTarget(), nameValues));
+        result.add(new Route<>(d, matcher));
       }
     });
-
     return result;
   }
 
-  private class Destination {
+  /**
+   * 路由目的地
+   *
+   * @author ZJP
+   * @since 2019年10月06日 15:29:37
+   **/
+  private static class Destination<T> {
 
     private Pattern pattern;
+    /** 路径参数名 */
     private List<String> names;
+    /** 目的地 */
     private T target;
 
     Destination(Pattern pattern, List<String> names, T target) {
@@ -132,5 +132,49 @@ public class Router<T> {
     public T getTarget() {
       return target;
     }
+  }
+
+
+  /**
+   * 路由结果
+   *
+   * @author ZJP
+   * @since 2019年10月06日 15:29:29
+   **/
+  public static class Route<T> {
+
+    private Destination<T> destination;
+    private Matcher matcher;
+    private Map<String, String> pathParams;
+
+    private Route(Destination<T> d, Matcher matcher) {
+      this.destination = d;
+      this.matcher = matcher;
+    }
+
+    public Map<String, String> getPathParams() {
+      if (pathParams == null) {
+        resolverParams();
+      }
+
+      return pathParams;
+    }
+
+    public T getTarget() {
+      return destination.getTarget();
+    }
+
+    private void resolverParams() {
+      List<String> names = destination.getNames();
+      Map<String, String> nameValues =
+          names.isEmpty() ? Collections.emptyMap() : new HashMap<>();
+      int matchIdx = 1;
+      for (String name : names) {
+        nameValues.put(name, matcher.group(matchIdx));
+        matchIdx++;
+      }
+      this.pathParams = nameValues;
+    }
+
   }
 }

@@ -12,16 +12,15 @@ import io.netty.handler.codec.http.HttpResponseStatus;
 import io.netty.handler.codec.http.HttpUtil;
 import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.ReferenceCountUtil;
-import java.util.Map;
 import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerMapping;
-import org.apache.commons.lang3.tuple.Pair;
+import jp.spring.web.handler.Router.Route;
 
 public class RequestRouter extends ChannelInboundHandlerAdapter {
 
   private final HandlerMapping handlerMapping;
   private final int chunkLimit;
-  private Pair<Handler, Map<String, String>> handler;
+  private Route<Handler> handler;
 
   public RequestRouter(HandlerMapping handlerMapping, int chunkLimit) {
     this.handlerMapping = handlerMapping;
@@ -33,7 +32,6 @@ public class RequestRouter extends ChannelInboundHandlerAdapter {
     try {
       if (msg instanceof HttpRequest) {
         HttpRequest request = (HttpRequest) msg;
-        handler = null;
         handler = prepareHandleMethod(request, ctx);
 
         if (handler != null) {
@@ -58,9 +56,9 @@ public class RequestRouter extends ChannelInboundHandlerAdapter {
     }
   }
 
-  private Pair<Handler, Map<String, String>> prepareHandleMethod(HttpRequest request,
+  private Route<Handler> prepareHandleMethod(HttpRequest request,
       ChannelHandlerContext ctx) {
-    Pair<Handler, Map<String, String>> handles = handlerMapping.getHandler(request);
+    Route<Handler> handles = handlerMapping.getHandler(request);
     if (handles == null) {
       return null;
     }

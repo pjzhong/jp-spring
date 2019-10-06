@@ -6,15 +6,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.NoSuchElementException;
 import jp.spring.ioc.factory.DefaultBeanFactory;
 import jp.spring.web.annotation.Controller;
 import jp.spring.web.annotation.Intercept;
 import jp.spring.web.annotation.RequestMethod;
+import jp.spring.web.handler.Router.Route;
 import jp.spring.web.interceptor.InterceptMatch;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,9 +44,9 @@ public class HandlerMapping {
    * @param request instant of {@code HttpRequest}
    * @since 2019年04月18日 14:02:24
    */
-  public Pair<Handler, Map<String, String>> getHandler(HttpRequest request) {
+  public Route<Handler> getHandler(HttpRequest request) {
     String path = URI.create(request.uri()).normalize().getPath();
-    List<Pair<Handler, Map<String, String>>> routable = router.getDestinations(path);
+    List<Route<Handler>> routable = router.getDestinations(path);
     return getMatched(routable, RequestMethod.of(request.method()), path);
   }
 
@@ -59,17 +58,17 @@ public class HandlerMapping {
    * @param requestUri request URI
    * @since 2019年04月18日 16:31:30
    */
-  private Pair<Handler, Map<String, String>> getMatched(
-      List<Pair<Handler, Map<String, String>>> routers,
+  private Route<Handler> getMatched(
+      List<Route<Handler>> routers,
       RequestMethod method,
       String requestUri) {
 
     Iterable<String> reqIterator = splitAndOmitEmpty(requestUri);
-    List<Pair<Handler, Map<String, String>>> result = new ArrayList<>();
+    List<Route<Handler>> result = new ArrayList<>();
 
     long maxScore = 0;
-    for (Pair<Handler, Map<String, String>> p : routers) {
-      Handler handler = p.getLeft();
+    for (Route<Handler> p : routers) {
+      Handler handler = p.getTarget();
       if (handler.hasMethod(method)) {
         long score = calcMatchScore(reqIterator, splitAndOmitEmpty(handler.getUrl()));
         if (maxScore < score) {
@@ -84,7 +83,7 @@ public class HandlerMapping {
 
     if (1 < result.size()) {
       StringBuilder sb = new StringBuilder();
-      result.forEach(s -> sb.append(s.getLeft().getUrl()).append(','));
+      result.forEach(s -> sb.append(s.getTarget().getUrl()).append(','));
       throw new IllegalStateException(
           String.format("Multiple matched handlers found for request uri %s: %s",
               requestUri, sb.toString()));
