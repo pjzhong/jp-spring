@@ -46,7 +46,7 @@ public class Handler {
   private final Method method;
   private final String url;
   private final RequestMethod[] httpMethods;
-  private Set<Class<? extends Annotation>> annotations;
+  private final boolean responseBody;
   private List<MethodParameter> parameters = null;
   private List<InterceptMatch> interceptors;
 
@@ -62,7 +62,7 @@ public class Handler {
     for (Annotation a : method.getAnnotations()) {
       anns.add(a.annotationType());
     }
-    this.annotations = anns.isEmpty() ? Collections.emptySet() : anns;
+    this.responseBody = anns.contains(ResponseBody.class);
   }
 
   public Object invoke(Object obj, Object[] args) throws Exception {
@@ -110,7 +110,7 @@ public class Handler {
   }
 
   public boolean isResponseBody() {
-    return annotations.contains(ResponseBody.class);
+    return responseBody;
   }
 
   private static List<MethodParameter> buildParameter(Handler handler) {

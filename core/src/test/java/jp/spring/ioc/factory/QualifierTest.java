@@ -19,7 +19,7 @@ public class QualifierTest {
   void NoUniqueTest() {
     assertThrows(NoUniqueBeansException.class, () -> {
       BeanFactory factory = new DefaultApplicationContext();
-      factory.getBean(TypeUtil.resolveClassName(NoUnique.class));
+      factory.getBean(TypeUtil.resolveName(NoUnique.class));
     });
   }
 
@@ -27,7 +27,7 @@ public class QualifierTest {
   void qualifierTest() {
     BeanFactory factory = new DefaultApplicationContext();
     WithQualifier qualifier = (WithQualifier) factory
-        .getBean(TypeUtil.resolveClassName(WithQualifier.class));
+        .getBean(TypeUtil.resolveName(WithQualifier.class));
 
     assertNotNull(qualifier);
     assertEquals(qualifier.impl.getClass(), OneImpl.class);
@@ -37,7 +37,7 @@ public class QualifierTest {
   void qualifierNamedTest() {
     BeanFactory factory = new DefaultApplicationContext();
     WithQualifier qualifier = (WithQualifier) factory
-        .getBean(TypeUtil.resolveClassName(WithQualifier.class));
+        .getBean(TypeUtil.resolveName(WithQualifier.class));
 
     assertNotNull(qualifier);
     assertEquals(qualifier.twoImpl.getClass(), TwoImpl.class);

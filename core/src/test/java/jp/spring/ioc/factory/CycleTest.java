@@ -16,7 +16,7 @@ class CycleTest {
   @Test
   void test() {
     BeanFactory context = new DefaultApplicationContext();
-    Both both = (Both) context.getBean(TypeUtil.simpleClassName(Both.class));
+    Both both = (Both) context.getBean(TypeUtil.simpleName(Both.class));
 
     assertNotNull(both);
     assertNotNull(both.a);

@@ -16,7 +16,7 @@ public class FieldInjectionTest {
   void fieldInjected() {
     BeanFactory factory = new DefaultApplicationContext();
 
-    Target target = (Target) factory.getBean(TypeUtil.simpleClassName(Target.class));
+    Target target = (Target) factory.getBean(TypeUtil.simpleName(Target.class));
     assertNotNull(target);
     assertTrue(Target.class.isAssignableFrom(target.getClass()));
     assertNotNull(target.a);
@@ -44,7 +44,7 @@ public class FieldInjectionTest {
   void parentFieldInjected() {
     BeanFactory factory = new DefaultApplicationContext();
 
-    Child child = (Child) factory.getBean(TypeUtil.simpleClassName(Child.class));
+    Child child = (Child) factory.getBean(TypeUtil.simpleName(Child.class));
     assertNotNull(child);
     assertTrue(Child.class.isAssignableFrom(child.getClass()));
 

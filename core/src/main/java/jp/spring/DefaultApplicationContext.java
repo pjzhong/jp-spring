@@ -37,7 +37,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 
   private void refresh() {
     loadBeanDefinitions(beanFactory);
-    beanFactory.registerDependency(TypeUtil.simpleClassName(this.getClass()), this);
+    beanFactory.registerDependency(TypeUtil.simpleName(this.getClass()), this);
     beanFactory.refresh();
   }
 

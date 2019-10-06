@@ -183,7 +183,7 @@ public class TypeUtil {
    *
    * @return the name
    */
-  public static String simpleClassName(Class<?> beanClass) {
+  public static String simpleName(Class<?> beanClass) {
     return StringUtils.uncapitalize(beanClass.getSimpleName());
   }
 
@@ -194,12 +194,12 @@ public class TypeUtil {
    * @param clazz the target class
    * @since 2019年09月03日 20:03:08
    */
-  public static String resolveClassName(Class<?> clazz) {
+  public static String resolveName(Class<?> clazz) {
     Named name = getAnnotation(clazz, Named.class);
     if (name != null) {
       return name.value();
     } else {
-      return simpleClassName(clazz);
+      return simpleName(clazz);
     }
   }
 

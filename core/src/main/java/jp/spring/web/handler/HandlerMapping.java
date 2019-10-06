@@ -162,11 +162,10 @@ public class HandlerMapping {
 
     Router<Handler> router = Router.create(DEFAULT_MAX_PARTS);
 
-    HandlerBuilder builder = new HandlerBuilder();
     List<InterceptMatch> intercepts = buildInterceptMatch(beanFactory);
     for (String beanName : controllerNames) {
       Class<?> type = beanFactory.getType(beanName);
-      List<Handler> handlers = builder.buildHandler(beanName, beanFactory, intercepts);
+      List<Handler> handlers = HandlerBuilder.buildHandler(beanName, type, intercepts);
       handlers.forEach(h -> {
         router.add(h.getUrl(), h);
         LOG.info("Mapping {} {} TO {}.{}", h.getUrl(), h.getHttpMethods(), type.getName(),

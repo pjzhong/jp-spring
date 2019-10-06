@@ -41,7 +41,7 @@ public class DefaultBeanFactory implements BeanFactory {
 
   public void refresh() {
     try {
-      registerDependency(TypeUtil.simpleClassName(this.getClass()), this);
+      registerDependency(TypeUtil.simpleName(this.getClass()), this);
 
       beforeInitializeBean();
     } catch (Exception e) {

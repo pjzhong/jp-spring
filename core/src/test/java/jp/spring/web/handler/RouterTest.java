@@ -32,6 +32,24 @@ public class RouterTest {
     assertTrue(routes.isEmpty());
   }
 
+  @Test
+  void cleanPathTest() {
+    router.add("////clean/////path/////", "cleanPath");
+
+    List<Route<String>> routes = Collections.emptyList();
+
+    routes = router.getDestinations("//////clean//////////path");
+    assertEquals(1, routes.size());
+    assertEquals("cleanPath", routes.get(0).getTarget());
+    assertTrue(routes.get(0).getPathParams().isEmpty());
+
+    routes = router.getDestinations("/clean/path");
+    assertEquals(1, routes.size());
+    assertEquals("cleanPath", routes.get(0).getTarget());
+    assertTrue(routes.get(0).getPathParams().isEmpty());
+
+  }
+
 
   @Test
   void routeTest() {

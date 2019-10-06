@@ -25,7 +25,7 @@ public class InterceptMatch {
       throw new IllegalArgumentException("Illegal Intercept Expression");
     }
 
-    expression = Router.CLEAN_PATH.matcher(expression).replaceAll("/");
+    expression = Router.cleanPath(expression);
     expression = Router.WILD_CARD_PATTERN.matcher(expression).replaceAll(".*?");
     pattern = Pattern.compile(expression);
   }

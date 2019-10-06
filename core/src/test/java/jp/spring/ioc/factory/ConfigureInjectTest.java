@@ -18,7 +18,7 @@ public class ConfigureInjectTest {
   void injectTest() {
     BeanFactory context = new DefaultApplicationContext();
     ValueExists exists = (ValueExists) context
-        .getBean(TypeUtil.resolveClassName(ValueExists.class));
+        .getBean(TypeUtil.resolveName(ValueExists.class));
     assertNotNull(exists);
     assertEquals("test", exists.test);
   }
@@ -27,14 +27,14 @@ public class ConfigureInjectTest {
   void injectNotExistsTest() {
     BeanFactory context = new DefaultApplicationContext();
     assertThrows(BeansException.class, () -> context
-        .getBean(TypeUtil.resolveClassName(ValueNotExists.class)));
+        .getBean(TypeUtil.resolveName(ValueNotExists.class)));
   }
 
   @Test
   void injectMissTypeTest() {
     BeanFactory context = new DefaultApplicationContext();
     assertThrows(BeansException.class, () -> context
-        .getBean(TypeUtil.resolveClassName(ValueNotExists.class)));
+        .getBean(TypeUtil.resolveName(ValueNotExists.class)));
   }
 
 

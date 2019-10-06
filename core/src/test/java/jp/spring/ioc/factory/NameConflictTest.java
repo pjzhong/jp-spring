@@ -22,8 +22,8 @@ class NameConflictTest {
     assertThrows(IllegalArgumentException.class, () -> {
       BeanFactory factory = new DefaultBeanFactory();
 
-      factory.registerDependency(TypeUtil.simpleClassName(Object.class), new Object());
-      factory.registerDependency(TypeUtil.simpleClassName(Object.class), new Object());
+      factory.registerDependency(TypeUtil.simpleName(Object.class), new Object());
+      factory.registerDependency(TypeUtil.simpleName(Object.class), new Object());
     });
   }
 }

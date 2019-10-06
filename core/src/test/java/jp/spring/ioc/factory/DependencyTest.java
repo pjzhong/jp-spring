@@ -28,15 +28,15 @@ class DependencyTest {
   @Test
   void registerGetTest() {
     BeanFactory factory = new DefaultApplicationContext();
-    factory.registerDependency(TypeUtil.simpleClassName(List.class), Collections.emptyList());
-    assertEquals(Collections.emptyList(), factory.getBean(TypeUtil.simpleClassName(List.class)));
+    factory.registerDependency(TypeUtil.simpleName(List.class), Collections.emptyList());
+    assertEquals(Collections.emptyList(), factory.getBean(TypeUtil.simpleName(List.class)));
   }
 
   @Test
   void getTest() {
     BeanFactory context = new DefaultApplicationContext();
     TestService service = (TestService) context
-        .getBean(TypeUtil.simpleClassName(TestServiceImple.class));
+        .getBean(TypeUtil.simpleName(TestServiceImple.class));
     assertNotNull(service);
     assertEquals("Hello World!", service.say("Hello World!"));
   }

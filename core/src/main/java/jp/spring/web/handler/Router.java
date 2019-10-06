@@ -18,7 +18,7 @@ public class Router<T> {
   // non-greedy wild card match.
   public static final Pattern WILD_CARD_PATTERN = Pattern.compile("\\*\\*");
   // for remove duplicated '/'
-  public static final Pattern CLEAN_PATH = Pattern.compile("/+");
+  private static final Pattern CLEAN_PATH = Pattern.compile("/+");
 
   //GROUP_PATTERN is used for named wild card pattern in paths which is specified within braces.
   //Example: {id}
@@ -45,9 +45,7 @@ public class Router<T> {
    * @param destination Destination of the path.
    */
   public void add(final String source, final T destination) {
-    String path = CLEAN_PATH.matcher(source).replaceAll("/");
-
-    path = (path.endsWith("/") && path.length() > 1) ? path.substring(0, path.length() - 1) : path;
+    String path = cleanPath(source);
 
     String[] parts = path.split("/", maxPathParts + 2);
     if (maxPathParts < parts.length - 1) {
@@ -88,8 +86,7 @@ public class Router<T> {
    * @since 2019年04月17日 16:58:26
    */
   public List<Route<T>> getDestinations(String path) {
-    String cleanPath =
-        (path.endsWith("/") && path.length() > 1) ? path.substring(0, path.length() - 1) : path;
+    String cleanPath = cleanPath(path);
 
     List<Route<T>> result = new ArrayList<>();
     patternRouteList.forEach(d -> {
@@ -99,6 +96,13 @@ public class Router<T> {
       }
     });
     return result;
+  }
+
+  public static String cleanPath(String path) {
+    path = CLEAN_PATH.matcher(path).replaceAll("/");
+    path =
+        (path.endsWith("/") && path.length() > 1) ? path.substring(0, path.length() - 1) : path;
+    return path;
   }
 
   /**

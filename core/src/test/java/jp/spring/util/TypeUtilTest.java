@@ -1,8 +1,8 @@
 package jp.spring.util;
 
 import static jp.spring.util.TypeUtil.isAnnotated;
-import static jp.spring.util.TypeUtil.resolveClassName;
-import static jp.spring.util.TypeUtil.simpleClassName;
+import static jp.spring.util.TypeUtil.resolveName;
+import static jp.spring.util.TypeUtil.simpleName;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -17,7 +17,6 @@ import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import jdk.nashorn.internal.ir.annotations.Immutable;
 import jp.spring.ioc.annotation.Named;
 import jp.spring.util.TypeUtilTest.AnnotatedParentClass.AnnotatedChildClass;
 import org.junit.jupiter.api.AfterEach;
@@ -30,7 +29,7 @@ public class TypeUtilTest {
 
   @Test
   void resolvedName_with_annotation_Test() {
-    assertEquals("named", resolveClassName(NamedClass.class));
+    assertEquals("named", resolveName(NamedClass.class));
   }
 
   @Named("named")
@@ -40,16 +39,16 @@ public class TypeUtilTest {
 
   @Test
   void resolvedName_without_annotation_Test() {
-    assertEquals("list", resolveClassName(List.class));
+    assertEquals("list", resolveName(List.class));
   }
 
   @Test
   public void determinedNameTest() {
-    assertEquals("list", simpleClassName(List.class));
-    assertEquals("typeUtilTest", simpleClassName(this.getClass()));
+    assertEquals("list", simpleName(List.class));
+    assertEquals("typeUtilTest", simpleName(this.getClass()));
 
-    assertNotEquals("Map", simpleClassName(Map.class));
-    assertNotEquals("HashMap", simpleClassName(HashMap.class));
+    assertNotEquals("Map", simpleName(Map.class));
+    assertNotEquals("HashMap", simpleName(HashMap.class));
   }
 
   @Test
