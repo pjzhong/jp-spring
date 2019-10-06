@@ -1,7 +1,7 @@
 package jp.spring.web.handler.impl;
 
 import jp.spring.web.handler.Adapter;
-import jp.spring.web.handler.HandlerArgResolver;
+import jp.spring.web.handler.HandlerContext;
 
 /**
  * 默认转换器
@@ -23,7 +23,7 @@ public class NullAdapter implements Adapter<Object> {
    * @since 2019年04月23日 11:16:34
    */
   @Override
-  public Object apply(HandlerArgResolver handlerArgResolver) {
+  public Object apply(HandlerContext handlerArgResolver) {
     return null;
   }
 }

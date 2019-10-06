@@ -20,7 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Simple Handler Args Resolver
  */
-public class HandlerArgResolver {
+public class HandlerContext {
 
   /** HttpRequest */
   private FullHttpRequest request;
@@ -34,10 +34,10 @@ public class HandlerArgResolver {
   private Map<String, List<String>> params;
   /** Cookies */
   private Map<String, HttpCookie> cookies;
-  /** Hanlder所需参数 */
+  /** Handler所需参数 */
   private Object[] args;
 
-  private HandlerArgResolver(Route<Handler> routed,
+  private HandlerContext(Route<Handler> routed,
       FullHttpRequest request, FullHttpResponse response) {
     this.handler = routed.getTarget();
     this.paths = routed.getPathParams();
@@ -45,9 +45,9 @@ public class HandlerArgResolver {
     this.response = response;
   }
 
-  public static HandlerArgResolver resolve(Route<Handler> routed,
+  public static HandlerContext resolve(Route<Handler> routed,
       FullHttpRequest request, FullHttpResponse response) {
-    return new HandlerArgResolver(routed, request, response);
+    return new HandlerContext(routed, request, response);
   }
 
   private synchronized void parseQueryParam() {
@@ -94,7 +94,7 @@ public class HandlerArgResolver {
     List<MethodParameter> parameters = handler.getParameters();
     Object[] args = new Object[parameters.size()];
     for (int i = 0; i < args.length; i++) {
-      args[i] = parameters.get(i).getConverter().apply(this);
+      args[i] = parameters.get(i).parse(this);
     }
     this.args = args;
   }

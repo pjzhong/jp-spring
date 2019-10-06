@@ -16,10 +16,9 @@ import io.netty.handler.codec.http.HttpVersion;
 import io.netty.util.AttributeKey;
 import io.netty.util.CharsetUtil;
 import java.util.LinkedList;
-import java.util.List;
 import jp.spring.ioc.factory.BeanFactory;
 import jp.spring.web.handler.Handler;
-import jp.spring.web.handler.HandlerArgResolver;
+import jp.spring.web.handler.HandlerContext;
 import jp.spring.web.handler.Router.Route;
 import jp.spring.web.interceptor.InterceptMatch;
 import jp.spring.web.interceptor.Interceptor;
@@ -51,17 +50,18 @@ public class HttpDispatcher extends SimpleChannelInboundHandler<FullHttpRequest>
 
     FullHttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
         HttpResponseStatus.OK);
+    response.headers().set(HttpHeaderNames.CONTENT_TYPE, MIME.TEXT_PLAIN.type());
 
     Handler handler = pair.getTarget();
-    HandlerArgResolver resolver = HandlerArgResolver.resolve(pair, request, response);
+    HandlerContext resolver = HandlerContext.resolve(pair, request, response);
     Object object = beanFactory.getBean(handler.getBeanName());
 
-    List<Interceptor> intercepts = new LinkedList<>();
+    LinkedList<Interceptor> intercepts = new LinkedList<>();
     boolean go = true;
     for (InterceptMatch match : handler.getInterceptors()) {
       Interceptor i = match.getInterceptor(beanFactory);
       go = i.beforeHandle(request, response, handler);
-      intercepts.add(i);
+      intercepts.addFirst(i);
       if (!go) {
         break;
       }
@@ -81,7 +81,7 @@ public class HttpDispatcher extends SimpleChannelInboundHandler<FullHttpRequest>
   @Override
   public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
     //Simply close the connection
-    LOG.error("Controller Exception:{}", cause);
+    LOG.error("Controller Exception", cause);
     HttpResponse response = new DefaultFullHttpResponse(HttpVersion.HTTP_1_1,
         HttpResponseStatus.INTERNAL_SERVER_ERROR);
     HttpUtil.setContentLength(response, 0);

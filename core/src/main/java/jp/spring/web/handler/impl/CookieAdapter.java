@@ -6,7 +6,7 @@ import java.util.Optional;
 import jp.spring.util.TypeUtil;
 import jp.spring.web.annotation.CookieParam;
 import jp.spring.web.handler.Adapter;
-import jp.spring.web.handler.HandlerArgResolver;
+import jp.spring.web.handler.HandlerContext;
 import org.apache.commons.lang3.StringUtils;
 
 public class CookieAdapter implements Adapter<Object> {
@@ -27,7 +27,7 @@ public class CookieAdapter implements Adapter<Object> {
   }
 
   @Override
-  public Object apply(HandlerArgResolver args) {
+  public Object apply(HandlerContext args) {
     Map<String, HttpCookie> cookies = args.getCookies();
     Optional<String> value = Optional.ofNullable(cookies.get(name))
         .map(HttpCookie::getValue);

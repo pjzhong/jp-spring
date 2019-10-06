@@ -4,7 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 public enum MIME {
   NONE("none"),
-  TEXT_LAIN("text/plain"),
+  TEXT_PLAIN("text/plain"),
   MULTIPART_FORM_DATA("multipart/form-data"),
   APPLICATION_JSON("application/json"),
   APPLICATION_X_WWW_FORM_URLENCODED("application/x-www-form-urlencoded");

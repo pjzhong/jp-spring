@@ -14,12 +14,18 @@ import java.util.Set;
 import jp.spring.util.TypeUtil;
 import jp.spring.web.annotation.RequestParam;
 import jp.spring.web.handler.Adapter;
-import jp.spring.web.handler.HandlerArgResolver;
+import jp.spring.web.handler.HandlerContext;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
+/**
+ * 请求参数适配器
+ *
+ * @author ZJP
+ * @since 2019年10月06日 21:26:58
+ **/
 public class RequestParamAdapter implements Adapter<Object> {
 
   /** 类型 */
@@ -37,7 +43,7 @@ public class RequestParamAdapter implements Adapter<Object> {
   }
 
   @Override
-  public Object apply(HandlerArgResolver args) {
+  public Object apply(HandlerContext args) {
     Map<String, List<String>> params = args.getParams();
     List<String> values = params.getOrDefault(name, Collections.emptyList());
 
