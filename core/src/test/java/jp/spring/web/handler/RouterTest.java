@@ -9,29 +9,28 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.tuple.Pair;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class RouterTest {
 
+  private Router<String> router;
+
+  @BeforeEach
+  void beforeEach() {
+    router = Router.create(25);
+  }
+
+  @AfterEach
+  void afterEach() {
+    router = null;
+  }
+
   @Test
-  public void testPathRouting() {
-    Router<String> router = Router.create(25);
+  void routeTest() {
     router.add("/", "empty");
-
-    router.add("/foo/{baz}/b", "foobard");
-
     router.add("/foo/bar/baz", "foobardbaz");
-
-    router.add("/multi/{type}/{id}", "multi");
-
-    router.add("/wildcard/**", "wildcard");
-
-    router.add("/multi-wildcard/**/mid/**", "multi-wildcard");
-
-    router.add("/group-wildcard/{abc}/**/split/**/{123}", "group-wildcard");
-
-    router.add("**/multi-match/**/foo/{id}", "multi-match");
-    router.add("/**/multi-match/**/foo/{id}", "multi-match-slash");
 
     List<Pair<String, Map<String, String>>> routes = Collections.emptyList();
 
@@ -44,6 +43,14 @@ public class RouterTest {
     assertEquals(1, routes.size());
     assertEquals("foobardbaz", routes.get(0).getLeft());
     assertTrue(routes.get(0).getRight().isEmpty());
+  }
+
+  @Test
+  void resetRouteTest() {
+    router.add("/foo/{baz}/b", "foobard");
+    router.add("/multi/{type}/{id}", "multi");
+
+    List<Pair<String, Map<String, String>>> routes = Collections.emptyList();
 
     routes = router.getDestinations("/foo/bar/b");
     assertEquals(1, routes.size());
@@ -56,6 +63,14 @@ public class RouterTest {
     assertEquals(2, routes.get(0).getRight().size());
     assertEquals("1", routes.get(0).getRight().get("type"));
     assertEquals("123", routes.get(0).getRight().get("id"));
+  }
+
+  @Test
+  void wildCardRouteTest() {
+    router.add("/wildcard/**", "wildcard");
+    router.add("/multi-wildcard/**/mid/**", "multi-wildcard");
+
+    List<Pair<String, Map<String, String>>> routes = Collections.emptyList();
 
     routes = router.getDestinations("/wildcard/1");
     assertEquals(1, routes.size());
@@ -66,6 +81,15 @@ public class RouterTest {
     assertEquals(1, routes.size());
     assertEquals("multi-wildcard", routes.get(0).getLeft());
     assertTrue(routes.get(0).getRight().isEmpty());
+  }
+
+  @Test
+   void resetWildcardRouteTest() {
+    router.add("/group-wildcard/{abc}/**/split/**/{123}", "group-wildcard");
+    router.add("**/multi-match/**/foo/{id}", "multi-match");
+    router.add("/**/multi-match/**/foo/{id}", "multi-match-slash");
+
+    List<Pair<String, Map<String, String>>> routes = Collections.emptyList();
 
     routes = router.getDestinations("/group-wildcard/test1/split/test2/test3/test4");
     assertEquals(0, routes.size());
@@ -88,7 +112,6 @@ public class RouterTest {
         new HashSet<>(Arrays.asList(routes.get(0).getLeft(), routes.get(1).getLeft())));
     assertEquals(Collections.singletonMap("id", "2"), routes.get(0).getRight());
     assertEquals(Collections.singletonMap("id", "2"), routes.get(1).getRight());
-
   }
 
 }
