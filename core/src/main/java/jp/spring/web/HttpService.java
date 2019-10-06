@@ -61,6 +61,8 @@ public final class HttpService {
     bootstrap.config().group().shutdownGracefully().awaitUninterruptibly();
     bootstrap.config().childGroup().shutdownGracefully().awaitUninterruptibly();
     bootstrap = null;
+
+    context.close();
     context = null;
     LOG.info("{} shutdown success", name);
   }

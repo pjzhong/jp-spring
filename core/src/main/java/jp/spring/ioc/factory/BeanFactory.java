@@ -23,7 +23,7 @@ public interface BeanFactory {
    * @param autowiredValue the corresponding autowired value.
    * @since 2019年06月09日 10:04:03
    */
- void registerDependency(String name, Object autowiredValue);
+  void registerDependency(String name, Object autowiredValue);
 
   /**
    * Register a special dependency type with corresponding  definition

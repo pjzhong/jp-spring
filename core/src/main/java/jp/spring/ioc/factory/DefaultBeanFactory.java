@@ -241,6 +241,15 @@ public class DefaultBeanFactory implements BeanFactory {
     }
   }
 
+  @Override
+  public void close() {
+    beans.clear();
+    earlyBeans.clear();
+    beanFactories.clear();
+    definitions.clear();
+    beanPostProcessors.clear();
+  }
+
   @Deprecated
   private void beforeInitializeBean() throws Exception {
     List<BeanPostProcessor> processors = getBeansByType(BeanPostProcessor.class);

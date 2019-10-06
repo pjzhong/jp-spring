@@ -61,6 +61,11 @@ public class DefaultApplicationContext implements ApplicationContext {
     beanFactory.registerBeanDefinition(definition);
   }
 
+  @Override
+  public void close() {
+    beanFactory.close();
+  }
+
 
   private void loadBeanDefinitions(DefaultBeanFactory beanFactory) {
     ScanConfig config = scanConfig();
