@@ -1,12 +1,10 @@
 package jp.spring.web.handler.impl;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import java.util.Optional;
+import io.netty.handler.codec.http.HttpHeaders;
+import java.lang.reflect.Type;
 import jp.spring.util.TypeUtil;
-import jp.spring.web.annotation.RequestHeader;
 import jp.spring.web.handler.Adapter;
 import jp.spring.web.handler.HandlerContext;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * HTTP头部参数
@@ -19,23 +17,20 @@ public class HeaderAdapter implements Adapter<Object> {
   /** 参数名 */
   private String name;
   /** 目标类型 */
-  private Class<?> type;
+  private Type type;
 
-  private HeaderAdapter(RequestHeader reqHeader, String name, Class<?> type) {
+  private HeaderAdapter(String name, Type type) {
     this.type = type;
-    this.name = StringUtils.isBlank(reqHeader.value()) ? name : reqHeader.value();
+    this.name = name;
   }
 
-  public static HeaderAdapter of(RequestHeader reqHeader, String name, Class<?> type) {
-    return new HeaderAdapter(reqHeader, name, type);
+  public static HeaderAdapter of(String name, Type type) {
+    return new HeaderAdapter(name, type);
   }
 
   @Override
   public Object apply(HandlerContext args) {
-    Optional<String> headLine = Optional
-        .ofNullable(args.getRequest())
-        .map(FullHttpRequest::headers)
-        .map(hs -> hs.get(name));
-    return TypeUtil.convertToSimpleType(headLine.orElse(null), type);
+    HttpHeaders headers = args.getRequest().headers();
+    return TypeUtil.convertToSimpleType(headers.get(name), TypeUtil.getRawClass(type));
   }
 }

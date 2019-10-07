@@ -2,20 +2,13 @@ package jp.spring.web.handler;
 
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpHeaderNames;
-import io.netty.handler.codec.http.QueryStringDecoder;
-import io.netty.util.CharsetUtil;
 import java.net.HttpCookie;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import jp.spring.web.MIME;
 import jp.spring.web.handler.Router.Route;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Simple Handler Args Resolver
@@ -26,10 +19,8 @@ public class HandlerContext {
   private FullHttpRequest request;
   /** HttpResponse */
   private FullHttpResponse response;
-  /** 请求处理者 */
-  private Handler handler;
-  /** 路径参数 */
-  private Map<String, String> paths;
+  /** 路由 */
+  private Route<Handler> route;
   /** 请求参数 */
   private Map<String, List<String>> params;
   /** Cookies */
@@ -39,8 +30,7 @@ public class HandlerContext {
 
   private HandlerContext(Route<Handler> routed,
       FullHttpRequest request, FullHttpResponse response) {
-    this.handler = routed.getTarget();
-    this.paths = routed.getPathParams();
+    this.route = routed;
     this.request = request;
     this.response = response;
   }
@@ -50,68 +40,20 @@ public class HandlerContext {
     return new HandlerContext(routed, request, response);
   }
 
-  private synchronized void parseQueryParam() {
-    if (this.params != null) {
-      return;
-    }
-
-    Map<String, List<String>> parameters = new HashMap<>(
-        new QueryStringDecoder(request.uri()).parameters());
-
-    String type = request.headers().get(HttpHeaderNames.CONTENT_TYPE, "").toLowerCase();
-    MIME format = MIME.parse(type);
-
-    if (format == MIME.APPLICATION_X_WWW_FORM_URLENCODED) {
-      String s = request.content().toString(CharsetUtil.UTF_8);
-      parameters.putAll(new QueryStringDecoder(s, false).parameters());
-    }
-
-    this.params = Collections.unmodifiableMap(parameters);
-  }
-
-  private void parseCookie() {
-    if (this.cookies != null) {
-      return;
-    }
-
-    String cookieLine = request.headers().get(HttpHeaderNames.COOKIE);
-    List<HttpCookie> cookies =
-        StringUtils.isBlank(cookieLine) ? Collections.emptyList() : HttpCookie.parse(cookieLine);
-    this.cookies = Collections
-        .unmodifiableMap(cookies.stream().collect(Collectors.toMap(HttpCookie::getName, h -> h)));
-  }
-
-  private void parseArgs() {
-    if (args != null) {
-      return;
-    }
-
-    if (handler == null) {
-      args = ArrayUtils.EMPTY_OBJECT_ARRAY;
-      return;
-    }
-
-    List<MethodParameter> parameters = handler.getParameters();
-    Object[] args = new Object[parameters.size()];
-    for (int i = 0; i < args.length; i++) {
-      args[i] = parameters.get(i).parse(this);
-    }
-    this.args = args;
-  }
-
   public Map<String, List<String>> getParams() {
-    if (params == null) {
-      parseQueryParam();
-    }
     return ObjectUtils.defaultIfNull(params, Collections.emptyMap());
   }
 
-  public Map<String, HttpCookie> getCookies() {
-    if (cookies == null) {
-      parseCookie();
-    }
+  public void setParams(Map<String, List<String>> params) {
+    this.params = params;
+  }
 
-    return ObjectUtils.defaultIfNull(cookies, Collections.emptyMap());
+  public void setCookies(Map<String, HttpCookie> cookies) {
+    this.cookies = cookies;
+  }
+
+  public Map<String, HttpCookie> getCookies() {
+    return cookies;
   }
 
   public FullHttpRequest getRequest() {
@@ -123,7 +65,24 @@ public class HandlerContext {
   }
 
   public Map<String, String> getPaths() {
-    return ObjectUtils.defaultIfNull(paths, Collections.emptyMap());
+    return route.getPathParams();
+  }
+
+  private void parseArgs() {
+    if (args != null) {
+      return;
+    }
+
+    if (route == null) {
+      return;
+    }
+
+    List<MethodParameter> parameters = route.getTarget().getParameters();
+    Object[] args = new Object[parameters.size()];
+    for (int i = 0; i < args.length; i++) {
+      args[i] = parameters.get(i).parse(this);
+    }
+    this.args = args;
   }
 
   public Object[] getArgs() {
@@ -131,5 +90,9 @@ public class HandlerContext {
       parseArgs();
     }
     return ObjectUtils.defaultIfNull(args, ArrayUtils.EMPTY_OBJECT_ARRAY);
+  }
+
+  public Handler getHandler() {
+    return route.getTarget();
   }
 }

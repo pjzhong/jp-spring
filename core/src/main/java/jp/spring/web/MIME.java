@@ -22,7 +22,7 @@ public enum MIME {
   public static MIME parse(String contentType) {
     if (StringUtils.isNotBlank(contentType)) {
       for (MIME f : MIME.values()) {
-        if (contentType.startsWith(f.type())) {
+        if (contentType.equalsIgnoreCase(f.type())) {
           return f;
         }
       }

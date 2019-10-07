@@ -29,11 +29,13 @@ class HandlerBuilder {
     for (Method m : type.getMethods()) {
       // Is handler method
       if (TypeUtil.isAnnotated(m, RequestMapping.class)) {
+        m.setAccessible(true);
+
         String[] urls = getPath(m);
         RequestMethod[] httpMethods = getHttpMethods(m);
         for (String base : clazzUrl) {
           for (String url : urls) {
-            String absolutePath =  Router.cleanPath(String.format("/%s/%s", base, url));
+            String absolutePath = Router.cleanPath(String.format("/%s/%s", base, url));
             List<InterceptMatch> matches = intercepts.stream().filter(p -> p.match(url)).collect(
                 Collectors.toList());
             handlers.add(new Handler(absolutePath, httpMethods, m, name, matches));

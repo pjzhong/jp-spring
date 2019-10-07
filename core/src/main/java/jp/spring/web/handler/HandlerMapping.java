@@ -58,9 +58,7 @@ public class HandlerMapping {
    * @param requestUri request URI
    * @since 2019年04月18日 16:31:30
    */
-  private Route<Handler> getMatched(
-      List<Route<Handler>> routers,
-      RequestMethod method,
+  private Route<Handler> getMatched(List<Route<Handler>> routers, RequestMethod method,
       String requestUri) {
 
     Iterable<String> reqIterator = splitAndOmitEmpty(requestUri);

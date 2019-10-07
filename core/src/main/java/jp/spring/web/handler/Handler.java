@@ -1,5 +1,7 @@
 package jp.spring.web.handler;
 
+import static org.apache.commons.lang3.ArrayUtils.EMPTY_OBJECT_ARRAY;
+
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import java.lang.annotation.Annotation;
@@ -12,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 import jp.spring.util.TypeUtil;
 import jp.spring.web.annotation.CookieParam;
 import jp.spring.web.annotation.PathVariable;
@@ -27,6 +30,8 @@ import jp.spring.web.handler.impl.RequestAdapter;
 import jp.spring.web.handler.impl.RequestParamAdapter;
 import jp.spring.web.handler.impl.ResponseAdapter;
 import jp.spring.web.interceptor.InterceptMatch;
+import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
 /**
@@ -57,16 +62,11 @@ public class Handler {
     this.beanName = beanName;
     this.interceptors = interceptors;
     this.httpMethods = httpMethods;
-
-    Set<Class<? extends Annotation>> anns = new HashSet<>();
-    for (Annotation a : method.getAnnotations()) {
-      anns.add(a.annotationType());
-    }
-    this.responseBody = anns.contains(ResponseBody.class);
+    this.responseBody = Stream.of(method.getAnnotations())
+        .anyMatch(a -> a.annotationType() == ResponseBody.class);
   }
 
   public Object invoke(Object obj, Object[] args) throws Exception {
-    method.setAccessible(true);
     return method.invoke(obj, args);
   }
 
@@ -113,7 +113,7 @@ public class Handler {
     return responseBody;
   }
 
-  private static List<MethodParameter> buildParameter(Handler handler) {
+  private List<MethodParameter> buildParameter(Handler handler) {
     Method method = handler.getMethod();
     Parameter[] parameters = method.getParameters();
     if (parameters.length <= 0) {
@@ -142,23 +142,19 @@ public class Handler {
       boolean standard = TypeUtils.isAssignable(rawClass, FullHttpRequest.class) || TypeUtils
           .isAssignable(rawClass, FullHttpResponse.class);
 
-      Adapter<?> filler = NullAdapter.NULL;
+      Adapter<?> filler;
       if (standard) {
         filler = createStandard(type);
       } else {
         // validate annotations
-        if (count <= 0) {
-          throw new IllegalArgumentException(
-              String.format("%s-%s missing required Annotation%n", method.getName(), p.getName())
-          );
-        } else if (1 < count) {
+        if (1 < count) {
           throw new IllegalArgumentException(
               String
                   .format("%s-%s too much  required Annotation%n", method.getName(), p.getName())
           );
         }
-
-        filler = createConverter(anno, type, p);
+        filler = anno == null ? RequestParamAdapter.of(p.getName(), type)
+            : createConverter(anno, type, p);
       }
 
       result.add(new MethodParameter(p.getType(), filler));
@@ -169,18 +165,28 @@ public class Handler {
   private static Adapter<Object> createConverter(Annotation a, Type type, Parameter p) {
     // create convertToSimpleType
     Class<? extends Annotation> aType = a.annotationType();
-    String pName = p.getName();
+    String name = getName(a, p.getName());
     if (PathVariable.class.isAssignableFrom(aType)) {
-      return PathParamAdapter.of((PathVariable) a, pName, (Class<?>) type);
+      return PathParamAdapter.of(name, type);
     } else if (RequestParam.class.isAssignableFrom(aType)) {
-      return RequestParamAdapter.of((RequestParam) a, pName, type);
+      return RequestParamAdapter.of(name, type);
     } else if (RequestHeader.class.isAssignableFrom(aType)) {
-      return HeaderAdapter.of((RequestHeader) a, pName, (Class<?>) type);
+      return HeaderAdapter.of(name, type);
     } else if (CookieParam.class.isAssignableFrom(aType)) {
-      return CookieAdapter.of((CookieParam) a, pName, (Class<?>) type);
+      return CookieAdapter.of(name, type);
     } else {
       return NullAdapter.NULL;
     }
+  }
+
+  private static String getName(Annotation a, String def) {
+    String name = null;
+    try {
+      name = (String) ClassUtils.getPublicMethod(a.annotationType(), "value")
+          .invoke(a, EMPTY_OBJECT_ARRAY);
+    } catch (Exception ignore) {
+    }
+    return StringUtils.isBlank(name) ? def : name;
   }
 
   private static Adapter<?> createStandard(Type type) {

@@ -1,22 +1,26 @@
 package jp.spring.web.handler.impl;
 
+import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.util.CharsetUtil;
 import java.lang.reflect.Array;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import jp.spring.util.TypeUtil;
-import jp.spring.web.annotation.RequestParam;
+import jp.spring.web.MIME;
 import jp.spring.web.handler.Adapter;
 import jp.spring.web.handler.HandlerContext;
 import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.TypeUtils;
 
@@ -33,23 +37,23 @@ public class RequestParamAdapter implements Adapter<Object> {
   /** 参数名 */
   private String name;
 
-  private RequestParamAdapter(RequestParam q, String name, Type type) {
+  private RequestParamAdapter(String name, Type type) {
     this.type = type;
-    this.name = StringUtils.isBlank(q.value()) ? name : q.value();
+    this.name = name;
   }
 
-  public static RequestParamAdapter of(RequestParam q, String name, Type type) {
-    return new RequestParamAdapter(q, name, type);
+  public static RequestParamAdapter of(String name, Type type) {
+    return new RequestParamAdapter(name, type);
   }
 
   @Override
   public Object apply(HandlerContext args) {
-    Map<String, List<String>> params = args.getParams();
+    Map<String, List<String>> params = parseParams(args);
     List<String> values = params.getOrDefault(name, Collections.emptyList());
 
     Class<?> rawType = TypeUtil.getRawClass(type);
     if (TypeUtil.isSimpleType(rawType)) {
-      return TypeUtil.convertToSimpleType(values.isEmpty() ? "" : values.get(0), rawType);
+      return TypeUtil.convertToSimpleType(values.isEmpty() ? null : values.get(0), rawType);
     } else if (rawType.isArray()) {
       return convertToArray(values, rawType);
     } else {
@@ -57,10 +61,28 @@ public class RequestParamAdapter implements Adapter<Object> {
     }
   }
 
+  private Map<String, List<String>> parseParams(HandlerContext context) {
+    FullHttpRequest request = context.getRequest();
+
+    Map<String, List<String>> parameters = new HashMap<>(
+        new QueryStringDecoder(request.uri()).parameters());
+
+    String type = request.headers().get(HttpHeaderNames.CONTENT_TYPE, "").toLowerCase();
+    MIME format = MIME.parse(type);
+
+    if (format == MIME.APPLICATION_X_WWW_FORM_URLENCODED) {
+      String s = request.content().toString(CharsetUtil.UTF_8);
+      parameters.putAll(new QueryStringDecoder(s, false).parameters());
+    }
+
+    context.setParams(parameters);
+    return parameters;
+  }
+
 
   private Object convertToArray(List<String> strings, Class<?> array) {
     Class<?> compType = (Class<?>) TypeUtils.getArrayComponentType(array);
-    if (!TypeUtil.isSimpleType(compType)) {
+    if (!TypeUtil.isSimpleType(compType) || strings.isEmpty()) {
       return null;
     }
 
@@ -91,7 +113,7 @@ public class RequestParamAdapter implements Adapter<Object> {
     }
 
     Class<?> elementType = TypeUtil.getRawClass(parType.getActualTypeArguments()[0]);
-    if (!TypeUtil.isSimpleType(elementType)) {
+    if (!TypeUtil.isSimpleType(elementType) || strings.isEmpty()) {
       return null;
     }
 
