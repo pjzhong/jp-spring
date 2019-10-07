@@ -9,7 +9,7 @@ import jp.spring.web.annotation.RequestMapping;
 import jp.spring.web.annotation.RequestParam;
 
 @Controller
-public class HelloController {
+public class RequestParamController {
 
   @RequestMapping
   public String str(@RequestParam String hello) {
@@ -38,6 +38,11 @@ public class HelloController {
   @RequestMapping
   public Set<Double> setParams(Set<Double> doubles) {
     return doubles;
+  }
+
+  @RequestMapping
+  public Object objectNull(Object o) {
+    return o;
   }
 
 }
