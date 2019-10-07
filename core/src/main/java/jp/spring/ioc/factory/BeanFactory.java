@@ -5,7 +5,7 @@ package jp.spring.ioc.factory;
  *
  * @since 2019年06月08日 21:25:10
  **/
-public interface BeanFactory {
+public interface BeanFactory extends AutoCloseable {
 
   /**
    * Return an instance, which may be shared or independent, of the specified bean.
