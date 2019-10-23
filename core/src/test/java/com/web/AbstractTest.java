@@ -30,7 +30,7 @@ import jp.spring.web.handler.Router.Route;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-public abstract class AbstractParamTest {
+public abstract class AbstractTest {
 
   ApplicationContext context;
   HandlerMapping mapping;
@@ -72,6 +72,10 @@ public abstract class AbstractParamTest {
 
   HandlerContext createHandlerContext(String uri) {
     return createHandlerContext(uri, new EmptyByteBuf(ByteBufAllocator.DEFAULT));
+  }
+
+  HandlerContext createHandlerContext(String uri, Map<String, Object> params) {
+    return createHandlerContext(uri, paramBuf(params));
   }
 
   HandlerContext createHandlerContext(String uri, ByteBuf buf) {

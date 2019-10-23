@@ -29,8 +29,10 @@ public class HandlerContext {
   private Map<String, List<String>> params;
   /** Cookies */
   private Map<String, HttpCookie> cookies;
-  /** Handler所需参数 */
+  /** 处理参数 */
   private Object[] args;
+  /** 处理结果 */
+  private Object result;
 
   private HandlerContext(Route<Handler> routed,
       FullHttpRequest request, FullHttpResponse response) {
@@ -100,12 +102,19 @@ public class HandlerContext {
     return route.getTarget();
   }
 
+  public Object getResult() {
+    return result;
+  }
+
+  public HandlerContext setResult(Object result) {
+    this.result = result;
+    return this;
+  }
 
   public Object invoke(BeanFactory factory) throws Exception {
     LinkedList<Interceptor> intercepts = new LinkedList<>();
     Handler handler = route.getTarget();
 
-    Object result = null;
     boolean go = true;
     for (InterceptMatch match : handler.getInterceptors()) {
       Interceptor i = match.getInterceptor(factory);

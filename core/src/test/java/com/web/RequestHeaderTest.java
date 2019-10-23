@@ -11,7 +11,7 @@ import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerContext;
 import org.junit.jupiter.api.Test;
 
-class RequestHeaderTest extends AbstractParamTest {
+class RequestHeaderTest extends AbstractTest {
 
   @Test
   void standardHeaderTest() throws Exception {

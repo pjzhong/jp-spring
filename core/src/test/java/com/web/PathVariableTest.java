@@ -10,7 +10,7 @@ import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerContext;
 import org.junit.jupiter.api.Test;
 
-class PathVariableTest extends AbstractParamTest {
+class PathVariableTest extends AbstractTest {
 
   @Test
   void classLevelTest() throws Exception {

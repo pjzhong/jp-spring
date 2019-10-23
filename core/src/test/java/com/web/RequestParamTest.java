@@ -19,7 +19,7 @@ import jp.spring.web.handler.Handler;
 import jp.spring.web.handler.HandlerContext;
 import org.junit.jupiter.api.Test;
 
-public class RequestParamTest extends AbstractParamTest {
+public class RequestParamTest extends AbstractTest {
 
 
   @Test
