@@ -4,14 +4,18 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.FullHttpResponse;
 import java.net.HttpCookie;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import jp.spring.ioc.factory.BeanFactory;
 import jp.spring.web.handler.Router.Route;
+import jp.spring.web.interceptor.InterceptMatch;
+import jp.spring.web.interceptor.Interceptor;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 /**
- * Simple Handler Args Resolver
+ * A HandlerContext
  */
 public class HandlerContext {
 
@@ -35,7 +39,7 @@ public class HandlerContext {
     this.response = response;
   }
 
-  public static HandlerContext resolve(Route<Handler> routed,
+  public static HandlerContext build(Route<Handler> routed,
       FullHttpRequest request, FullHttpResponse response) {
     return new HandlerContext(routed, request, response);
   }
@@ -95,4 +99,30 @@ public class HandlerContext {
   public Handler getHandler() {
     return route.getTarget();
   }
+
+
+  public Object invoke(BeanFactory factory) throws Exception {
+    LinkedList<Interceptor> intercepts = new LinkedList<>();
+    Handler handler = route.getTarget();
+
+    Object result = null;
+    boolean go = true;
+    for (InterceptMatch match : handler.getInterceptors()) {
+      Interceptor i = match.getInterceptor(factory);
+      go = i.beforeHandle(this);
+      intercepts.addFirst(i);
+      if (!go) {
+        break;
+      }
+    }
+
+    if (go) {
+      Object o = factory.getBean(handler.getBeanName());
+      result = handler.invoke(o, getArgs());
+      intercepts.forEach(i -> i.afterHandle(this));
+    }
+
+    return result;
+  }
+
 }

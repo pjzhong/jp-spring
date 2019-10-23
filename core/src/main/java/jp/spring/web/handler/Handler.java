@@ -2,9 +2,7 @@ package jp.spring.web.handler;
 
 import java.lang.reflect.Method;
 import java.util.List;
-import java.util.stream.Stream;
 import jp.spring.web.annotation.RequestMethod;
-import jp.spring.web.annotation.ResponseBody;
 import jp.spring.web.interceptor.InterceptMatch;
 
 /**
@@ -17,7 +15,6 @@ public class Handler {
   private final Method method;
   private final String url;
   private final RequestMethod[] httpMethods;
-  private final boolean responseBody;
   private List<MethodParameter> parameters = null;
   private List<InterceptMatch> interceptors;
 
@@ -28,8 +25,6 @@ public class Handler {
     this.beanName = beanName;
     this.interceptors = interceptors;
     this.httpMethods = httpMethods;
-    this.responseBody = Stream.of(method.getAnnotations())
-        .anyMatch(a -> a.annotationType() == ResponseBody.class);
   }
 
   public Object invoke(Object obj, Object[] args) throws Exception {
@@ -50,7 +45,7 @@ public class Handler {
 
   public List<MethodParameter> getParameters() {
     if (parameters == null) {
-        parameters = HandlerParamBuilder.build(this);
+      parameters = HandlerParamBuilder.build(this);
     }
 
     return parameters;
@@ -71,10 +66,6 @@ public class Handler {
       }
     }
     return false;
-  }
-
-  public boolean isResponseBody() {
-    return responseBody;
   }
 
   @Override

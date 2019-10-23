@@ -85,7 +85,7 @@ public abstract class AbstractParamTest {
 
     Route<Handler> route = mapping.getHandler(request);
 
-    return HandlerContext.resolve(route, request, response);
+    return HandlerContext.build(route, request, response);
   }
 
 }

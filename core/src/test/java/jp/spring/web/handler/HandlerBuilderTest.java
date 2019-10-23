@@ -129,12 +129,10 @@ public class HandlerBuilderTest {
 
     Handler world = handlers.get("/world");
     assertNotNull(world);
-    assertFalse(world.isResponseBody());
     assertThat(new RequestMethod[]{GET}, Is.is(world.getHttpMethods()));
 
     Handler hello = handlers.get("/hello");
     assertNotNull(hello);
-    assertTrue(hello.isResponseBody());
     assertThat(new RequestMethod[]{GET}, Is.is(hello.getHttpMethods()));
   }
 
