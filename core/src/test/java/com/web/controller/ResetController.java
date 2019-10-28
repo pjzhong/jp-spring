@@ -16,8 +16,11 @@ public class ResetController {
   }
 
   @RequestMapping("{number}")
-  public Float number(@PathVariable Float number) {
-    return number;
+  public Map<String, Object> number(@PathVariable Float number, String name) {
+    Map<String, Object> map = new HashMap<>();
+    map.put("number", number);
+    map.put("name", name);
+    return map;
   }
 
   @RequestMapping("/{one}/{two}")

@@ -36,8 +36,9 @@ class HandlerBuilder {
         for (String base : clazzUrl) {
           for (String url : urls) {
             String absolutePath = Router.cleanPath(String.format("/%s/%s", base, url));
-            List<InterceptMatch> matches = intercepts.stream().filter(p -> p.match(url)).collect(
-                Collectors.toList());
+            List<InterceptMatch> matches = intercepts.stream().filter(p -> p.match(absolutePath))
+                .collect(
+                    Collectors.toList());
             handlers.add(new Handler(absolutePath, httpMethods, m, name, matches));
           }
         }

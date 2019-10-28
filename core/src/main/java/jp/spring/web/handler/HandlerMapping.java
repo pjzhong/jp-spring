@@ -179,15 +179,15 @@ public class HandlerMapping {
    */
   private static List<InterceptMatch> buildInterceptMatch(DefaultBeanFactory beanFactory) {
     List<String> interceptorNames = beanFactory.getNamesByAnnotation(Intercept.class);
-    List<InterceptMatch> interceptors = Collections.emptyList();
-    if (ObjectUtils.isNotEmpty(interceptorNames)) {
-      interceptors = new ArrayList<>();
-      InterceptMatch interceptMatch;
-      for (String name : interceptorNames) {
-        String expression = beanFactory.getType(name).getAnnotation(Intercept.class).value();
-        interceptMatch = new InterceptMatch(name, expression);
-        interceptors.add(interceptMatch);
-      }
+    if (ObjectUtils.isEmpty(interceptorNames)) {
+      return Collections.emptyList();
+    }
+
+    List<InterceptMatch> interceptors = new ArrayList<>();
+    for (String name : interceptorNames) {
+      String expression = beanFactory.getType(name).getAnnotation(Intercept.class).value();
+      InterceptMatch interceptMatch = new InterceptMatch(name, expression);
+      interceptors.add(interceptMatch);
     }
 
     return interceptors;

@@ -1,11 +1,10 @@
 package com.jp.interceptors;
 
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.HttpResponseStatus;
 import jp.spring.web.annotation.Intercept;
-import jp.spring.web.handler.Handler;
+import jp.spring.web.handler.HandlerContext;
 import jp.spring.web.interceptor.Interceptor;
 
 /**
@@ -15,15 +14,14 @@ import jp.spring.web.interceptor.Interceptor;
 public class EndInterceptor implements Interceptor {
 
   @Override
-  public boolean beforeHandle(FullHttpRequest request, FullHttpResponse response,
-      Handler handler) {
-    response.setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE);
+  public boolean beforeHandle(HandlerContext context) {
+    context.getResponse().setStatus(HttpResponseStatus.SERVICE_UNAVAILABLE);
     return false;
   }
 
   @Override
-  public void afterHandle(FullHttpRequest request, FullHttpResponse response,
-      Handler handle) {
+  public void afterHandle(HandlerContext context) {
+    HttpRequest request = context.getRequest();
     System.out.println("Handler has handled " + request.uri());
   }
 }

@@ -11,8 +11,9 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class InterceptMatch {
 
+  /** 匹配模式 */
   private Pattern pattern;
-
+  /** 拦截器名字 */
   private String name;
 
   public InterceptMatch(String name, String expression) {

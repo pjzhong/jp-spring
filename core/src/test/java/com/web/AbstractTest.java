@@ -30,7 +30,7 @@ import jp.spring.web.handler.Router.Route;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
-public abstract class AbstractParamTest {
+public abstract class AbstractTest {
 
   ApplicationContext context;
   HandlerMapping mapping;
@@ -74,6 +74,10 @@ public abstract class AbstractParamTest {
     return createHandlerContext(uri, new EmptyByteBuf(ByteBufAllocator.DEFAULT));
   }
 
+  HandlerContext createHandlerContext(String uri, Map<String, Object> params) {
+    return createHandlerContext(uri, paramBuf(params));
+  }
+
   HandlerContext createHandlerContext(String uri, ByteBuf buf) {
     DefaultHttpHeaders headers = new DefaultHttpHeaders();
     headers.add(HttpHeaderNames.CONTENT_TYPE, MIME.APPLICATION_X_WWW_FORM_URLENCODED.type());
@@ -85,7 +89,7 @@ public abstract class AbstractParamTest {
 
     Route<Handler> route = mapping.getHandler(request);
 
-    return HandlerContext.resolve(route, request, response);
+    return HandlerContext.build(route, request, response);
   }
 
 }
