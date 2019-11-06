@@ -8,8 +8,7 @@
   </parent>
   <modelVersion>4.0.0</modelVersion>
   <artifactId>webtest</artifactId>
-  <packaging>war</packaging>
-  <name>webtest</name>
+  <name>web</name>
   <url>http://maven.apache.org</url>
 
   <dependencies>
@@ -25,6 +24,90 @@
     </dependency>
   </dependencies>
   <build>
-    <finalName>webtest</finalName>
+    <finalName>web</finalName>
+
+    <plugins>
+      <!--resource process -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <version>2.6</version>
+        <configuration>
+          <encoding>UTF-8</encoding>
+        </configuration>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>validate</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${basedir}/target/release</outputDirectory>
+              <resources>
+                <!-- 过滤config并输出到target目录下 -->
+                <resource>
+                  <directory>src/main/resources</directory>
+                  <filtering>true</filtering>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- dependency -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>copy-dependencies</goal>
+            </goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/release/lib</outputDirectory>
+              <overWriteReleases>false</overWriteReleases>
+              <overWriteSnapshots>false</overWriteSnapshots>
+              <overWriteIfNewer>true</overWriteIfNewer>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>2.5</version>
+        <configuration>
+          <excludes>
+            <exclude>**/*.jar</exclude>
+            <exclude>**/*.properties</exclude>
+            <exclude>**/*.sql</exclude>
+            <exclude>**/*.xml</exclude>
+            <exclude>**/*.css</exclude>
+            <exclude>**/*.js</exclude>
+            <exclude>**/*.jsp</exclude>
+            <exclude>**/*.tld</exclude>
+            <exclude>**/*.txt</exclude>
+            <exclude>**/*.groovy</exclude>
+          </excludes>
+          <outputDirectory>${project.build.directory}/release</outputDirectory>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <classpathPrefix>lib/</classpathPrefix>
+              <mainClass>com.jp.HttpServer</mainClass>
+            </manifest>
+            <manifestEntries>
+              <Class-Path>.</Class-Path>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
   </build>
+
+
 </project>
