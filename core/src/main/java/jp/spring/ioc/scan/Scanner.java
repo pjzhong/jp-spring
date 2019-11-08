@@ -34,7 +34,10 @@ public class Scanner {
     Map<ClassRelativePath, ClasspathElement> elementMap = new ConcurrentHashMap<>();
     relativePaths.stream()
         .filter(c -> c.isValidClasspathElement(config))
-        .forEach(c -> elementMap.computeIfAbsent(c, this::newClassElement));
+        .forEach(c -> {
+          logger.debug("valid element {}", c);
+          elementMap.computeIfAbsent(c, this::newClassElement);
+        });
     logger.info("scanned done cost:{}", System.currentTimeMillis() - scannedStart);
 
     // start to read the files found in the runtime context
@@ -84,6 +87,7 @@ public class Scanner {
 
     final List<ClassRelativePath> relativePaths = new ArrayList<>();
     for (String classElementStr : elementStrs) {
+      logger.debug("found element {}", classElementStr);
       relativePaths.add(new ClassRelativePath(classElementStr));
     }
 

@@ -32,6 +32,7 @@ class ClassPathElementDir implements ClasspathElement {
     File dir = classRelativePath.asFile();
 
     files = new HashMap<>();
+    logger.info("scan {}", dir.getName());
     scanDir(dir, (dir.getPath().length() + 1), new HashSet<>());
   }
 
@@ -69,8 +70,10 @@ class ClassPathElementDir implements ClasspathElement {
         String relativePath = dirRelatePath + file.getName();
         if (ScanUtils.isClassFile(relativePath)) {
           this.files.put(relativePath, file);
+          logger.debug("found {}", relativePath);
         } else if (ScanUtils.isPropertiesFile(relativePath)) {
           this.properties.put(relativePath, file);
+          logger.debug("found properties {}", relativePath);
         }
       }
     }

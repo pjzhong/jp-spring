@@ -58,12 +58,16 @@ public final class HttpService {
   }
 
   public synchronized void stop() {
-    bootstrap.config().group().shutdownGracefully().awaitUninterruptibly();
-    bootstrap.config().childGroup().shutdownGracefully().awaitUninterruptibly();
-    bootstrap = null;
+    if (bootstrap != null) {
+      bootstrap.config().group().shutdownGracefully().awaitUninterruptibly();
+      bootstrap.config().childGroup().shutdownGracefully().awaitUninterruptibly();
+      bootstrap = null;
+    }
 
-    context.close();
-    context = null;
+    if (context != null) {
+      context.close();
+      context = null;
+    }
     LOG.info("{} shutdown success", name);
   }
 

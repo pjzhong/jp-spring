@@ -2,6 +2,7 @@ package jp.spring;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import jp.spring.ioc.annotation.Component;
@@ -101,23 +102,59 @@ public class DefaultApplicationContext implements ApplicationContext {
    */
   private ScanConfig scanConfig() {
     List<String> white = new ArrayList<>();
-    Set<ClassLoader> loaders = new HashSet<>();
 
     String core = DefaultApplicationContext.class.getPackage().getName();
     white.add(core);
-    loaders.add(DefaultApplicationContext.class.getClassLoader());
-    // Get the caller
+
+    // Get the caller packager
     CallerResolver resolver = new CallerResolver();
     Class<?>[] callStack = resolver.getClassContext();
     for (Class<?> c : callStack) {
       String pkg = c.getPackage().getName();
       if (!pkg.startsWith(core)) {
         white.add(pkg);
-        loaders.add(c.getClassLoader());
         break;
       }
     }
+
+    Set<ClassLoader> loaders = findEvnClassLoader(resolver);
     return new ScanConfig(white, loaders);
+  }
+
+  private Set<ClassLoader> findEvnClassLoader(CallerResolver resolver) {
+    Set<ClassLoader> uniqueClassLoaders = new LinkedHashSet<>();
+
+    final ClassLoader systemClassLoader = ClassLoader.getSystemClassLoader();
+    if (systemClassLoader != null) {
+      uniqueClassLoaders.add(systemClassLoader);
+    }
+
+    //get callerClassLoader
+    final Class<?>[] callStack = resolver.getClassContext();
+    final String fcsPkgPrefix = DefaultApplicationContext.class.getPackage().getName() + ".";
+    for (int fcsIdx = callStack.length - 1; fcsIdx >= 0; --fcsIdx) {
+      System.out.println(callStack[fcsIdx].getName());
+      if (!callStack[fcsIdx].getName().startsWith(fcsPkgPrefix)) {
+        uniqueClassLoaders.add(callStack[fcsIdx].getClassLoader());
+        break;
+      }
+    }
+
+    //Get context classloader
+    final ClassLoader threadClassLoader = Thread.currentThread().getContextClassLoader();
+    if (threadClassLoader != null) {
+      uniqueClassLoaders.add(threadClassLoader);
+    }
+
+    final Set<ClassLoader> ancestralClassLoaders = new HashSet<>(uniqueClassLoaders.size());
+    for (ClassLoader classLoader : uniqueClassLoaders) {
+      for (ClassLoader cl = classLoader.getParent(); cl != null; cl = cl.getParent()) {
+        ancestralClassLoaders.add(cl);
+      }
+    }
+
+    uniqueClassLoaders.removeAll(ancestralClassLoaders);
+    return uniqueClassLoaders;
   }
 
   private static final class CallerResolver extends SecurityManager {

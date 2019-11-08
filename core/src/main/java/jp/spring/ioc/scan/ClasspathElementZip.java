@@ -38,6 +38,7 @@ public class ClasspathElementZip implements ClasspathElement {
 
     try {
       zipFile = new ZipFile(classFile);
+      logger.info("scan {}", zipFile.getName());
       scanZipFile(zipFile);
     } catch (IOException e) {
       logger.error("scanning {} error", classRelativePath);
@@ -68,8 +69,10 @@ public class ClasspathElementZip implements ClasspathElement {
       if (matchStatus) {
         if (ScanUtils.isClassFile(relativePath)) {
           zips.put(relativePath, zipEntry);
+          logger.debug("found {}", relativePath);
         } else if (ScanUtils.isPropertiesFile(relativePath)) {
           properties.put(relativePath, zipEntry);
+          logger.debug("found properties {}", relativePath);
         }
       }
     }
