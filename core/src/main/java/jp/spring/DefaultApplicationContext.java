@@ -133,7 +133,6 @@ public class DefaultApplicationContext implements ApplicationContext {
     final Class<?>[] callStack = resolver.getClassContext();
     final String fcsPkgPrefix = DefaultApplicationContext.class.getPackage().getName() + ".";
     for (int fcsIdx = callStack.length - 1; fcsIdx >= 0; --fcsIdx) {
-      System.out.println(callStack[fcsIdx].getName());
       if (!callStack[fcsIdx].getName().startsWith(fcsPkgPrefix)) {
         uniqueClassLoaders.add(callStack[fcsIdx].getClassLoader());
         break;
