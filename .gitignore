@@ -42,5 +42,5 @@ target/
 *.min.css
 
 # Log #
-*.log
 logs/*
+/core/logs/
