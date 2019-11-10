@@ -43,7 +43,6 @@ public abstract class AbstractTest {
 
   @AfterEach
   void afterEach() throws Exception {
-
     context.close();
     context = null;
     mapping = null;

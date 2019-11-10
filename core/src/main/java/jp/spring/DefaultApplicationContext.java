@@ -84,7 +84,7 @@ public class DefaultApplicationContext implements ApplicationContext {
     ClassGraph graph = result.getClassGraph();
 
     Set<ClassInfo> infos = graph.getInfoWithAnnotation(Component.class);
-    logger.info("Found infos:{}", infos);
+    infos.forEach(f -> logger.info("Found info:{}", f));
     BeanDefinitionBuilder builder = new BeanDefinitionBuilder(this, infos);
     Set<BeanDefinition> definitions = builder.build();
     definitions.forEach(beanFactory::registerBeanDefinition);

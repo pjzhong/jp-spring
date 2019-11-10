@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,20 +21,17 @@ import org.slf4j.LoggerFactory;
 /**
  * FastClassPathScanner的ClassElement设计不好，竟然在父类里面提供初始化子类的方法 虽然说不对外公开，但这样读起来真的很容疑惑。 .
  */
-class ClassPathElementDir implements ClasspathElement {
+class ClassPathElementDir implements ClassPathElement {
 
   private static Logger logger = LoggerFactory.getLogger(ClassPathElementDir.class);
+  private final ClassRelativePath path;
   private Map<String, File> files = new HashMap<>();//relativePath , File
   private Map<String, File> properties = new HashMap<>();
   private ScanConfig scanSpecification;
 
   ClassPathElementDir(ClassRelativePath classRelativePath, ScanConfig spec) {
     this.scanSpecification = spec;
-    File dir = classRelativePath.asFile();
-
-    files = new HashMap<>();
-    logger.info("scan {}", dir.getName());
-    scanDir(dir, (dir.getPath().length() + 1), new HashSet<>());
+    this.path = classRelativePath;
   }
 
   private void scanDir(File dir, int ignorePrefixLen,
@@ -80,8 +78,12 @@ class ClassPathElementDir implements ClasspathElement {
   }
 
   @Override
-  public ReadResult read(ClassFileBinaryParser parser) {
+  public ReadResult scan(ClassFileBinaryParser parser) {
     ReadResult result = new ReadResult();
+
+    File dir = path.getFile();
+    logger.info("scan {}", dir.getPath());
+    scanDir(dir, (dir.getPath().length() + 1), new HashSet<>());
 
     //Scan file
     List<ClassData> builders = new ArrayList<>();
@@ -130,5 +132,10 @@ class ClassPathElementDir implements ClasspathElement {
   public void close() {
     files.clear();
     properties.clear();
+  }
+
+  @Override
+  public void open(Deque<ClassRelativePath> elements) {
+
   }
 }

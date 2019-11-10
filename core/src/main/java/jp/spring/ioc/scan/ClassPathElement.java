@@ -1,6 +1,8 @@
 package jp.spring.ioc.scan;
 
 
+import java.util.Deque;
+
 /**
  * A classpath element (a directory or jarfile on the classpath). leave nestedJar alone first
  *
@@ -8,9 +10,11 @@ package jp.spring.ioc.scan;
  *
  * Iterator can iterate through the input of file found in this ClasspathElement
  */
-public interface ClasspathElement extends AutoCloseable {
+public interface ClassPathElement extends AutoCloseable {
 
   void close();
 
-  ReadResult read(ClassFileBinaryParser parser);
+  void open(Deque<ClassRelativePath> elements);
+
+  ReadResult scan(ClassFileBinaryParser parser);
 }

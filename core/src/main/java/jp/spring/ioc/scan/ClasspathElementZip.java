@@ -5,14 +5,17 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
-import java.util.zip.ZipFile;
 import jp.spring.ioc.scan.beans.ClassData;
+import jp.spring.ioc.scan.utils.FastPathResolver;
 import jp.spring.ioc.scan.utils.ScanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,35 +23,25 @@ import org.slf4j.LoggerFactory;
 /**
  * Created by Administrator on 11/5/2017.
  */
-public class ClasspathElementZip implements ClasspathElement {
+public class ClasspathElementZip implements ClassPathElement {
 
   private Logger logger = LoggerFactory.getLogger(ClasspathElementZip.class);
 
   private ScanConfig scanSpecification;
-  private ZipFile zipFile;
+  private ClassRelativePath path;
+  private JarFile jar;
   private Map<String, ZipEntry> zips = new HashMap<>();
   private Map<String, ZipEntry> properties = new HashMap<>();
 
-  ClasspathElementZip(ClassRelativePath classRelativePath, ScanConfig spec) {
+  ClasspathElementZip(ClassRelativePath classRelativePath, ScanConfig spec) throws IOException {
     this.scanSpecification = spec;
-    final File classFile = classRelativePath.asFile();
-    if (classFile == null || !classFile.canRead()) {
-      return;
-    }
-
-    try {
-      zipFile = new ZipFile(classFile);
-      logger.info("scan {}", zipFile.getName());
-      scanZipFile(zipFile);
-    } catch (IOException e) {
-      logger.error("scanning {} error", classRelativePath);
-    }
+    this.path = classRelativePath;
   }
 
-  private void scanZipFile(ZipFile zipFile) {
+  private void scanZipFile(JarFile jar) {
     String prevPath = null;
     boolean prevMatch = false;
-    for (Enumeration<? extends ZipEntry> entries = zipFile.entries(); entries.hasMoreElements(); ) {
+    for (Enumeration<? extends ZipEntry> entries = jar.entries(); entries.hasMoreElements(); ) {
       final ZipEntry zipEntry = entries.nextElement();
       if (zipEntry.isDirectory()) {
         continue;
@@ -79,14 +72,21 @@ public class ClasspathElementZip implements ClasspathElement {
   }
 
 
-  public ReadResult read(ClassFileBinaryParser parser) {
+  public ReadResult scan(ClassFileBinaryParser parser) {
     ReadResult res = new ReadResult();
+
+    try {
+      logger.debug("scan {}", path);
+      scanZipFile(jar);
+    } catch (Exception e) {
+      logger.debug("scanning {} error, msg {}", path, e.getMessage());
+    }
 
     // class
     List<ClassData> builders = new ArrayList<>();
     for (ZipEntry ze : zips.values()) {
       try {
-        InputStream stream = zipFile.getInputStream(ze);
+        InputStream stream = jar.getInputStream(ze);
         ClassData b = parser.parse(stream);
         if (b != null) {
           builders.add(b);
@@ -104,7 +104,7 @@ public class ClasspathElementZip implements ClasspathElement {
     for (ZipEntry p : this.properties.values()) {
       InputStream stream = null;
       try {
-        stream = new BufferedInputStream(zipFile.getInputStream(p));
+        stream = new BufferedInputStream(jar.getInputStream(p));
         pro.load(stream);
         stream.close();
       } catch (Exception e) {
@@ -125,14 +125,60 @@ public class ClasspathElementZip implements ClasspathElement {
 
   public void close() {
     try {
-      if (zipFile != null) {
-        zipFile.close();
+      if (jar != null) {
+        jar.close();
       }
       zips.clear();
       properties.clear();
     } catch (Exception e) {
-      logger.error("close {}, error:{}", zipFile, e);
+      logger.error("close {}, error:{}", jar, e);
     }
   }
 
+  @Override
+  public void open(Deque<ClassRelativePath> queue) {
+    try {
+      jar = new JarFile(path.getFile());
+
+      String classPath = jar.getManifest().getMainAttributes().getValue("Class-Path");
+      if (classPath != null) {
+        File f = path.getFile();
+        String[] blocks = classPath.split(" ");
+        logger.info("found Class-Path in {}", path);
+        String parentPath = f.getCanonicalPath();
+        int lastIdxOf = parentPath.lastIndexOf(File.separator);
+        parentPath = 0 < lastIdxOf ? parentPath.substring(0, lastIdxOf)
+            : parentPath;
+        for (String s : blocks) {
+          String path = FastPathResolver.normalizePath(parentPath + "/" + s);
+          try {
+            ClassRelativePath relativePath = new ClassRelativePath(path);
+            queue.addLast(relativePath);
+            logger.info("new element {}", s);
+          } catch (Exception e) {
+            logger.error("error on create relative path of {} msg-{}", path, e.getMessage());
+          }
+        }
+      }
+    } catch (IOException e) {
+      logger.error("open manifest of" + path + " error", e);
+    }
+  }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+    ClasspathElementZip that = (ClasspathElementZip) o;
+    return Objects.equals(path, that.path);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(path);
+  }
 }

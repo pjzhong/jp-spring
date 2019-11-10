@@ -14,15 +14,20 @@ public class ClassRelativePath {
   private final String relativePath;
   private final boolean isJar;
   /** The canonical file for the relative path. */
-  private File file;
+  private final File file;
 
   public ClassRelativePath(String relativePath) {
     this.relativePath = relativePath;
     this.isJar = this.relativePath.contains("!") || ScanUtils.isJar(this.relativePath);
+    File f = new File(relativePath);
+    try {
+      file = f.getCanonicalFile();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
-
-  public boolean isValidClasspathElement(ScanConfig spec) {
+  public boolean blockJdk(ScanConfig spec) {
     final String path = relativePath;
     if (StringUtils.isBlank(path) || !exists()) {
       return false;
@@ -33,34 +38,28 @@ public class ClassRelativePath {
   }
 
   public boolean exists() {
-    return asFile().exists();
+    return getFile().exists();
   }
 
   public boolean isDirectory() {
-    return asFile().isDirectory();
+    return getFile().isDirectory();
   }
 
   public boolean isFile() {
-    return asFile().isFile();
+    return getFile().isFile();
   }
 
+  public boolean isJar() {
+    return isJar;
+  }
 
-  public File asFile() {
-    if (file == null) {
-      file = new File(relativePath);
-      try {
-        file = file.getCanonicalFile();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
+  public File getFile() {
     return file;
   }
 
   @Override
   public String toString() {
-    return "ClassRelativePath{" + "relativePath='" + relativePath + '\''
-        + '}';
+    return getFile().getPath();
   }
 
   @Override
@@ -72,11 +71,11 @@ public class ClassRelativePath {
       return false;
     }
     ClassRelativePath that = (ClassRelativePath) o;
-    return Objects.equals(relativePath, that.relativePath);
+    return Objects.equals(file, that.file);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(relativePath);
+    return Objects.hash(file);
   }
 }
