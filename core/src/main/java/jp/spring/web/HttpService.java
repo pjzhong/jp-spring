@@ -118,7 +118,6 @@ public final class HttpService {
 
 
     private final String name;
-    private String host;
     private int bossThreadSize;
     private int workerThreadSize;
     private int port;
@@ -131,11 +130,6 @@ public final class HttpService {
       workerThreadSize = DEFAULT_WORKER_THREAD_POOL_SIZE;
       port = DEFAULT_PORT;
       chunkLimit = DEFAULT_HTTP_CHUNK_LIMIT;
-    }
-
-    public Builder setHost(String host) {
-      this.host = host;
-      return this;
     }
 
     public Builder setBossThreadSize(int bossThreadSize) {
@@ -155,7 +149,7 @@ public final class HttpService {
 
     public HttpService build() {
       InetSocketAddress bindAddress;
-      bindAddress = new InetSocketAddress(host == null ? "localhost" : host, port);
+      bindAddress = new InetSocketAddress(port);
 
       HttpService httpService = new HttpService(name);
       httpService.bindAddress = bindAddress;
