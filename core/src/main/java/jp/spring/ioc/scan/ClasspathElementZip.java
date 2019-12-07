@@ -147,8 +147,9 @@ public class ClasspathElementZip implements ClassPathElement {
         logger.info("found Class-Path in {}", path);
         String parentPath = f.getCanonicalPath();
         int lastIdxOf = parentPath.lastIndexOf(File.separator);
-        parentPath = 0 < lastIdxOf ? parentPath.substring(0, lastIdxOf)
+        parentPath = 0 <= lastIdxOf ? parentPath.substring(0, lastIdxOf)
             : parentPath;
+        logger.info("parent-path {}", parentPath);
         for (String s : blocks) {
           String path = FastPathResolver.normalizePath(parentPath + "/" + s);
           try {
